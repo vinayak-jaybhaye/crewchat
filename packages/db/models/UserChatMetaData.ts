@@ -16,7 +16,7 @@ const UserChatMetaDataSchema = new Schema<IUserChatMetaData>(
         lastSeen: { type: Date, default: null },
         muted: { type: Boolean, default: false },
         pinned: { type: Boolean, default: false },
-        lastDeleted: { type: Date, default: Date.now }
+        lastDeleted: { type: Date, default: () => new Date() }
     },
     { timestamps: true }
 );
