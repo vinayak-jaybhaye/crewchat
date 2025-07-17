@@ -1,0 +1,12 @@
+{
+  "name": "crewchat",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"pnpm --filter @crewchat/web dev\" \"pnpm --filter @crewchat/socket-server dev\"",
+    "dev:web": "pnpm --filter @crewchat/web dev",
+    "dev:socket": "pnpm --filter @crewchat/socket-server dev"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

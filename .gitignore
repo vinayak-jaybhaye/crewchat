@@ -1,0 +1,51 @@
+# Node modules
+node_modules/
+**/node_modules/
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Env files
+.env
+.env.*.local
+
+# Next.js build
+.next/
+out/
+
+# VSCode
+.vscode/
+
+# Mac system files
+.DS_Store
+
+# Optional build folders
+dist/
+build/
+
+# Typescript
+*.tsbuildinfo
+
+# Docker
+docker-compose.override.yml
+
+# OS generated files
+Thumbs.db
+ehthumbs.db
+
+# pnpm
+.pnpm-debug.log
+.pnpm-store/
+
+# IDE specific
+.idea/
+*.swp
+
+# Output
+coverage/
+*.local
