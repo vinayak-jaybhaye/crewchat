@@ -3,5 +3,15 @@
     "version": "1.0.0",
     "main": "index.ts",
     "type": "module",
-    "dependencies": {}
+    "private": true,
+    "exports": {
+        ".": "./index.ts"
+    },
+    "dependencies": {
+        "mongoose": "^8.16.4"
+    },
+    "devDependencies": {
+        "@types/mongoose": "^5.11.97",
+        "typescript": "^5.8.3"
+    }
 }
