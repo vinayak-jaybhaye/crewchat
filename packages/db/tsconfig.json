@@ -2,7 +2,10 @@
     "compilerOptions": {
         "target": "ES2020",
         "module": "ESNext",
-        "moduleResolution": "Node",
+        "moduleResolution": "node",
+        "types": [
+            "node"
+        ],
         "declaration": true,
         "outDir": "dist",
         "strict": true,
@@ -10,6 +13,6 @@
         "forceConsistentCasingInFileNames": true
     },
     "include": [
-        "index.ts"
+        "**/*.ts"
     ]
 }
