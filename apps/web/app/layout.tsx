@@ -19,6 +19,8 @@ export const metadata: Metadata = {
   description: "Made to make chatting easy and direct",
 };
 
+import Navbar from "@/components/Navbar";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -29,7 +31,9 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased theme-light`}
       >
-        <Providers>{children}</Providers>
+        <Providers>
+          <Navbar />
+          {children}</Providers>
       </body>
     </html>
   );

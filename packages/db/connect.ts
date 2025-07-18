@@ -35,11 +35,11 @@ export async function connectToDB(MONGODB_URI: string) {
         console.log('🔌 Creating new DB connection');
         cached.promise = mongoose.connect(MONGODB_URI, {
             dbName: 'crewchat',
-            serverSelectionTimeoutMS: 15000,  // Increased timeout
-            socketTimeoutMS: 30000,          // Add socket timeout
-            maxPoolSize: 10,                 // Add connection pooling
+            serverSelectionTimeoutMS: 15000,
+            socketTimeoutMS: 30000,
+            maxPoolSize: 10,
             minPoolSize: 2,
-            heartbeatFrequencyMS: 10000,     // Send heartbeat every 10s
+            heartbeatFrequencyMS: 10000,
         }).then((conn) => {
             console.log("✅ MongoDB connected");
             return conn;

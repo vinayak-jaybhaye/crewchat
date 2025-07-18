@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "@crewchat/db": "workspace:^",
+    "@crewchat/utils": "workspace:^",
+    "@crewchat/types": "workspace:^",
     "axios": "^1.10.0",
     "next": "15.4.1",
     "next-auth": "^4.24.11",

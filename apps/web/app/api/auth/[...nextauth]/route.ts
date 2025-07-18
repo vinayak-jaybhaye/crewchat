@@ -1,9 +1,9 @@
 import NextAuth, { type NextAuthOptions, DefaultSession } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
-import { connectToDB, User as UserModel } from "@crewchat/db";
+import { User as UserModel } from "@crewchat/db";
 import type { User, Session } from "next-auth";
+import { connectToDB } from "@/lib/db";
 
-const MONGODB_URI = process.env.MONGODB_URI!;
 const NEXTAUTH_SECRET = process.env.NEXTAUTH_SECRET!;
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID!;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET!;
@@ -11,7 +11,7 @@ const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET!;
 declare module "next-auth" {
     interface Session {
         user: {
-            id: string;
+            _id: string;
             email: string;
             username: string;
             avatarUrl?: string;
@@ -21,7 +21,7 @@ declare module "next-auth" {
 }
 
 
-if (!MONGODB_URI || !NEXTAUTH_SECRET || !GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
+if (!NEXTAUTH_SECRET || !GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
     throw new Error("Missing environment variables for NextAuth configuration");
 }
 
@@ -34,7 +34,7 @@ export const authOptions: NextAuthOptions = {
     ],
     callbacks: {
         async signIn({ user }: { user: User }) {
-            await connectToDB(MONGODB_URI);
+            await connectToDB();
 
             const existingUser = await UserModel.findOne({ email: user.email });
 
@@ -73,7 +73,7 @@ export const authOptions: NextAuthOptions = {
             const dbUser = await UserModel.findOne({ email: session.user.email });
 
             if (dbUser) {
-                session.user.id = dbUser._id.toString();
+                session.user._id = dbUser._id.toString();
                 session.user.username = dbUser.username;
                 session.user.avatarUrl = dbUser.avatarUrl || session.user.image;
             }

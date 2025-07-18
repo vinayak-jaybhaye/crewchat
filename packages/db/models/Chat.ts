@@ -5,8 +5,10 @@ export interface IChat extends Document {
     members: mongoose.Types.ObjectId[];
     createdBy?: mongoose.Types.ObjectId;
     isGroup: boolean;
-    iconUrl?: string;
+    imageUrl?: string;
     description?: string;
+    createdAt?: Date;
+    updatedAt?: Date;
 }
 
 const ChatSchema = new Schema<IChat>(
@@ -15,7 +17,7 @@ const ChatSchema = new Schema<IChat>(
         members: [{ type: Schema.Types.ObjectId, ref: "User" }],
         createdBy: { type: Schema.Types.ObjectId, ref: "User" },
         isGroup: { type: Boolean, default: false },
-        iconUrl: { type: String },
+        imageUrl: { type: String },
         description: { type: String },
     },
     {

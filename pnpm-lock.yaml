@@ -54,6 +54,12 @@ importers:
       '@crewchat/db':
         specifier: workspace:^
         version: link:../../packages/db
+      '@crewchat/types':
+        specifier: workspace:^
+        version: link:../../packages/types
+      '@crewchat/utils':
+        specifier: workspace:^
+        version: link:../../packages/utils
       axios:
         specifier: ^1.10.0
         version: 1.10.0
@@ -124,6 +130,8 @@ importers:
         version: 5.8.3
 
   packages/types: {}
+
+  packages/utils: {}
 
 packages:
 

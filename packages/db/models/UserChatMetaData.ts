@@ -7,6 +7,7 @@ export interface IUserChatMetaData extends Document {
     muted: boolean;
     pinned: boolean;
     lastDeleted: Date | null;
+
 }
 
 const UserChatMetaDataSchema = new Schema<IUserChatMetaData>(

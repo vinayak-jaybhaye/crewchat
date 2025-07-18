@@ -2,15 +2,17 @@ import mongoose, { Schema, Document } from "mongoose";
 
 export interface IMessage extends Document {
     senderId: mongoose.Types.ObjectId;
-    groupId: mongoose.Types.ObjectId;
+    chatId: mongoose.Types.ObjectId;
     content: string;
     type: "text" | "image" | "video" | "file";
+    createdAt?: Date;
+    updatedAt?: Date;
 }
 
 const MessageSchema = new Schema<IMessage>(
     {
         senderId: { type: Schema.Types.ObjectId, ref: "User", required: true },
-        groupId: { type: Schema.Types.ObjectId, ref: "Chat", required: true },
+        chatId: { type: Schema.Types.ObjectId, ref: "Chat", required: true },
         content: { type: String, required: true, maxlength: 1000 },
         type: { type: String, enum: ["text", "image", "video", "file"], default: "text" },
     },
