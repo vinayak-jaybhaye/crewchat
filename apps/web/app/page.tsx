@@ -1,24 +1,16 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
+import LoginButton from '@/components/LoginButton';
+import UserProfile from '@/components/UserProfile';
 
-export default function CheckConnection() {
-  const [status, setStatus] = useState<string | null>(null);
-
-  useEffect(() => {
-    async function checkConnection() {
-      const res = await fetch('/api/check-connection');
-      const data = await res.json();
-      setStatus(data.message);
-    }
-
-    checkConnection();
-  }, []);
+export default function Home() {
 
   return (
-    <div>
-      <h1>Check DB Connection</h1>
-      <p>{status ?? "Checking..."}</p>
-    </div>
+    <main className="flex flex-col items-center justify-center min-h-screen p-4">
+      if
+      <h1 className="text-3xl font-bold mb-6">Welcome to CrewChat</h1>
+      <LoginButton />
+      <UserProfile />
+    </main>
   );
 }

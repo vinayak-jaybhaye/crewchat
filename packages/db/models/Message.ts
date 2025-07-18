@@ -1,7 +1,7 @@
 import mongoose, { Schema, Document } from "mongoose";
 
 export interface IMessage extends Document {
-    sender: mongoose.Types.ObjectId;
+    senderId: mongoose.Types.ObjectId;
     groupId: mongoose.Types.ObjectId;
     content: string;
     type: "text" | "image" | "video" | "file";
@@ -9,7 +9,7 @@ export interface IMessage extends Document {
 
 const MessageSchema = new Schema<IMessage>(
     {
-        sender: { type: Schema.Types.ObjectId, ref: "User", required: true },
+        senderId: { type: Schema.Types.ObjectId, ref: "User", required: true },
         groupId: { type: Schema.Types.ObjectId, ref: "Chat", required: true },
         content: { type: String, required: true, maxlength: 1000 },
         type: { type: String, enum: ["text", "image", "video", "file"], default: "text" },

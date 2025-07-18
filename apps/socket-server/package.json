@@ -4,6 +4,7 @@
     "dev": "ts-node-dev src/index.ts"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
     "@types/node": "^20.19.8",
     "ts-node-dev": "^2.0.0",
