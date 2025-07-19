@@ -3,7 +3,6 @@ import { ChatDTO } from "@crewchat/types";
 import { toUserDTO } from "./toUserDTO";
 
 export function toChatDTO(chat: IChat): ChatDTO {
-    console.log("Converting chat to DTO:", chat);
     return {
         _id: chat._id.toString(),
         name: chat.name || null,

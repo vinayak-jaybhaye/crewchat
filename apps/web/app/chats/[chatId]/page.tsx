@@ -2,13 +2,13 @@
 
 import { useEffect, useState, useRef, use } from "react";
 import { useSocket } from "@/hooks/useSocket";
-import { IMessage } from "@crewchat/db";
+import { MessageDTO } from "@crewchat/types";
 import { useSession } from "next-auth/react";
 import { fetchOldMessages, storeMessage } from "@/app/actions/MessageActions";
 
 export default function ChatRoom({ params }: { params: Promise<{ chatId: string }> }) {
   const { chatId } = use(params);
-  const [messages, setMessages] = useState<IMessage[]>([]);
+  const [messages, setMessages] = useState<MessageDTO[]>([]);
   const [input, setInput] = useState("");
   const { sendMessage, onMessage } = useSocket(chatId);
   const session = useSession();
@@ -42,9 +42,9 @@ export default function ChatRoom({ params }: { params: Promise<{ chatId: string 
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!input.trim() || session.status !== "authenticated" || !session.data?.user?.id) return;
+    if (!input.trim() || session.status !== "authenticated" || !session.data?.user?._id) return;
 
-    storeMessage(chatId, session.data.user.id, input)
+    storeMessage(chatId, session.data.user._id, input)
       .then((savedMessage) => {
         sendMessage(savedMessage);
         setInput("");
@@ -55,7 +55,7 @@ export default function ChatRoom({ params }: { params: Promise<{ chatId: string 
   };
 
   const isCurrentUser = (senderId: string) => {
-    return senderId === session.data?.user?.id;
+    return senderId === session.data?.user?._id;
   };
 
   const formatTime = (date: Date) => {

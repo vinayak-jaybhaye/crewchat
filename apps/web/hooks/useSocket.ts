@@ -1,6 +1,6 @@
 import { useEffect, useRef, useCallback } from "react";
 import { io, Socket } from "socket.io-client";
-import { IMessage } from "@crewchat/db";
+import { MessageDTO } from "@crewchat/types";
 
 export function useSocket(chatId: string) {
   const socketRef = useRef<Socket | null>(null);
@@ -21,11 +21,11 @@ export function useSocket(chatId: string) {
     };
   }, [chatId]);
 
-  const sendMessage = useCallback((message: IMessage) => {
+  const sendMessage = useCallback((message: MessageDTO) => {
     socketRef.current?.emit("send-message", { chatId, message });
   }, [chatId]);
 
-  const onMessage = useCallback((callback: (msg: IMessage) => void) => {
+  const onMessage = useCallback((callback: (msg: MessageDTO) => void) => {
     const socket = socketRef.current;
     if (!socket) return;
 

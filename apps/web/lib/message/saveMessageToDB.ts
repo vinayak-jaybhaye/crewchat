@@ -1,13 +1,14 @@
-import { IMessage, Message } from "@crewchat/db";
+import { Message } from "@crewchat/db";
 import { toMessageDTO } from "@crewchat/utils/converters";
 import { connectToDB } from "@/lib/db";
 import mongoose from "mongoose";
+import { MessageDTO } from "@crewchat/types";
 
 export async function saveMessageToDB(
     chatId: string,
     senderId: string,
     content: string
-): Promise<IMessage> {
+): Promise<MessageDTO> {
     try {
         await connectToDB();
 

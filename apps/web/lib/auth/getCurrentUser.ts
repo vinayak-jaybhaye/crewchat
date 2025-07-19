@@ -8,5 +8,6 @@ export async function getCurrentUser(): Promise<Session["user"] | null> {
     if (!session || !session.user) {
         return null;
     }
-    return toUserDTO(session.user);
-}
+    const user = toUserDTO(session.user);
+    return user;
+}   
