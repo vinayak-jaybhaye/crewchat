@@ -1,9 +1,10 @@
 import { connectToDB } from "@/lib/db";
 import { UserChatMetaData, Chat } from "@crewchat/db";
+import { ChatDTO } from "@crewchat/types";
 import { toChatDTO } from "@crewchat/utils/converters";
 
 
-export async function getChats(userId: string) {
+export async function getChats(userId: string): Promise<ChatDTO[]> {
     await connectToDB();
 
     // 1. Fetch metadata where current user is part of chat

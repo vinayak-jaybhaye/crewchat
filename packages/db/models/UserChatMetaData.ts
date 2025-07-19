@@ -7,7 +7,9 @@ export interface IUserChatMetaData extends Document {
     muted: boolean;
     pinned: boolean;
     lastDeleted: Date | null;
-
+    isAdmin?: boolean;
+    createdAt?: Date;
+    updatedAt?: Date;
 }
 
 const UserChatMetaDataSchema = new Schema<IUserChatMetaData>(
@@ -17,6 +19,7 @@ const UserChatMetaDataSchema = new Schema<IUserChatMetaData>(
         lastSeen: { type: Date, default: null },
         muted: { type: Boolean, default: false },
         pinned: { type: Boolean, default: false },
+        isAdmin: { type: Boolean, default: false },
         lastDeleted: { type: Date, default: () => new Date() }
     },
     { timestamps: true }

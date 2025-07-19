@@ -1,4 +1,4 @@
-import { Message } from "@crewchat/db";
+import { Message, User } from "@crewchat/db";
 import { toMessageDTO } from "@crewchat/utils/converters";
 import { connectToDB } from "@/lib/db";
 import mongoose from "mongoose";
@@ -17,6 +17,9 @@ export async function saveMessageToDB(
             senderId: new mongoose.Types.ObjectId(senderId),
             content,
         });
+
+        // put user object in the message instead of senderId
+        newMessage.senderId = await User.findById(senderId)
 
         return toMessageDTO(newMessage);
 

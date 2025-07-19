@@ -1,12 +1,18 @@
 'use client';
 
-import React from 'react'
+import React, { use, useEffect } from 'react'
 import { useSession, signIn, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 
 function Navbar() {
     const { data: session, status } = useSession();
     const router = useRouter();
+
+    useEffect(() => {
+        if (status === 'unauthenticated') {
+            router.replace('/login');
+        }
+    }, [status]);
 
     return (
         <nav style={{ padding: '1rem', borderBottom: '1px solid #eee', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -24,7 +30,7 @@ function Navbar() {
                     </div>
 
                 ) : (
-                    <button onClick={() => signIn()}>Sign in</button>
+                    <button onClick={() => signIn("google")}>Sign in</button>
                 )}
             </div>
         </nav>

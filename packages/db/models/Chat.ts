@@ -3,7 +3,7 @@ import mongoose, { Schema, Document } from "mongoose";
 export interface IChat extends Document {
     name?: string;
     members: mongoose.Types.ObjectId[];
-    createdBy?: mongoose.Types.ObjectId;
+    owner?: mongoose.Types.ObjectId;
     isGroup: boolean;
     imageUrl?: string;
     description?: string;
@@ -15,7 +15,7 @@ const ChatSchema = new Schema<IChat>(
     {
         name: { type: String },
         members: [{ type: Schema.Types.ObjectId, ref: "User" }],
-        createdBy: { type: Schema.Types.ObjectId, ref: "User" },
+        owner: { type: Schema.Types.ObjectId, ref: "User" },
         isGroup: { type: Boolean, default: false },
         imageUrl: { type: String },
         description: { type: String },

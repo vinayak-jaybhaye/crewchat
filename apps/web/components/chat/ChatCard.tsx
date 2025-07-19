@@ -1,9 +1,9 @@
 'use client'
 
 import { useRouter } from 'next/navigation';
-import { IChat } from '@crewchat/db';
+import { ChatDTO } from '@crewchat/types';
 
-function ChatCard({ chat }: { chat: IChat }) {
+function ChatCard({ chat }: { chat: ChatDTO }) {
     const router = useRouter();
 
     const handleChatClick = () => {

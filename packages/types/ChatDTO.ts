@@ -1,9 +1,11 @@
+import { UserDTO } from "./UserDTO";
+
 export interface ChatDTO {
     _id: string;
     isGroup: boolean;
-    members: string[];
+    members: string[] | UserDTO[];
     name?: string;
-    createdBy?: string;
+    owner?: string;
     imageUrl?: string;
     description?: string;
     createdAt?: string;

@@ -8,7 +8,7 @@ export function toChatDTO(chat: IChat): ChatDTO {
         name: chat.name || null,
         description: chat.description || null,
         isGroup: chat.isGroup,
-        createdBy: chat.createdBy?.toString() || null,
+        owner: chat.owner?.toString() || null,
         members: chat.members.map(handleMembers),
         imageUrl: chat.imageUrl || null,
         createdAt: chat.createdAt.toISOString() || undefined,

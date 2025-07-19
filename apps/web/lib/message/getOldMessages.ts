@@ -1,15 +1,17 @@
-import { IMessage, Message } from "@crewchat/db";
+import { Message } from "@crewchat/db";
 import { toMessageDTO } from "@crewchat/utils/converters";
 import { MessageDTO } from "@crewchat/types";
 
 import { connectToDB } from "@/lib/db";
 import mongoose from "mongoose";
 
-export async function getOldMessages(
-    chatId: string,
-    timestamp: string, // ISO string or date
-    limit: number = 20
-): Promise<MessageDTO[]> {
+export type GetOldMessagesParams = {
+    chatId: string;
+    timestamp: string; // ISO string or date
+    limit?: number;
+}
+
+export async function getOldMessages({ chatId, timestamp, limit = 20 }: GetOldMessagesParams): Promise<MessageDTO[]> {
     await connectToDB();
 
     const messages = await Message.find({
@@ -18,9 +20,10 @@ export async function getOldMessages(
     })
         .sort({ createdAt: -1 }) // newest to oldest
         .limit(limit)
+        .populate("senderId", "username email avatarUrl")
         .lean();
 
 
-    return messages.map(toMessageDTO); // Convert to DTO format
+    return messages.map(toMessageDTO).reverse();
 }
 

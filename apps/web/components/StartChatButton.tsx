@@ -2,25 +2,36 @@
 
 import { useRouter } from "next/navigation";
 import { startChat } from "@/app/actions/ChatActions";
+import { useTransition } from "react";
 
-interface StartChatButtonProps {
-    currentUserId: string;
-    otherUserId: string;
-}
-
-export function StartChatButton({ currentUserId, otherUserId }: StartChatButtonProps) {
+export function StartChatButton({ userId }: { userId: string }) {
     const router = useRouter();
+    const [isPending, startTransition] = useTransition();
 
-    async function handleStartChat() {
-        const chat = await startChat(currentUserId, otherUserId);
-        if (!chat) {
-            console.error("Failed to start chat");
-            return;
-        }
-        router.push("/chats/" + chat._id);
-    }
+    const handleStartChat = () => {
+        startTransition(async () => {
+            try {
+                console.log("Starting chat with userId:", userId);
+                const chat = await startChat(userId);
+                console.log("Chat started:", chat);
+                if (!chat) {
+                    console.error("Failed to start chat");
+                    return;
+                }
+                router.push("/chats/" + chat._id);
+            } catch (error) {
+                console.error("Error starting chat:", error);
+            }
+        });
+    };
 
     return (
-        <button onClick={handleStartChat}>Start Chatting</button>
+        <button
+            onClick={handleStartChat}
+            disabled={isPending}
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-all"
+        >
+            {isPending ? "Starting..." : "Start Chatting"}
+        </button>
     );
 }

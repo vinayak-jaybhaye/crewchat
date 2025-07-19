@@ -1,5 +1,6 @@
-import ChatCard from "@/components/ChatCard";
+import ChatCard from "@/components/chat/ChatCard";
 import { fetchUserChats } from "@/app/actions/ChatActions";
+import { CreateGroup } from "@/components/chat";
 
 export default async function Chats() {
     const chats = await fetchUserChats();
@@ -9,6 +10,7 @@ export default async function Chats() {
             {chats.map((chat) => (
                 <ChatCard key={chat._id} chat={chat} />
             ))}
+            <CreateGroup />
         </div>
     );
 }

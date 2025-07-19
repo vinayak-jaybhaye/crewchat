@@ -1,38 +1,24 @@
-import { connectToDB } from "@/lib/db";
-import { IUser, User } from "@crewchat/db";
-import { UserDTO } from "@crewchat/types";
-import { toUserDTO } from "@crewchat/utils/converters";
 import { StartChatButton } from "@/components/StartChatButton";
-import { getCurrentUser } from "@/lib/auth/getCurrentUser";
+import { getUserById } from "@/app/actions/UserActions";
 
 
 export default async function UserProfile({ params }: { params: { userid: string } }) {
-    const { userid } = params;
+    const { userid } = await params;
+    const user = await getUserById(userid);
 
-    await connectToDB();
-    const user = await User.findById(userid).lean();
+    console.log("User Profile:", user);
 
     if (!user) {
-        return <div>No user found.</div>;
-    }
-
-    const userDTO: UserDTO = toUserDTO(user)
-
-    // Get current user id from session 
-    const currentUser = await getCurrentUser();
-    const currentUserId = currentUser ? currentUser._id : null;
-
-    if (!currentUserId) {
-        return <div>Please log in to view user profiles.</div>;
+        return <div>User not found</div>;
     }
 
     return (
         <div>
-            <h1>{userDTO.username}</h1>
-            <p>User ID: {userDTO._id.toString()}</p>
-            <p>Email: {userDTO.email}</p>
+            <h1>{user.username}</h1>
+            <p>User ID: {user._id.toString()}</p>
+            <p>Email: {user.email}</p>
 
-            <StartChatButton currentUserId={currentUserId} otherUserId={userid} />
+            <StartChatButton userId={userid} />
         </div>
     );
 }

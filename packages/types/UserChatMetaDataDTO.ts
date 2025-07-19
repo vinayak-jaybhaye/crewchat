@@ -8,4 +8,5 @@ export interface UserChatMetaDataDTO {
     lastDeleted?: string;
     createdAt?: string;
     updatedAt?: string;
+    isAdmin?: boolean;
 }

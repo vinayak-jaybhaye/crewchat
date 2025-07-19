@@ -2,16 +2,27 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { UserDTO } from "@crewchat/types";
 
 
-export default function UserSearchBox() {
+interface UserSearchBoxProps {
+    setSelectedUsers: (users: UserDTO[]) => void;
+    selectedUsers: UserDTO[];
+}
+
+export default function UserSearchBox({ selectedUsers, setSelectedUsers }: UserSearchBoxProps) {
     const [query, setQuery] = useState("");
-    const [suggestions, setSuggestions] = useState([]);
+    const [suggestions, setSuggestions] = useState<UserDTO[]>([]);
     const router = useRouter();
 
-    const handleUserClick = (userId: string) => {
-        // Navigate to the user profile page
-        router.push(`/user/${userId}`);
+    const handleUserClick = (user: UserDTO) => {
+        if (selectedUsers.some(u => u._id === user._id)) {
+            // If user is already selected, remove them
+            setSelectedUsers(selectedUsers.filter(u => u._id !== user._id));
+        } else {
+            // Otherwise, add them to the selection
+            setSelectedUsers([...selectedUsers, user]);
+        }
     }
 
     useEffect(() => {
@@ -26,13 +37,10 @@ export default function UserSearchBox() {
                 .then((data) => {
                     setSuggestions(data.users);
                 });
-            console.log(suggestions)
         }, 300); // debounce
 
         return () => clearTimeout(timeout);
     }, [query]);
-
-
 
     return (
         <div className="p-4">
@@ -43,8 +51,12 @@ export default function UserSearchBox() {
                 className="border p-2 rounded w-full"
             />
             <ul className="mt-2">
-                {suggestions.map((user: any) => (
-                    <li key={user._id} className="p-2 border-b" onClick={() => handleUserClick(user._id)} >
+                {suggestions.map((user) => (
+                    <li
+                        key={user._id}
+                        className={`p-2 cursor-pointer ${selectedUsers.some(u => u._id === user._id) ? 'bg-gray-200' : 'hover:bg-gray-100'}`}
+                        onClick={() => handleUserClick(user)}
+                    >
                         {user.username}
                     </li>
                 ))}
