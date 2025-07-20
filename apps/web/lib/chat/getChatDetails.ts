@@ -32,8 +32,8 @@ export async function getChatDetails(chatId: string, userId: string): Promise<Ch
         // Format chat before DTO
         if (!chat.isGroup) {
             const otherUser = chat.members.find((member: any) => member._id.toString() !== userId);
-            chat.name = otherUser?.username || "Direct Chat";
-            chat.imageUrl = otherUser?.avatarUrl || "";
+            chat.name = otherUser?.username || chat.members[0]?.username || "Private Chat";
+            chat.imageUrl = otherUser?.avatarUrl || chat.members[0]?.avatarUrl || "";
         } else {
             chat.name = chat.name || "Group Chat";
             chat.imageUrl = chat.imageUrl || "";

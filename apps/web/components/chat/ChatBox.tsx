@@ -103,18 +103,21 @@ function ChatBox({ userId, chatId }: ChatBoxProps) {
 
     return (
         <div>
-            <header className="bg-white shadow-sm py-4 px-6 flex items-center border-b" 
+            <header className="bg-white shadow-sm py-4 px-6 flex items-center border-b"
                 onClick={() => router.push(`/chats/${chatId}/about`)}
             >
-                <div>                   
-                    <Image
+
+                {(chatData?.imageUrl || chatData?.isGroup) ? <Image
                     src={chatData?.imageUrl || '/group-default.png'}
-                    alt={chatData?.name || 'Chat'}
+                    alt={chatData.name || 'Chat'}
                     width={48}
                     height={48}
-                    className="w-12 h-12 rounded-full object-cover border bg-gray-400"
-                    />
-                </div>
+                    className="w-12 h-12 rounded-full object-cover border bg-gray-300"
+                /> : (
+                    <div className="w-12 h-12 rounded-full bg-gray-400 text-white flex items-center justify-center text-lg font-semibold border">
+                        {chatData?.name?.[0]?.toUpperCase() || "?"}
+                    </div>
+                )}
                 <div className="ml-4">
                     <h1 className="font-semibold text-gray-800">{chatData?.name || "Chat"}</h1>
                     <p className="text-xs text-gray-500 flex items-center">

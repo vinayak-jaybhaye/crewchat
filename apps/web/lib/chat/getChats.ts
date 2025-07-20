@@ -28,8 +28,8 @@ export async function getChats(userId: string): Promise<ChatDTO[]> {
 
         if (!isGroup && chat.members) {
             const otherUser = chat.members.find((member: any) => member._id.toString() !== userId);
-            name = otherUser?.username || "Direct Chat";
-            imageUrl = otherUser?.avatarUrl || "";
+            name = otherUser?.username || chat.members[0]?.username || "Private Chat";
+            imageUrl = otherUser?.avatarUrl || chat.members[0]?.avatarUrl || "";
         }
         chat.name = name;
         chat.imageUrl = imageUrl;

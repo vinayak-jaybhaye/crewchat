@@ -26,10 +26,10 @@ export async function createChat(user1Id: string, user2Id: string) {
         members: [userId1, userId2],
     });
 
-    const meta = await UserChatMetaData.create([
-        { userId: userId1, chatId: newChat._id, lastRead: new Date() },
-        { userId: userId2, chatId: newChat._id, lastRead: new Date() },
-    ]);
+    const metaDocs = [{ userId: userId1, chatId: newChat._id, lastRead: new Date() }];
+    // if user created the chat with themselves, we don't need to create a metadata document for the second user
+    if (user1Id !== user2Id) metaDocs.push({ userId: userId2, chatId: newChat._id, lastRead: new Date() });
+    const meta = await UserChatMetaData.create(metaDocs);
 
     return toChatDTO(newChat);
 }
