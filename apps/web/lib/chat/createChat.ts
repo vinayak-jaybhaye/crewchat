@@ -3,11 +3,11 @@ import { Chat, UserChatMetaData } from '@crewchat/db';
 import { toChatDTO } from "@crewchat/utils/converters";
 import mongoose from "mongoose";
 
-export async function createChat(userId: string, chatId: string) {
+export async function createChat(user1Id: string, user2Id: string) {
     await connectToDB();
 
-    const userId1 = new mongoose.Types.ObjectId(userId);
-    const userId2 = new mongoose.Types.ObjectId(chatId);
+    const userId1 = new mongoose.Types.ObjectId(user1Id);
+    const userId2 = new mongoose.Types.ObjectId(user2Id);
 
     // Check if a chat already exists between these two users
     const existingChat = await Chat.findOne({

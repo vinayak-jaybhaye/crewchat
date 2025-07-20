@@ -7,6 +7,9 @@ import { UserChatMetaData, Chat } from "@crewchat/db";
 
 export async function createGroupChat(groupName: string, description?: string) {
     try {
+        if( !groupName || groupName.trim() === "") {
+            throw new Error("Group name is required");
+        }
         connectToDB();
         const currentUser = await getCurrentUser();
         if (!currentUser) {
@@ -16,7 +19,7 @@ export async function createGroupChat(groupName: string, description?: string) {
         const groupChatParams = {
             name: groupName,
             description: description,
-            owner: currentUser._id.toString(),
+            owner: currentUser._id,
         };
 
         const chat = await CGC(groupChatParams);

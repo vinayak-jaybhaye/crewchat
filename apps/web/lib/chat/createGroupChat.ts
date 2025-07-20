@@ -1,5 +1,5 @@
 import { ChatDTO } from "@crewchat/types";
-import { Chat, UserChatMetaData } from "@crewchat/db";
+import { Chat, UserChatMetaData, User } from "@crewchat/db";
 import { connectToDB } from "@/lib/db";
 import mongoose from "mongoose";
 import { toChatDTO } from "@crewchat/utils/converters";
@@ -14,6 +14,12 @@ export type createGroupChatParams = {
 export async function createGroupChat(group: createGroupChatParams): Promise<ChatDTO> {
     try {
         await connectToDB();
+        // check if user exists
+        const ownerId = new mongoose.Types.ObjectId(group.owner);
+        const ownerExists = await User.exists({ userId: ownerId });
+        if (!ownerExists) {
+            throw new Error("Owner does not exist");
+        }
         const chatData = {
             name: group.name,
             members: [new mongoose.Types.ObjectId(group.owner)],
