@@ -1,4 +1,5 @@
 import NextAuth, { type NextAuthOptions, DefaultSession } from "next-auth";
+import type { JWT } from "next-auth/jwt";
 import GoogleProvider from "next-auth/providers/google";
 import { User as UserModel } from "@crewchat/db";
 import type { User, Session } from "next-auth";
@@ -7,19 +8,6 @@ import { connectToDB } from "@/lib/db";
 const NEXTAUTH_SECRET = process.env.NEXTAUTH_SECRET!;
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID!;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET!;
-
-declare module "next-auth" {
-    interface Session {
-        user: {
-            _id: string;
-            email: string;
-            username: string;
-            avatarUrl?: string;
-            image?: string;
-        } & DefaultSession["user"];
-    }
-}
-
 
 if (!NEXTAUTH_SECRET || !GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
     throw new Error("Missing environment variables for NextAuth configuration");
@@ -33,9 +21,18 @@ export const authOptions: NextAuthOptions = {
         }),
     ],
     callbacks: {
-        async signIn({ user }: { user: User }) {
-            await connectToDB();
+        // Provider returns a user object 
+        // user object is accessible in singIn and jwt callbacks
 
+
+        // Inside signIn , access user object, do any custom logic and return true or false
+        // If true, user is signed in, if false, sign in is aborted
+        async signIn({ user }: { user: User }) {
+            if (!user.email) {
+                console.error("Sign-in attempt without email");
+                return false;
+            }
+            await connectToDB();
             const existingUser = await UserModel.findOne({ email: user.email });
 
             if (!existingUser) {
@@ -62,22 +59,50 @@ export const authOptions: NextAuthOptions = {
                     email: user.email,
                     avatarUrl: user.image,
                 });
+            } else {
+                // Update existing user with latest info
+                if (user.image && user.image !== existingUser.avatarUrl) {
+                    existingUser.avatarUrl = user.image;
+                    await existingUser.save();
+                }
             }
 
             return true;
         },
 
-        async session({ session }: { session: Session }) {
-            if (!session.user?.email) return session;
+        // In jwt callback arguments are token , user, account, profile, isNewUser
+        // user, account, isNewUser are only available on initial sign in
+        // on subsequent requests, only token is available
 
-            const dbUser = await UserModel.findOne({ email: session.user.email });
+        async jwt({ token, user }: { token: JWT; user?: User }): Promise<JWT> {
+            if (user) {
+                // If user is defined, it means this is the initial sign-in
+                // We can add user information to the token
+                await connectToDB();
+                const existingUser = await UserModel.findOne({ email: user.email });
 
-            if (dbUser) {
-                session.user._id = dbUser._id.toString();
-                session.user.username = dbUser.username;
-                session.user.avatarUrl = dbUser.avatarUrl || session.user.image;
+                if (!existingUser) {
+                    console.error("User not found in database during JWT callback");
+                    return token;
+                }
+
+                // Add user information to the token
+                token._id = existingUser._id.toString();
+                token.username = existingUser.username;
+                token.avatarUrl = existingUser.avatarUrl;
+                token.email = existingUser.email;
             }
+            return token;
+        },
 
+        async session({ session, token }: { session: Session, token: JWT }): Promise<Session> {
+            // Add user information from the token to the session
+            if (token) {
+                session.user._id = token._id || "";
+                session.user.username = token.username || "";
+                session.user.avatarUrl = token.avatarUrl || "";
+                session.user.email = token.email || "";
+            }
             return session;
         },
     },
