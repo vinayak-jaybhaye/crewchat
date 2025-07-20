@@ -6,6 +6,8 @@ import { useSocket } from "@/hooks/useSocket";
 import { fetchOldMessages, storeMessage } from "@/app/actions/MessageActions";
 import { fetchChatData } from '@/app/actions/ChatActions';
 import { type ChatDetails } from '@/lib/chat/getChatDetails';
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 
 
 type ChatBoxProps = {
@@ -21,6 +23,8 @@ function ChatBox({ userId, chatId }: ChatBoxProps) {
     const [messages, setMessages] = useState<MessageDTO[]>([]);
     const { sendMessage, onMessage } = useSocket(chatId || "");
     const messagesEndRef = useRef<HTMLDivElement>(null);
+
+    const router = useRouter();
 
     useEffect(() => {
         const fetchChat = async () => {
@@ -99,18 +103,23 @@ function ChatBox({ userId, chatId }: ChatBoxProps) {
 
     return (
         <div>
-            <header className="bg-white shadow-sm py-4 px-6 flex items-center border-b">
-                <div className="bg-indigo-500 w-12 h-12 rounded-full flex items-center justify-center text-white font-bold">
-                    {chatId.slice(0, 2).toUpperCase()}
+            <header className="bg-white shadow-sm py-4 px-6 flex items-center border-b" 
+                onClick={() => router.push(`/chats/${chatId}/about`)}
+            >
+                <div>                   
+                    <Image
+                    src={chatData?.imageUrl || '/group-default.png'}
+                    alt={chatData?.name || 'Chat'}
+                    width={48}
+                    height={48}
+                    className="w-12 h-12 rounded-full object-cover border bg-gray-400"
+                    />
                 </div>
                 <div className="ml-4">
                     <h1 className="font-semibold text-gray-800">{chatData?.name || "Chat"}</h1>
                     <p className="text-xs text-gray-500 flex items-center">
                         <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
                         ID: {chatId}
-                    </p>
-                    <p>
-                        {chatData?.name}
                     </p>
                 </div>
             </header>

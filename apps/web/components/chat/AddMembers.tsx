@@ -5,11 +5,8 @@ import { addMembersToGroupChat } from "@/app/actions/GroupChatActions";
 import { SearchUsers } from "@/components/user";
 import { UserDTO } from "@crewchat/types";
 
-type AddMembersProps = {
-    chatId: string;
-};
 
-function AddMembers({ chatId }: AddMembersProps) {
+function AddMembers({ chatId }: { chatId: string }) {
     const [selectedUsers, setSelectedUsers] = useState<UserDTO[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");

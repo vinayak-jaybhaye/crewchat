@@ -96,7 +96,10 @@ function GroupMembers({ chatId }: { chatId: string }) {
                     <div
                         key={member._id}
                         className="relative flex items-center gap-4 p-2 border rounded cursor-pointer"
-                        onClick={(e) => { e.stopPropagation(); toggleOptions(member._id) }}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            if (chatMetaData?.isGroup) toggleOptions(member._id)
+                        }}
                     >
                         <img
                             src={member.avatarUrl || "/default-avatar.png"}

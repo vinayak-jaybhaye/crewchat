@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { ChatDTO } from '@crewchat/types';
+import Image from 'next/image';
 
 function ChatCard({ chat }: { chat: ChatDTO }) {
     const router = useRouter();
@@ -15,10 +16,12 @@ function ChatCard({ chat }: { chat: ChatDTO }) {
             className="flex items-center gap-4 p-4 border-b hover:bg-gray-100 cursor-pointer transition-colors"
             onClick={handleChatClick}
         >
-            <img
-                src={chat.imageUrl != "" ? chat.imageUrl : "/default-chat-image.png"}
-                alt={chat.name}
-                className="w-12 h-12 rounded-full object-cover border"
+            <Image
+                src={chat?.imageUrl || '/group-default.png'}
+                alt={chat.name || 'Chat'}
+                width={48}
+                height={48}
+                className="w-12 h-12 rounded-full object-cover border bg-gray-400"
             />
             <div className="flex-1 min-w-0">
                 <h2 className="text-lg font-semibold truncate">{chat.name}</h2>

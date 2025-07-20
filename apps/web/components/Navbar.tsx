@@ -30,7 +30,7 @@ function Navbar() {
                     </div>
 
                 ) : (
-                    <button onClick={() => signIn("google")}>Sign in</button>
+                    <button onClick={() => signIn()}>Sign in</button>
                 )}
             </div>
         </nav>
