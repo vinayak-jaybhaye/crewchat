@@ -1,18 +1,15 @@
 import { Server, Socket } from "socket.io";
-import { MessageDTO } from '@crewchat/types'
+import { handleChatEvents } from "../handlers/chat";
+import { handleWebRTCEvents } from "../handlers/webrtc";
+import { handleCallEvents } from "../handlers/call";
 
 export function setupSocket(io: Server) {
     io.on("connection", (socket: Socket) => {
         console.log("User connected:", socket.id);
 
-        socket.on("join", (chatId: string) => {
-            socket.join(chatId);
-            console.log(`User ${socket.id} joined chat ${chatId}`);
-        });
-
-        socket.on("send-message", ({ chatId, message }: { chatId: string, message: MessageDTO }) => {
-            io.to(chatId).emit("receive-message", message);
-        });
+        handleChatEvents(io, socket)
+        handleCallEvents(io, socket);
+        handleWebRTCEvents(io, socket);
 
         socket.on("disconnect", () => {
             console.log("User disconnected:", socket.id);
