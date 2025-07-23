@@ -1,8 +1,9 @@
 'use client';
 
-import React, { use, useEffect } from 'react'
+import React, { useEffect } from 'react'
 import { useSession, signIn, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 function Navbar() {
     const { data: session, status } = useSession();
@@ -24,7 +25,13 @@ function Navbar() {
                     <span>Loading...</span>
                 ) : session ? (
                     <div className='flex items-center space-x-4'>
-                        <img src={session.user.avatarUrl || session.user.image || '/default-avatar.png'} alt="Avatar" className="w-10 h-10 rounded-full" />
+                        <Image
+                            src={session.user.avatarUrl || '/group-default.png'}
+                            alt={session.user.username || 'Chat'}
+                            width={48}
+                            height={48}
+                            className="w-12 h-12 rounded-full object-cover border bg-gray-300"
+                        />
                         <span style={{ marginRight: '1rem' }}>{session.user?.name || session.user?.email}</span>
                         <button onClick={() => signOut()}>Sign out</button>
                     </div>

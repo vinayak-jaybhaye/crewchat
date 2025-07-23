@@ -16,7 +16,7 @@ export async function createGroupChat(group: createGroupChatParams): Promise<Cha
         await connectToDB();
         // check if user exists
         const ownerId = new mongoose.Types.ObjectId(group.owner);
-        const ownerExists = await User.exists({ userId: ownerId });
+        const ownerExists = await User.exists({ _id: ownerId });
         if (!ownerExists) {
             throw new Error("Owner does not exist");
         }

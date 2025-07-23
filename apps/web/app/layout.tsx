@@ -20,6 +20,7 @@ export const metadata: Metadata = {
 };
 
 import Navbar from "@/components/Navbar";
+import { CallWindow } from "@/components/call";
 
 export default function RootLayout({
   children,
@@ -33,6 +34,7 @@ export default function RootLayout({
       >
         <Providers>
           <Navbar />
+          <CallWindow />
           {children}
         </Providers>
       </body>

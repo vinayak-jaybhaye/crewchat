@@ -10,9 +10,9 @@
   },
   "dependencies": {
     "@crewchat/db": "workspace:^",
-    "@crewchat/utils": "workspace:^",
     "@crewchat/types": "workspace:^",
-    "axios": "^1.10.0",
+    "@crewchat/utils": "workspace:^",
+    "lucide-react": "^0.525.0",
     "next": "15.4.1",
     "next-auth": "^4.24.11",
     "react": "19.1.0",

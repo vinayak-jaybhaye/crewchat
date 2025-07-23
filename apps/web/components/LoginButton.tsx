@@ -6,7 +6,6 @@ import { useRouter } from 'next/navigation';
 export default function LoginButton() {
     const { data: session } = useSession();
     const router = useRouter();
-    console.log('Session:', session);
 
     return session ? (
         <>
