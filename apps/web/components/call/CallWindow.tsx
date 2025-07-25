@@ -24,9 +24,6 @@ function CallWindow() {
   useEffect(() => {
     if (!socket) return;
 
-    // On mount, get the active call for the user if any
-    socket.emit('get-active-call', { userId: session.data?.user._id });
-
     socket.on("incoming-call", (callData) => {
       console.log("Incoming call:", callData);
       console.log("INCOMING CALL", callData);
@@ -49,7 +46,6 @@ function CallWindow() {
 
   const localUserId = session.data?.user._id;
   const remoteUserId = call?.caller === localUserId ? call?.callee : call?.caller;
-  console.log("Other user in call:", remoteUserId);
 
   return (
     <>
@@ -70,6 +66,7 @@ function CallWindow() {
                   remoteUserId={remoteUserId}
                   localUserId={localUserId}
                   DeleteCall={handleHangUp}
+                  caller = {call.caller}
                 />
               ) : (
                 <AudioCallWindow
@@ -77,6 +74,7 @@ function CallWindow() {
                   remoteUserId={remoteUserId}
                   localUserId={localUserId}
                   DeleteCall={handleHangUp}
+                  caller={call.caller}
                 />
               )
             }

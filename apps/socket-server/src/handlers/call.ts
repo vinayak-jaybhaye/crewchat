@@ -26,7 +26,12 @@ export function handleCallEvents(io: Server, socket: Socket) {
             const callDataRaw = await redis.get(`call:${callId}`);
             if (callDataRaw) {
                 const callData = JSON.parse(callDataRaw);
-                io.to(userId).emit("incoming-call", callData);
+                if (userId === callData.caller) {
+                    io.to(callData.caller).emit("incoming-call", callData);
+                } else {
+                    io.to(callData.caller).emit("reconnect-needed", callData); // notify caller so he can reinitialize signaling
+                    io.to(callData.callee).emit("incoming-call", callData);
+                }
             }
         }
     });
@@ -45,6 +50,10 @@ export function handleCallEvents(io: Server, socket: Socket) {
             await redis.del(`call:${existingCallerCallId}`);
             await redis.del(`user:${caller}:activeCall`);
             await redis.del(`user:${otherUser}:activeCall`);
+
+            // notify other user that call has ended
+            const endPayload = { ...existingCallData, status: "ended", endedBy: caller };
+            io.to(otherUser).emit("incoming-call", endPayload);
         }
 
         const existingCalleeCallId = await redis.get(`user:${other}:activeCall`);

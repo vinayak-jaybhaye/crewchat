@@ -7,12 +7,13 @@ interface AudioCallWindowProps {
     socket: any;
     remoteUserId: string;
     localUserId: string;
-    DeleteCall?: () => void;
+    caller: string;
+    DeleteCall: () => void;
 }
 
-export function AudioCallWindow({ socket, remoteUserId, localUserId, DeleteCall }: AudioCallWindowProps) {
-    const localAudioRef = useRef<HTMLAudioElement | null>(null);
-    const remoteAudioRef = useRef<HTMLAudioElement | null>(null);
+export function AudioCallWindow({ socket, remoteUserId, localUserId, caller, DeleteCall }: AudioCallWindowProps) {
+    const localRef = useRef<HTMLAudioElement | null>(null);
+    const remoteRef = useRef<HTMLAudioElement | null>(null);
 
     if (!socket || !remoteUserId || !localUserId) {
         console.error("AudioCallWindow requires socket, remoteUserId, and localUserId");
@@ -26,44 +27,72 @@ export function AudioCallWindow({ socket, remoteUserId, localUserId, DeleteCall 
         callType: 'audio',
     });
 
-    useEffect(() => {
-        if (localAudioRef.current && localStream) {
-            localAudioRef.current.srcObject = localStream;
-            localAudioRef.current.play().catch((err) => console.warn("Local audio play error:", err));
+    const pauseMediaStreams = () => {
+        if (localRef.current) {
+            localRef.current.pause();
+            localRef.current.srcObject = null;
         }
-
-        if (remoteAudioRef.current && remoteStream) {
-            remoteAudioRef.current.srcObject = remoteStream;
-            remoteAudioRef.current.play().catch((err) => console.warn("Remote audio play error:", err));
+        if (remoteRef.current) {
+            remoteRef.current.pause();
+            remoteRef.current.srcObject = null;
         }
-    }, [localStream, remoteStream]);
-
-    const handleEndCall = () => {
-        if (DeleteCall) {
-            DeleteCall();
-        } else {
-            hangUp();
-        }
-        console.log("Audio call ended by user");
     };
 
     // Start call on mount
     useEffect(() => {
-
         const init = async () => {
             try {
                 await startCall();
             } catch (err) {
-
                 console.error("Error starting call:", err);
-
             }
         };
-
-        init();
+        if (localUserId === caller) init();
 
         return hangUp;
     }, [remoteUserId, localUserId]);
+
+    // useEffect(() => {
+    //     if (localRef.current && localStream) {
+    //         localRef.current.srcObject = localStream;
+    //         localRef.current.play().catch((err) => console.warn("Local audio play error:", err));
+    //     }
+    // }, [localStream]);
+
+    useEffect(() => {
+        if (remoteRef.current && remoteStream) {
+            remoteRef.current.srcObject = remoteStream;
+            remoteRef.current.play().catch((err) => console.warn("Remote audio play error:", err));
+        }
+    }, [remoteStream]);
+
+    // Start call on mount
+    useEffect(() => {
+        const init = async () => {
+            try {
+                await startCall();
+            } catch (err) {
+                console.error("Error starting call:", err);
+            }
+        };
+
+        socket.on('reconnect-needed', () => {
+            if (caller === localUserId) init()
+        })
+        if (localUserId === caller) init();
+
+        return () => {
+            socket.off('reconnect-needed');
+            hangUp();
+            pauseMediaStreams();
+        };
+    }, [remoteUserId, localUserId]);
+
+    const handleEndCall = () => {
+        pauseMediaStreams();
+        hangUp();
+        DeleteCall();
+    };
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-80 text-white flex flex-col items-center justify-center gap-6 z-50">
@@ -73,8 +102,8 @@ export function AudioCallWindow({ socket, remoteUserId, localUserId, DeleteCall 
             </div>
 
             <div className="hidden">
-                <audio ref={localAudioRef} autoPlay muted />
-                <audio ref={remoteAudioRef} autoPlay />
+                <audio ref={localRef} autoPlay muted />
+                <audio ref={remoteRef} autoPlay />
             </div>
 
             <button

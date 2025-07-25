@@ -7,7 +7,8 @@ interface VideoCallWindowProps {
   socket: any;
   remoteUserId: string;
   localUserId: string;
-  DeleteCall?: () => void;
+  caller: string;
+  DeleteCall: () => void;
 }
 
 export function VideoCallWindow({
@@ -15,6 +16,7 @@ export function VideoCallWindow({
   remoteUserId,
   localUserId,
   DeleteCall,
+  caller
 }: VideoCallWindowProps) {
   const localRef = useRef<HTMLVideoElement | null>(null);
   const remoteRef = useRef<HTMLVideoElement | null>(null);
@@ -31,48 +33,73 @@ export function VideoCallWindow({
     startCall,
   } = useWebRTC({ socket, remoteUserId, localUserId, callType: 'video' });
 
-  // Set video streams
-  useEffect(() => {
-    if (localRef.current && localStream && localRef.current.srcObject !== localStream) {
-      localRef.current.srcObject = localStream;
-      localRef.current
-        .play()
-        .catch((err) => console.warn("Local video play error:", err));
-      console.log("LOCAL VIDEO PLAYED");
+  const pauseMediaStreams = () => {
+    if (localRef.current) {
+      localRef.current.pause();
+      localRef.current.srcObject = null;
     }
-
-    if (remoteRef.current && remoteStream && remoteRef.current.srcObject !== remoteStream) {
-      remoteRef.current.srcObject = remoteStream;
-      remoteRef.current
-        .play()
-        .catch((err) => console.warn("Remote video play error:", err));
-      console.log("REMOTE VIDEO PLAYED");
+    if (remoteRef.current) {
+      remoteRef.current.pause();
+      remoteRef.current.srcObject = null;
     }
-  }, [localStream, remoteStream]);
+  }
 
   // Start call on mount
   useEffect(() => {
-
     const init = async () => {
       try {
         await startCall();
       } catch (err) {
-
         console.error("Error starting call:", err);
-
       }
     };
 
-    init();
+    socket.on('reconnect-needed', () => {
+      if (caller === localUserId) init()
+    })
+    if (localUserId === caller) init();
 
-    return hangUp;
+    return () => {
+      socket.off('reconnect-needed');
+      hangUp();
+      pauseMediaStreams();
+    };
   }, [remoteUserId, localUserId]);
+  
+  // Set video streams
+  useEffect(() => {
+    const localVideo = localRef.current;
+
+    if (localVideo && localStream && localVideo.srcObject !== localStream) {
+      localVideo.srcObject = localStream;
+      requestAnimationFrame(() => {
+        localVideo
+          .play()
+          .then(() => console.log("LOCAL VIDEO PLAYED"))
+          .catch((err) => console.warn("Local video play error:", err));
+      });
+    }
+  }, [localStream]);
+
+  useEffect(() => {
+    const remoteVideo = remoteRef.current;
+
+    if (remoteVideo && remoteStream && remoteVideo.srcObject !== remoteStream) {
+      remoteVideo.srcObject = remoteStream;
+      requestAnimationFrame(() => {
+        remoteVideo
+          .play()
+          .then(() => console.log("REMOTE VIDEO PLAYED"))
+          .catch((err) => console.warn("Remote video play error:", err));
+      });
+    }
+  }, [remoteStream])
+
 
   const handleEndCall = () => {
+    pauseMediaStreams();
     hangUp();
-    if (DeleteCall) DeleteCall();
-
-    console.log("Call ended by user");
+    DeleteCall();
   };
 
   return (
