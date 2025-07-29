@@ -26,12 +26,11 @@ export function handleCallEvents(io: Server, socket: Socket) {
             const callDataRaw = await redis.get(`call:${callId}`);
             if (callDataRaw) {
                 const callData = JSON.parse(callDataRaw);
-                if (userId === callData.caller) {
-                    io.to(callData.caller).emit("incoming-call", callData);
-                } else {
-                    io.to(callData.caller).emit("reconnect-needed", callData); // notify caller so he can reinitialize signaling
-                    io.to(callData.callee).emit("incoming-call", callData);
-                }
+                io.to(userId).emit("incoming-call", callData); // notify user about their ongoing call
+
+                // notify other user in the call to reconnect
+                const otherUser = callData.caller === userId ? callData.callee : callData.caller;
+                io.to(otherUser).emit("reconnect-needed");
             }
         }
     });

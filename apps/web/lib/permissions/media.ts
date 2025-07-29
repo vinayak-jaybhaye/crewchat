@@ -5,7 +5,7 @@ export async function requestCameraAndMicrophoneAccess(): Promise<boolean> {
         stream.getTracks().forEach(track => track.stop());
         return true;
     } catch (error) {
-        console.error('Camera/Mic access denied or error:', error);
+        console.warn('Camera/Mic access denied or error:', error);
         return false;
     }
 }
@@ -17,7 +17,18 @@ export async function requestMicrophoneAccess(): Promise<boolean> {
         stream.getTracks().forEach(track => track.stop()); // Stop immediately after access
         return true;
     } catch (error) {
-        console.error('Microphone access denied or error:', error);
+        console.warn('Microphone access denied or error:', error);
+        return false;
+    }
+}
+
+export async function requestCameraAccess(): Promise<boolean> {
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        stream.getTracks().forEach(track => track.stop()); // Stop immediately after access
+        return true;
+    } catch (error) {
+        console.warn('Camera access denied or error:', error);
         return false;
     }
 }

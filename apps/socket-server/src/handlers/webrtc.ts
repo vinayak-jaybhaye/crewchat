@@ -2,8 +2,8 @@ import { Server, Socket } from "socket.io";
 
 export function handleWebRTCEvents(io: Server, socket: Socket) {
 
-    socket.on("webrtc-offer", ({ from, to, offer }) => {
-        io.to(to).emit("webrtc-offer", { from, to, offer });
+    socket.on("webrtc-offer", ({ from, to, offer, midMap }) => {
+        io.to(to).emit("webrtc-offer", { from, to, offer, midMap });
     });
 
     socket.on("webrtc-answer", ({ from, to, answer }) => {
