@@ -154,7 +154,10 @@ export function VideoCallWindow({
         const audioOnlyStream = new MediaStream(remoteStream.getAudioTracks())
         const videoOnlyStream = new MediaStream(remoteStream.getVideoTracks())
         if (remoteRef.current) remoteRef.current.srcObject = videoOnlyStream;
-        if (remoteAudioRef.current) remoteAudioRef.current.srcObject = audioOnlyStream;
+        if (remoteAudioRef.current) {
+            remoteAudioRef.current.srcObject = audioOnlyStream;
+            remoteAudioRef.current.volume = 1.0;
+        }
         if (remoteMobileRef.current) remoteMobileRef.current.srcObject = videoOnlyStream;
 
         if (mainView === "remote" && mainViewRef.current && isFullScreen) {
@@ -180,7 +183,10 @@ export function VideoCallWindow({
         const audioOnlyStream = new MediaStream(remoteScreenStream.getAudioTracks())
         const videoOnlyStream = new MediaStream(remoteScreenStream.getVideoTracks())
         if (remoteScreenRef.current) remoteScreenRef.current.srcObject = videoOnlyStream;
-        if (remoteScreenAudioRef.current) remoteScreenAudioRef.current.srcObject = audioOnlyStream;
+        if (remoteScreenAudioRef.current) {
+            remoteScreenAudioRef.current.srcObject = audioOnlyStream;
+            remoteScreenAudioRef.current.volume = 1.0;
+        }
         if (remoteScreenMobileRef.current) remoteScreenMobileRef.current.srcObject = videoOnlyStream;
 
         if (mainView === "remoteScreen" && mainViewRef.current && isFullScreen) {

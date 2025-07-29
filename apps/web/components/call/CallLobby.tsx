@@ -22,7 +22,7 @@ export default function CallLobby({ call, remoteUserId, localUserId, deleteCall 
   useEffect(() => {
     const audio = new Audio(call.caller === localUserId ? '/sounds/caller_tune.mp3' : '/sounds/ringtone.mp3');
     audio.loop = true;
-    audio.volume = 0.5; // Set default volume
+    audio.volume = 1;
     ringtoneRef.current = audio;
 
     // Try to play with user interaction handling

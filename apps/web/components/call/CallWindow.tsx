@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import CallLobby from './CallLobby';
 import { useGlobalSocket } from '@/context/SocketProvider';
-// import { VideoCallWindow } from './VideoCallWindow';
 import { VideoCallWindow } from './VideoCallWindow';
 import { AudioCallWindow } from './AudioCallWindow';
 import { useSession } from 'next-auth/react';
@@ -71,8 +70,8 @@ function CallWindow() {
       {call && call.status == 'calling' && (
         <CallLobby
           call={call}
-          remoteUserId = {remoteUserId!}
-          localUserId = {localUserId!}
+          remoteUserId={remoteUserId!}
+          localUserId={localUserId!}
           deleteCall={deleteCall}
         />
       )}
@@ -88,7 +87,7 @@ function CallWindow() {
                   remoteUserId={remoteUserId}
                   localUserId={localUserId}
                   DeleteCall={handleHangUp}
-                  call = {call}
+                  call={call}
                 />
               ) : (
                 <AudioCallWindow
@@ -96,7 +95,7 @@ function CallWindow() {
                   remoteUserId={remoteUserId}
                   localUserId={localUserId}
                   DeleteCall={handleHangUp}
-                  caller={call.caller}
+                  call={call}
                 />
               )
             }
