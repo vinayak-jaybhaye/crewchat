@@ -1,9 +1,8 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { UserDTO } from "@crewchat/types";
-
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { UserDTO } from '@crewchat/types';
 
 interface UserSearchBoxProps {
     setSelectedUsers: (users: UserDTO[]) => void;
@@ -11,19 +10,17 @@ interface UserSearchBoxProps {
 }
 
 export default function UserSearchBox({ selectedUsers, setSelectedUsers }: UserSearchBoxProps) {
-    const [query, setQuery] = useState("");
+    const [query, setQuery] = useState('');
     const [suggestions, setSuggestions] = useState<UserDTO[]>([]);
     const router = useRouter();
 
     const handleUserClick = (user: UserDTO) => {
-        if (selectedUsers.some(u => u._id === user._id)) {
-            // If user is already selected, remove them
-            setSelectedUsers(selectedUsers.filter(u => u._id !== user._id));
+        if (selectedUsers.some((u) => u._id === user._id)) {
+            setSelectedUsers(selectedUsers.filter((u) => u._id !== user._id));
         } else {
-            // Otherwise, add them to the selection
             setSelectedUsers([...selectedUsers, user]);
         }
-    }
+    };
 
     useEffect(() => {
         const timeout = setTimeout(() => {
@@ -37,29 +34,35 @@ export default function UserSearchBox({ selectedUsers, setSelectedUsers }: UserS
                 .then((data) => {
                     setSuggestions(data.users);
                 });
-        }, 300); // debounce
+        }, 300);
 
         return () => clearTimeout(timeout);
     }, [query]);
 
     return (
-        <div className="p-4">
+        <div className="p-4 rounded-lg border border-[var(--border-color)] bg-[var(--muted-bg)] shadow-sm">
             <input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search users..."
-                className="border p-2 rounded w-full"
+                className="w-full p-2 rounded border border-[var(--border-color)] bg-transparent text-[var(--text-color)] placeholder-[var(--muted-text)] focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
-            <ul className="mt-2">
-                {suggestions.map((user) => (
-                    <li
-                        key={user._id}
-                        className={`p-2 cursor-pointer ${selectedUsers.some(u => u._id === user._id) ? 'bg-gray-200' : 'hover:bg-gray-100'}`}
-                        onClick={() => handleUserClick(user)}
-                    >
-                        {user.username}
-                    </li>
-                ))}
+            <ul className="mt-4 space-y-2 max-h-64 overflow-y-auto scrollbar-hide">
+                {suggestions.map((user) => {
+                    const isSelected = selectedUsers.some((u) => u._id === user._id);
+                    return (
+                        <li
+                            key={user._id}
+                            onClick={() => handleUserClick(user)}
+                            className={`p-3 rounded cursor-pointer transition-colors duration-200 border border-transparent ${isSelected
+                                    ? 'bg-blue-100 text-blue-900 dark:bg-blue-900/20 dark:text-blue-300 border-blue-400'
+                                    : 'hover:bg-[var(--hover-bg)] text-[var(--text-color)]'
+                                }`}
+                        >
+                            {user.username}
+                        </li>
+                    );
+                })}
             </ul>
         </div>
     );

@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   description: "Made to make chatting easy and direct",
 };
 
-import Navbar from "@/components/Navbar";
+import Navbar from "@/components/atoms/Navbar";
 import { CallWindow } from "@/components/call";
 
 export default function RootLayout({
@@ -30,7 +30,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased theme-light`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased theme-sepia`}
       >
         <Providers>
           <Navbar />

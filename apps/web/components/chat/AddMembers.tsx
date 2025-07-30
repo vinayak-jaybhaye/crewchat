@@ -25,7 +25,6 @@ function AddMembers({ chatId }: { chatId: string }) {
             const userIds = selectedUsers.map((user) => user._id);
             console.log("Adding members:", userIds, "to chat:", chatId);
             await addMembersToGroupChat(chatId, userIds);
-            alert("Members added successfully!");
             setSelectedUsers([]);
         } catch (err) {
             console.error(err);

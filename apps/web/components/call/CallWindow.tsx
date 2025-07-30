@@ -28,8 +28,6 @@ function CallWindow() {
     if (!socket) return;
 
     socket.on("incoming-call", (callData) => {
-      console.log("Incoming call:", callData);
-      console.log("INCOMING CALL", callData);
       setCall(callData);
     });
 
@@ -44,10 +42,8 @@ function CallWindow() {
       callId: call.callId,
       by: session.data?.user._id,
     });
-    console.log("Call ended by", session.data?.user._id);
   };
 
-  console.log("CallWindow rendered with call:", call);
 
   useEffect(() => {
     const sessionUserId = session.data?.user._id;

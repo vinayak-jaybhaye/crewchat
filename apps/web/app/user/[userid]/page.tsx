@@ -1,4 +1,4 @@
-import { StartChatButton } from "@/components/StartChatButton";
+import { StartChatButton } from "@/components/atoms/StartChatButton";
 import { getUserById } from "@/app/actions/UserActions";
 import { CallButton } from "@/components/call";
 import Image from "next/image";

@@ -107,7 +107,7 @@ function GroupMembers({ chatId }: { chatId: string }) {
                             className="w-10 h-10 rounded-full object-cover"
                         />
                         <div>
-                            <p className="font-medium">{member.username}</p>
+                            <p className="font-medium" onClick={() => router.push(`/user/${member._id}`)} >{member.username}</p>
                             <p className="text-sm text-gray-500">{member.email}</p>
                             {member.isAdmin && (
                                 <span className="text-xs text-blue-600 font-semibold">Admin</span>
