@@ -1,4 +1,5 @@
 {
+    "$schema": "https://turborepo.dev/schema.json",
     "tasks": {
         "build": {
             "dependsOn": [
@@ -12,5 +13,15 @@
         "dev": {
             "cache": false
         }
-    }
+    },
+    "globalEnv": [
+        "NEXTAUTH_URL",
+        "NEXTAUTH_SECRET",
+        "GOOGLE_CLIENT_ID",
+        "GOOGLE_CLIENT_SECRET",
+        "MONGODB_URI",
+        "NEXT_PUBLIC_SOCKET_URL",
+        "REDIS_URL",
+        "CLIENT_ORIGIN"
+    ]
 }
