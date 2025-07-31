@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { UserDTO } from '@crewchat/types';
 
 interface UserSearchBoxProps {
@@ -12,7 +11,6 @@ interface UserSearchBoxProps {
 export default function UserSearchBox({ selectedUsers, setSelectedUsers }: UserSearchBoxProps) {
     const [query, setQuery] = useState('');
     const [suggestions, setSuggestions] = useState<UserDTO[]>([]);
-    const router = useRouter();
 
     const handleUserClick = (user: UserDTO) => {
         if (selectedUsers.some((u) => u._id === user._id)) {

@@ -16,15 +16,14 @@ export default function CallLobby({ call, remoteUserId, localUserId, deleteCall 
   const [isMuted, setIsMuted] = useState(false);
   const ringtoneRef = useRef<HTMLAudioElement | null>(null);
 
-  if (!call) return null;
-
+  
   // Initialize ringtone
   useEffect(() => {
     const audio = new Audio(call.caller === localUserId ? '/sounds/caller_tune.mp3' : '/sounds/ringtone.mp3');
     audio.loop = true;
     audio.volume = 1;
     ringtoneRef.current = audio;
-
+    
     // Try to play with user interaction handling
     const playRingtone = async () => {
       try {
@@ -37,11 +36,11 @@ export default function CallLobby({ call, remoteUserId, localUserId, deleteCall 
         }, 1000);
       }
     };
-
+    
     if (!isMuted) {
       playRingtone();
     }
-
+    
     return () => {
       if (audio) {
         audio.pause();
@@ -49,25 +48,25 @@ export default function CallLobby({ call, remoteUserId, localUserId, deleteCall 
         audio.src = ''; // Clear the source
       }
     };
-  }, [call, localUserId]); // Remove isMuted from dependencies to prevent re-initialization
+  }, [call, localUserId, isMuted]); // Remove isMuted from dependencies to prevent re-initialization
 
   // Handle mute state changes
   useEffect(() => {
     const audio = ringtoneRef.current;
     if (!audio) return;
-
+    
     if (isMuted) {
       audio.pause();
     } else {
       audio.play().catch((err) => console.warn("🔇 Ringtone resume failed", err));
     }
   }, [isMuted]);
-
+  
   const toggleMute = () => {
     console.log("Toggle mute clicked, current state:", isMuted);
     setIsMuted(prev => !prev);
   };
-
+  
   // Stop ringtone when call is accepted, rejected, or ended
   const stopRingtone = () => {
     const audio = ringtoneRef.current;
@@ -76,7 +75,7 @@ export default function CallLobby({ call, remoteUserId, localUserId, deleteCall 
       audio.currentTime = 0;
     }
   };
-
+  
   useEffect(() => {
     async function fetchOtherUserData() {
       const userData = await getUserById(remoteUserId);
@@ -86,78 +85,79 @@ export default function CallLobby({ call, remoteUserId, localUserId, deleteCall 
         console.error("Failed to fetch user data for", remoteUserId);
       }
     }
-
+    
     if (remoteUserId) fetchOtherUserData();
   }, [remoteUserId]);
-
+  
   useEffect(() => {
     const startedAt = call.createdAt ? call.createdAt : Date.now();
-    let ringingTime = Math.floor(Date.now() - startedAt);
-
+    const ringingTime = Math.floor(Date.now() - startedAt);
+    
     if (!startedAt) return;
-
+    
     const timeout = setTimeout(() => {
       stopRingtone();
       deleteCall();
     }, Math.max(0, 60000 - ringingTime));
-
+    
     return () => clearTimeout(timeout);
   }, [call, deleteCall]);
-
+  
   const handleAccept = () => {
     if (!socket) return;
-
+    
     stopRingtone(); // Stop ringtone immediately
-
+    
     socket.emit('accept-call', {
       callId: call.callId,
     });
-
+    
     console.log("Accepted Incoming call", call);
     console.log("Call accepted by", session.data?.user._id);
   };
-
+  
   const handleReject = () => {
     if (!socket) return;
     stopRingtone(); // Stop ringtone immediately
-
+    
     socket.emit('reject-call', {
       callId: call.callId,
     });
-
+    
     console.log("Rejected Incoming call", call);
   };
-
+  
   useEffect(() => {
     if (!socket) return;
-
+    
     const onCallEnded = (data: { other: string }) => {
       if (call && call.caller === data.other) {
         stopRingtone();
       }
     };
     socket.on('call-ended', onCallEnded);
-
+    
     return () => {
       socket.off('call-ended', onCallEnded);
     };
   }, [socket, call]);
-
+  
   const handleEndCall = () => {
     if (!socket) return;
-
+    
     stopRingtone(); // Stop ringtone immediately
-
+    
     socket.emit('hang-up', {
       callId: call.callId,
       by: session.data?.user._id,
     });
-
+    
     console.log("Call ended by", session.data?.user._id);
   }
-
+  
   const isIncomingCall = call.callee === session.data?.user._id;
-
+  
+  if (!call) return null;
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50 p-4">
       <div className="relative bg-gradient-to-br from-slate-900 via-gray-900 to-slate-800 rounded-2xl shadow-2xl border border-slate-700/50 w-full max-w-md overflow-hidden">

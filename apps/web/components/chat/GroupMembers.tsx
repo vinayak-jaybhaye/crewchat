@@ -8,6 +8,7 @@ import { ChatDetails } from "@/lib/chat/getChatDetails";
 import { type GroupMember } from "@/lib/chat/getGroupMembers";
 import { startChat } from "@/app/actions/ChatActions";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 function GroupMembers({ chatId }: { chatId: string }) {
     const [members, setMembers] = useState<GroupMember[]>([]);
@@ -33,7 +34,7 @@ function GroupMembers({ chatId }: { chatId: string }) {
             }
         }
         fetchChatMetaData();
-    }, [])
+    }, [ chatId ]);
 
     const router = useRouter();
 
@@ -101,9 +102,11 @@ function GroupMembers({ chatId }: { chatId: string }) {
                             if (chatMetaData?.isGroup) toggleOptions(member._id)
                         }}
                     >
-                        <img
+                        <Image
                             src={member.avatarUrl || "/default-avatar.png"}
                             alt={member.username}
+                            width={40}
+                            height={40}
                             className="w-10 h-10 rounded-full object-cover"
                         />
                         <div>

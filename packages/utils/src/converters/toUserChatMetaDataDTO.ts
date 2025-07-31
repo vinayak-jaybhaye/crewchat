@@ -1,7 +1,6 @@
-import { IUserChatMetaData } from "@crewchat/db";
 import { UserChatMetaDataDTO } from "@crewchat/types";
 
-export function toUserChatMetaDataDTO(meta: IUserChatMetaData): UserChatMetaDataDTO {
+export function toUserChatMetaDataDTO(meta: any): UserChatMetaDataDTO {
     return {
         _id: meta._id.toString(),
         chatId: meta.chatId.toString(),

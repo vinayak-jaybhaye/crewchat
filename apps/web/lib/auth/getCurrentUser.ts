@@ -1,13 +1,12 @@
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from '@/lib/auth/options';
 import { Session } from "next-auth";
-import { toUserDTO } from "@crewchat/utils/converters";
+import { toUserDTO } from "@crewchat/utils";
 
 export async function getCurrentUser(): Promise<Session["user"] | null> {
     const session = await getServerSession(authOptions);
     if (!session || !session.user) {
         return null;
     }
-    const user = toUserDTO(session.user);
-    return user;
-}   
+    return toUserDTO(session.user);
+}

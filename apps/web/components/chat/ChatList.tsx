@@ -19,7 +19,6 @@ export default function ChatList() {
             setChats(fetchedChats);
         };
         fetchChats();
-        console.log("ChatList component mounted and fetching chats", chats);
     }, []);
 
     useEffect(() => {

@@ -1,7 +1,6 @@
-import { IUser } from "@crewchat/db";
 import { UserDTO } from "@crewchat/types";
 
-export function toUserDTO(user: IUser): UserDTO {
+export function toUserDTO(user: any): UserDTO {
   return {
     _id: user._id.toString(),
     username: user.username,

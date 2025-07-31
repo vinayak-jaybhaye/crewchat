@@ -2,7 +2,7 @@ import { ChatDTO } from "@crewchat/types";
 import { Chat, UserChatMetaData, User } from "@crewchat/db";
 import { connectToDB } from "@/lib/db";
 import mongoose from "mongoose";
-import { toChatDTO } from "@crewchat/utils/converters";
+import { toChatDTO } from "@crewchat/utils";
 
 
 export type createGroupChatParams = {

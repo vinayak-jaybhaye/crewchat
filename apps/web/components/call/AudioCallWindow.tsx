@@ -7,12 +7,12 @@ import {
 import { useCall } from "@/hooks/useWebRTC"
 import { getUserById } from "@/app/actions/UserActions"
 import { UserDTO } from "@crewchat/types"
-import { useSession } from "next-auth/react"
 import Image from "next/image"
 import type { Call } from "./CallWindow"
+import type {Socket} from "socket.io-client"
 
 interface AudioCallWindowProps {
-    socket: any
+    socket: Socket | null
     remoteUserId: string
     localUserId: string
     call: Call
@@ -32,11 +32,8 @@ export function AudioCallWindow({
     const [duration, setDuration] = useState(0)
     const [isFullScreen, setIsFullScreen] = useState(true)
     const [remoteUserData, setRemoteUserData] = useState<UserDTO | null>(null)
-    const [localUserData, setLocalUserData] = useState<UserDTO | null>(null)
     const [volumeOn, setVolumeOn] = useState(true)
-
     const { caller, acceptedAt, createdAt } = call
-    const session = useSession()
 
     const {
         localStream,
@@ -58,17 +55,10 @@ export function AudioCallWindow({
             const remote = await getUserById(remoteUserId)
             if (remote) {
                 setRemoteUserData(remote)
-                const local = {
-                    username: session.data?.user.username!,
-                    _id: session.data?.user._id!,
-                    avatarUrl: session.data?.user.avatarUrl!,
-                    email: session.data?.user.email!,
-                }
-                setLocalUserData(local)
             }
         }
         fetchData()
-    }, [])
+    }, [remoteUserId])
 
     // Track call duration
     useEffect(() => {
@@ -79,7 +69,7 @@ export function AudioCallWindow({
             setDuration(elapsed)
         }, 1000)
         return () => clearInterval(interval)
-    }, [call])
+    }, [call, acceptedAt, createdAt])
 
     // Stream assignment
     useEffect(() => {

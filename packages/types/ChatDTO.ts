@@ -10,4 +10,5 @@ export interface ChatDTO {
     description?: string;
     createdAt?: string;
     updatedAt?: string;
+    lastSeen?: string | null;
 }

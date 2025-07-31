@@ -1,8 +1,7 @@
-import { IChat } from "@crewchat/db";
 import { ChatDTO } from "@crewchat/types";
 import { toUserDTO } from "./toUserDTO";
 
-export function toChatDTO(chat: IChat): ChatDTO {
+export function toChatDTO(chat: any): ChatDTO {
     return {
         _id: chat._id.toString(),
         name: chat.name || null,

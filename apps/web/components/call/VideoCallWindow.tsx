@@ -1,16 +1,17 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
-import { Video, VideoOff, Mic, MicOff, Phone, Monitor, Maximize2, Minimize2, Menu, X } from "lucide-react"
+import { useCallback, useEffect, useRef, useState } from "react"
+import { Video, VideoOff, Mic, MicOff, Phone, Monitor, Maximize2, Minimize2 } from "lucide-react"
 import { useCall } from "@/hooks/useCall"
 import { getUserById } from "@/app/actions/UserActions"
 import { UserDTO } from "@crewchat/types"
 import type { Call } from "./CallWindow"
 import { useSession } from "next-auth/react"
 import Image from "next/image"
+import { Socket } from "socket.io-client"
 
 interface VideoCallWindowProps {
-    socket: any
+    socket: Socket | null
     remoteUserId: string
     localUserId: string
     call: Call
@@ -62,7 +63,7 @@ export function VideoCallWindow({
         }, 1000)
 
         return () => clearInterval(interval)
-    }, [call])
+    }, [call, acceptedAt, createdAt])
 
     const {
         localStream,
@@ -90,10 +91,10 @@ export function VideoCallWindow({
             if (userData) {
                 setRemoteUserData(userData)
                 const localData = {
-                    username: session.data?.user.username!,
-                    _id: session.data?.user._id!,
-                    avatarUrl: session.data?.user.avatarUrl!,
-                    email: session.data?.user.email!,
+                    username: session.data?.user.username || "You",
+                    _id: session.data?.user._id || "local",
+                    avatarUrl: session.data?.user.avatarUrl || "/default-avatar.png",
+                    email: session.data?.user.email || "No email",
                 }
                 setLocalUserData(localData);
             } else {
@@ -104,9 +105,9 @@ export function VideoCallWindow({
         fetchOtherUserData();
         setIsMobile(isMobileDevice());
         console.log("Is mobile device:", isMobile);
-    }, []);
+    }, [isMobile, remoteUserId, session.data?.user]);
 
-    const getMainViewTitle = () => {
+    const getMainViewTitle = useCallback(() => {
         switch (mainView) {
             case "remote":
                 return `${remoteUserData?.username || "Remote"}'s Camera`
@@ -119,7 +120,7 @@ export function VideoCallWindow({
             default:
                 return "Remote Camera"
         }
-    }
+    }, [mainView, remoteUserData, localUserData])
 
     useEffect(() => {
         setMainViewTitle(getMainViewTitle())
@@ -133,7 +134,7 @@ export function VideoCallWindow({
                             ? localScreenStream
                             : remoteScreenStream
         }
-    }, [mainView, isFullScreen])
+    }, [mainView, getMainViewTitle, isFullScreen, localStream, remoteStream, localScreenStream, remoteScreenStream, remoteUserData, localUserData])
 
     // Attach streams to video elements
     useEffect(() => {
@@ -163,7 +164,7 @@ export function VideoCallWindow({
         if (mainView === "remote" && mainViewRef.current && isFullScreen) {
             mainViewRef.current.srcObject = videoOnlyStream;
         }
-    }, [remoteStream, isFullScreen])
+    }, [remoteStream, isFullScreen, mainView])
 
     useEffect(() => {
         if (!localScreenStream) return;
@@ -176,7 +177,7 @@ export function VideoCallWindow({
         if (mainView === "localScreen" && mainViewRef.current && isFullScreen) {
             mainViewRef.current.srcObject = videoOnlyStream;
         }
-    }, [localScreenStream, isFullScreen])
+    }, [localScreenStream, isFullScreen, mainView])
 
     useEffect(() => {
         if (!remoteScreenStream) return;
@@ -192,7 +193,7 @@ export function VideoCallWindow({
         if (mainView === "remoteScreen" && mainViewRef.current && isFullScreen) {
             mainViewRef.current.srcObject = videoOnlyStream;
         }
-    }, [remoteScreenStream, isFullScreen])
+    }, [remoteScreenStream, isFullScreen, mainView])
 
     const handleEndCall = async () => {
         // Clear all video elements

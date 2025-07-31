@@ -2,7 +2,7 @@ import { connectToDB } from "@/lib/db";
 import mongoose from "mongoose";
 import { User } from "@crewchat/db";
 import { UserDTO } from "@crewchat/types";
-import { toUserDTO } from "@crewchat/utils/converters";
+import { toUserDTO } from "@crewchat/utils";
 
 export async function getUserById(userId: string): Promise<UserDTO> {
     try {

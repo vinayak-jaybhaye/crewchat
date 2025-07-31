@@ -1,7 +1,14 @@
 {
-    "name": "@crewchat/utils",
-    "version": "0.0.1",
-    "main": "index.ts",
-    "types": "index.ts",
-    "private": true
+  "name": "@crewchat/utils",
+  "version": "0.0.1",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "private": true,
+  "scripts": {
+    "build": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@crewchat/types": "workspace:*",
+    "@crewchat/db": "workspace:*"
+  }
 }

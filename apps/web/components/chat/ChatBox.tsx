@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { ChatDTO, MessageDTO } from "@crewchat/types";
+import { MessageDTO } from "@crewchat/types";
 import { useSocket } from "@/hooks/useSocket";
 import { fetchOldMessages, storeMessage } from "@/app/actions/MessageActions";
 import { fetchChatData } from '@/app/actions/ChatActions';
@@ -30,13 +30,6 @@ function ChatBox({ userId, chatId }: ChatBoxProps) {
 
     const router = useRouter();
 
-    if (!chatId) {
-        return (
-            <div className="flex items-center justify-center h-full text-[var(--muted-foreground)]">
-                <p>Select a chat to start messaging</p>
-            </div>
-        );
-    }
 
     // Fetch initial chat data
     useEffect(() => {
@@ -61,7 +54,7 @@ function ChatBox({ userId, chatId }: ChatBoxProps) {
     }, [chatId]);
 
     // Load older messages function
-    const loadOlderMessages = async () => {
+    const loadOlderMessages = useCallback(async () => {
         if (loadingOlderMessages || !hasMoreMessages || messages.length === 0) return;
 
         try {
@@ -69,6 +62,7 @@ function ChatBox({ userId, chatId }: ChatBoxProps) {
 
             const oldestMessage = messages[0];
             const olderMessages = await fetchOldMessages(chatId, oldestMessage.createdAt, 20);
+            console.log("Loaded older messages:", olderMessages);
 
             if (olderMessages.length === 0) {
                 setHasMoreMessages(false);
@@ -99,7 +93,7 @@ function ChatBox({ userId, chatId }: ChatBoxProps) {
         } finally {
             setLoadingOlderMessages(false);
         }
-    };
+    }, [chatId, loadingOlderMessages, hasMoreMessages, messages]);
 
     // Fetch initial messages
     useEffect(() => {
@@ -197,6 +191,29 @@ function ChatBox({ userId, chatId }: ChatBoxProps) {
         return match ? match[0] : null;
     }
 
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center h-full text-[var(--muted-foreground)]">
+                <p>Loading chat...</p>
+            </div>
+        );
+    }
+
+    if (!chatId) {
+        return (
+            <div className="flex items-center justify-center h-full text-[var(--muted-foreground)]">
+                <p>Select a chat to start messaging</p>
+            </div>
+        );
+    }
+    if (error) {
+        return (
+            <div className="flex items-center justify-center h-full text-red-500">
+                <p>{error}</p>
+            </div>
+        );
+    }
+
     return (
         <div className="flex flex-col h-[90vh] w-full bg-[var(--background)] text-[var(--foreground)]">
             {/* Header */}
@@ -264,7 +281,10 @@ function ChatBox({ userId, chatId }: ChatBoxProps) {
                         </div>
                     ) : (
                         messages.map((msg) => {
-                            const isSender = isCurrentUser(msg.senderId._id);
+                            let senderId: string;
+                            if (typeof msg.senderId === 'string') senderId = msg.senderId;
+                            else senderId = msg.senderId._id;
+                            const isSender = isCurrentUser(senderId);
                             const link = msg.content && extractUrl(msg.content);
                             const cleanMessage = link ? msg.content.replace(link, "").trim() : msg.content;
 
@@ -278,7 +298,7 @@ function ChatBox({ userId, chatId }: ChatBoxProps) {
                                         {/* Sender name */}
                                         <div className={`text-xs font-medium mb-1
                                             ${isSender ? "text-[var(--primary-light)]" : "text-[var(--secondary)]"}`}>
-                                            {msg.senderId.username}
+                                            {typeof msg.senderId === 'string' ? msg.senderId : msg.senderId.username || "Unknown"}
                                         </div>
 
                                         {/* Link Preview */}

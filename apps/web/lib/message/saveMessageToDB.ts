@@ -1,5 +1,5 @@
 import { Message, User } from "@crewchat/db";
-import { toMessageDTO } from "@crewchat/utils/converters";
+import { toMessageDTO } from "@crewchat/utils";
 import { connectToDB } from "@/lib/db";
 import mongoose from "mongoose";
 import { MessageDTO } from "@crewchat/types";

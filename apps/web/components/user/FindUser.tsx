@@ -13,7 +13,7 @@ function FindUser() {
     if (selectedUsers.length > 0) {
       router.push(`/user/${selectedUsers[0]._id}`);
     }
-  }, [selectedUsers]);
+  }, [selectedUsers, router]);
 
   return (
     <section className="w-full min-h-[60vh] max-w-2xl mx-auto px-4 py-6 text-[var(--text-color)]">

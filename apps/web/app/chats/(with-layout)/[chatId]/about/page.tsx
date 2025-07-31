@@ -1,11 +1,36 @@
+'use client';
+import { use, useState, useEffect } from "react";
+
+import { UserChatMetaDataDTO, ChatDTO } from "@crewchat/types";
+
 import { fetchChatData } from '@/app/actions/ChatActions';
 import { AddMembers, GroupMembers } from "@/components/chat";
 import { fetchUserChatMetaData } from '@/app/actions/ChatActions';
 
-export default async function GroupInfoPage({ params }: { params: { chatId: string } }) {
-    const { chatId } = params;
-    const chatData = await fetchChatData(chatId);
-    const userChatMetadata = await fetchUserChatMetaData(chatId);
+export default function GroupInfoPage({ params }: { params: Promise<{ chatId: string }> }) {
+    const { chatId } = use(params);
+    const [chatData, setChatData] = useState<ChatDTO | null>(null);
+    const [userChatMetadata, setUserChatMetadata] = useState<UserChatMetaDataDTO | null>(null);
+
+
+    useEffect(() => {
+        async function fetchData() {
+            const chat = await fetchChatData(chatId);
+            setChatData(chat);
+
+            const userMetadata = await fetchUserChatMetaData(chatId);
+            setUserChatMetadata(userMetadata);
+        }
+        fetchData();
+    }, [chatId]);
+
+    if (!chatData || !userChatMetadata) {
+        return (
+            <div className="flex items-center justify-center h-screen">
+                <p className="text-gray-500">Loading...</p>
+            </div>
+        );
+    }
 
     return (
         <div className="flex flex-col h-screen bg-gray-50">

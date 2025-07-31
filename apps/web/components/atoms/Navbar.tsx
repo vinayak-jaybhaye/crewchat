@@ -13,7 +13,7 @@ function Navbar() {
         if (status === 'unauthenticated') {
             router.replace('/login');
         }
-    }, [status]);
+    }, [status, router]);
 
     return (
         <nav className="flex sticky top-0 z-50 items-center justify-between py-4 px-8 bg-[var(--navbar-bg)] text-[var(--navbar-text)] shadow-sm border-b border-[var(--border-color)]">

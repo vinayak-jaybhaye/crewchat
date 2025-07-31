@@ -1,6 +1,6 @@
 import { connectToDB } from "@/lib/db";
 import { Chat, UserChatMetaData } from '@crewchat/db';
-import { toChatDTO } from "@crewchat/utils/converters";
+import { toChatDTO } from "@crewchat/utils";
 import mongoose from "mongoose";
 
 export async function createChat(user1Id: string, user2Id: string) {
@@ -29,7 +29,7 @@ export async function createChat(user1Id: string, user2Id: string) {
     const metaDocs = [{ userId: userId1, chatId: newChat._id, lastRead: new Date() }];
     // if user created the chat with themselves, we don't need to create a metadata document for the second user
     if (user1Id !== user2Id) metaDocs.push({ userId: userId2, chatId: newChat._id, lastRead: new Date() });
-    const meta = await UserChatMetaData.create(metaDocs);
+    await UserChatMetaData.create(metaDocs);
 
     return toChatDTO(newChat);
 }

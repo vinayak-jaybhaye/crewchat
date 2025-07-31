@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import Image from "next/image";
 
 function LinkPreview({ url }: { url: string }) {
     const [preview, setPreview] = useState<null | {
@@ -38,9 +39,11 @@ function LinkPreview({ url }: { url: string }) {
         >
             {preview.image && (
                 <div className="w-full h-32 w-36 overflow-hidden">
-                    <img
+                    <Image
                         src={preview.image}
                         alt={preview.title || "Link preview"}
+                        width={144}
+                        height={128}
                         className="w-full h-full object-cover"
                     />
                 </div>

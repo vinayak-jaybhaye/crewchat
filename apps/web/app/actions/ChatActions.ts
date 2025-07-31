@@ -11,7 +11,6 @@ export async function startChat(userId: string) {
     const currentUser = await getCurrentUser();
     if (!currentUser) {
         redirect("/login");
-        return null;
     }
     const chat = await createChat(userId, currentUser._id);
     return chat;
@@ -43,8 +42,8 @@ export async function fetchChatData(chatId: string): Promise<ChatDetails | null>
         }
 
         return chat;
-    } catch (error: any) {
-        console.error("Error fetching chat data:", error.message || error);
+    } catch (error) {
+        console.error("Error fetching chat data:", error);
         throw new Error("Failed to fetch chat data");
     }
 }

@@ -25,7 +25,8 @@ export async function createGroupChat(groupName: string, description?: string) {
         const chat = await CGC(groupChatParams);
         return chat;
     } catch (error) {
-
+        console.error("Error creating group chat:", error);
+        throw new Error("Failed to create group chat");
     }
 }
 

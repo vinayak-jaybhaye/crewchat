@@ -6,7 +6,7 @@
                 "packages/db"
             ],
             "@crewchat/utils": [
-                "packages/utils"
+                "packages/utils/src"
             ],
             "@crewchat/types": [
                 "packages/types"

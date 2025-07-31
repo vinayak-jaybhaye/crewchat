@@ -1,20 +1,12 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
-import { UserDTO } from "@crewchat/types";
 
 export default function Home() {
   const router = useRouter();
-  const [selectedUsers, setSelectedUsers] = useState<UserDTO[]>([]);
   const session = useSession();
 
-  useEffect(() => {
-    if (selectedUsers.length > 0) {
-      router.push(`/user/${selectedUsers[0]._id}`);
-    }
-  }, [selectedUsers]);
 
   return (
     <main className="min-h-screen flex flex-col items-center justify-center bg-[var(--background)] text-[var(--foreground)] px-4 py-12">

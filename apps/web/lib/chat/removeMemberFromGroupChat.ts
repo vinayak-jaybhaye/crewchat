@@ -1,8 +1,6 @@
 import { connectToDB } from "@/lib/db";
 import { Chat, UserChatMetaData } from "@crewchat/db";
 import mongoose from "mongoose";
-import { toChatDTO } from "@crewchat/utils/converters";
-import { ChatDTO } from "@crewchat/types";
 
 export type RemoveMemberFromGroupChatParams = {
     chatId: string;

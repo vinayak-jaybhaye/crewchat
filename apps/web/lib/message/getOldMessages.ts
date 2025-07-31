@@ -1,5 +1,5 @@
 import { Message } from "@crewchat/db";
-import { toMessageDTO } from "@crewchat/utils/converters";
+import { toMessageDTO } from "@crewchat/utils";
 import { MessageDTO } from "@crewchat/types";
 
 import { connectToDB } from "@/lib/db";

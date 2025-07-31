@@ -4,7 +4,7 @@ import { CallButton } from "@/components/call";
 import Image from "next/image";
 
 
-export default async function UserProfile({ params }: { params: { userid: string } }) {
+export default async function UserProfile({ params }: { params: Promise<{ userid: string }> }) {
     const { userid } = await params;
     const user = await getUserById(userid);
 

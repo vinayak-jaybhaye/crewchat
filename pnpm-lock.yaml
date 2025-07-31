@@ -137,7 +137,14 @@ importers:
 
   packages/types: {}
 
-  packages/utils: {}
+  packages/utils:
+    dependencies:
+      '@crewchat/db':
+        specifier: workspace:*
+        version: link:../db
+      '@crewchat/types':
+        specifier: workspace:*
+        version: link:../types
 
 packages:
 

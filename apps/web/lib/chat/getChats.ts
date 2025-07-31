@@ -1,8 +1,14 @@
 import { connectToDB } from "@/lib/db";
 import { UserChatMetaData, Chat } from "@crewchat/db";
 import { ChatDTO } from "@crewchat/types";
-import { toChatDTO } from "@crewchat/utils/converters";
+import { toChatDTO } from "@crewchat/utils";
 
+interface Member {
+    _id: string;
+    username: string;
+    avatarUrl?: string;
+    email?: string;
+}
 
 export async function getChats(userId: string): Promise<ChatDTO[]> {
     await connectToDB();
@@ -27,7 +33,7 @@ export async function getChats(userId: string): Promise<ChatDTO[]> {
         let imageUrl = chat.imageUrl || "";
 
         if (!isGroup && chat.members) {
-            const otherUser = chat.members.find((member: any) => member._id.toString() !== userId);
+            const otherUser = chat.members.find((member: Member) => member._id.toString() !== userId);
             name = otherUser?.username || chat.members[0]?.username || "Private Chat";
             imageUrl = otherUser?.avatarUrl || chat.members[0]?.avatarUrl || "";
         }

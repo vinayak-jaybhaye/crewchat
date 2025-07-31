@@ -1,4 +1,4 @@
-import { UserDTO } from "@crewchat/types";
+import { UserDTO } from "./UserDTO";
 
 export interface MessageDTO {
     _id: string;

@@ -1,11 +1,18 @@
 import { connectToDB } from "@/lib/db";
 import { UserChatMetaData, Chat } from "@crewchat/db";
 import { ChatDTO } from "@crewchat/types";
-import { toChatDTO } from "@crewchat/utils/converters";
+import { toChatDTO } from "@crewchat/utils";
 import mongoose from "mongoose";
 
 export interface ChatDetails extends ChatDTO {
     lastSeen?: string | null;
+}
+
+interface Member {
+    _id: string;
+    username: string;
+    email: string;
+    avatarUrl?: string;
 }
 
 export async function getChatDetails(chatId: string, userId: string): Promise<ChatDetails> {
@@ -31,7 +38,7 @@ export async function getChatDetails(chatId: string, userId: string): Promise<Ch
 
         // Format chat before DTO
         if (!chat.isGroup) {
-            const otherUser = chat.members.find((member: any) => member._id.toString() !== userId);
+            const otherUser = chat.members.find((member: Member) => member._id.toString() !== userId);
             chat.name = otherUser?.username || chat.members[0]?.username || "Private Chat";
             chat.imageUrl = otherUser?.avatarUrl || chat.members[0]?.avatarUrl || "";
         } else {

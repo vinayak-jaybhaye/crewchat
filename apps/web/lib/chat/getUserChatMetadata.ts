@@ -1,5 +1,5 @@
 import { connectToDB } from "@/lib/db";
-import { toUserChatMetaDataDTO } from "@crewchat/utils/converters";
+import { toUserChatMetaDataDTO } from "@crewchat/utils";
 import { UserChatMetaDataDTO } from "@crewchat/types";
 import { UserChatMetaData } from "@crewchat/db";
 import mongoose from "mongoose";

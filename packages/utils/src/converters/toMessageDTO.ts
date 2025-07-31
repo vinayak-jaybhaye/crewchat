@@ -1,7 +1,6 @@
-import { IMessage } from "@crewchat/db";
 import { MessageDTO } from "@crewchat/types";
 import { toUserDTO } from "./toUserDTO";
-export function toMessageDTO(message: IMessage): MessageDTO {
+export function toMessageDTO(message: any): MessageDTO {
     return {
         _id: message._id.toString(),
         content: message.content,

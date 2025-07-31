@@ -1,5 +1,6 @@
 import React from 'react'
 import { useSession } from 'next-auth/react';
+import Image from 'next/image';
 
 function UserProfile() {
     const { data: session } = useSession();
@@ -8,7 +9,13 @@ function UserProfile() {
       {
         session?.user ? (
           <div className="flex items-center space-x-4">
-            <img src={session.user.avatarUrl || session.user.image || '/default-avatar.png'} alt="Avatar" className="w-10 h-10 rounded-full" />
+            <Image
+              src={session.user.avatarUrl || session.user.image || '/default-avatar.png'}
+              alt="Avatar"
+              width={40}
+              height={40}
+              className="w-10 h-10 rounded-full"
+            />
             <div>
               <h2 className="text-lg font-semibold">{session.user.username}</h2>
               <p className="text-sm text-gray-500">{session.user.email}</p>

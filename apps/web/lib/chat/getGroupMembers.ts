@@ -1,5 +1,5 @@
 import { connectToDB } from "@/lib/db";
-import { UserChatMetaData, User } from "@crewchat/db";
+import { UserChatMetaData } from "@crewchat/db";
 import mongoose from "mongoose";
 
 export type GroupMember = {

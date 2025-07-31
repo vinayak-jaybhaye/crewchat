@@ -1,4 +1,4 @@
-export {ChatDTO} from "./ChatDTO";
-export {UserDTO} from "./UserDTO";
-export {MessageDTO} from "./MessageDTO";
-export {UserChatMetaDataDTO} from "./UserChatMetaDataDTO";
+export type { ChatDTO } from "./ChatDTO";
+export type { UserDTO } from "./UserDTO";
+export type { MessageDTO } from "./MessageDTO";
+export type { UserChatMetaDataDTO } from "./UserChatMetaDataDTO";
