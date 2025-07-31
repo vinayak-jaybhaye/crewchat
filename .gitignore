@@ -49,3 +49,6 @@ ehthumbs.db
 # Output
 coverage/
 *.local
+
+# turbo
+.turbo

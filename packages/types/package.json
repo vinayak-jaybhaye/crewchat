@@ -1,7 +1,16 @@
 {
     "name": "@crewchat/types",
     "version": "0.0.1",
-    "main": "index.ts",
-    "types": "index.ts",
-    "private": true
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "scripts": {
+        "build": "tsc"
+    },
+    "private": true,
+    "files": [
+        "dist"
+    ],
+    "devDependencies": {
+        "typescript": "^5.0.0"
+    }
 }
