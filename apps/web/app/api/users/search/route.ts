@@ -14,7 +14,11 @@ export async function GET(request: Request) {
         await connectToDB();
 
         const users = await User.find({
-            username: { $regex: `^${query}`, $options: "i" },
+            $or: [
+                { username: { $regex: `.*${query}.*`, $options: "i" } }, // match anywhere in username
+                // {username: { $regex: `^${query}`, $options: "i" } }, // match prefix
+                { email: { $regex: `^${query}`, $options: "i" } }
+            ]
         })
             .limit(10)
             .select("username avatarUrl _id");

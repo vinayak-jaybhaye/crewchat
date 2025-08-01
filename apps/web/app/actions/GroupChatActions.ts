@@ -2,7 +2,15 @@
 
 import { connectToDB } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth/getCurrentUser";
-import { createGroupChat as CGC, addMembersToGroupChat as addMembers, deleteGroupChat as deleteGroup, getGroupMembers as getMembers, removeMemberFromGroupChat, updateGroupChatMember } from "@/lib/chat";
+import {
+    createGroupChat as CGC,
+    addMembersToGroupChat as addMembers,
+    deleteGroupChat as deleteGroup,
+    getGroupMembers as getMembers,
+    removeMemberFromGroupChat,
+    updateGroupChatMember,
+    getIdUsernameMap
+} from "@/lib/chat";
 import { UserChatMetaData, Chat } from "@crewchat/db";
 
 export async function createGroupChat(groupName: string, description?: string) {
@@ -88,7 +96,8 @@ export async function deleteGroupChat(chatId: string) {
 
 
 import { type GroupMember } from "@/lib/chat/getGroupMembers";
-export async function getGroupMembers(chatId: string): Promise<GroupMember[]> {
+
+export async function getGroupMembers(chatId: string, username?: string): Promise<GroupMember[]> {
     try {
         await connectToDB();
         const currentUser = await getCurrentUser();
@@ -96,7 +105,7 @@ export async function getGroupMembers(chatId: string): Promise<GroupMember[]> {
             throw new Error("Unauthorized access to get group members");
         }
 
-        return await getMembers(chatId, currentUser._id.toString());
+        return await getMembers(chatId, currentUser._id.toString(), username);
     } catch (error) {
         console.error("Error fetching group members:", error);
         throw new Error("Failed to fetch group members");
@@ -133,5 +142,17 @@ export async function updateMemberPermissions(chatId: string, memberId: string, 
     } catch (error) {
         console.error("Error updating member permissions:", error);
         throw new Error("Failed to update member permissions");
+    }
+}
+
+export async function leaveGroupChat(chatId: string) {}
+export async function fetchIdUsernameMap(chatId: string): Promise<Record<string, string>> {
+    try {
+        await connectToDB();
+        console.log("Connected to database for fetching ID-Username map");
+        return  await getIdUsernameMap(chatId);
+    } catch (error) {
+        console.error("Error fetching ID-Username map:", error);
+        throw new Error("Failed to fetch ID-Username map");
     }
 }

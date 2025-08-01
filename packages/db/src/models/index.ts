@@ -9,3 +9,6 @@ export type { IChat } from './Chat';
 
 export { default as UserChatMetaData } from './UserChatMetaData';
 export type { IUserChatMetaData } from './UserChatMetaData';
+
+export { default as Mention } from './Mention';
+export type { IMention } from './Mention';

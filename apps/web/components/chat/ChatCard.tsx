@@ -35,7 +35,7 @@ function ChatCard({ chat }: { chat: ChatDTO }) {
                     {chat.name}
                 </h2>
                 <p className="text-sm text-[var(--muted-foreground)] truncate">
-                    {chat.description ? `Last message: ${chat.description}` : "No messages yet"}
+                    {chat.description && `${chat.description}`}
                 </p>
             </div>
         </div>

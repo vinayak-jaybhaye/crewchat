@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { UserDTO } from '@crewchat/types/UserDTO';
+import { UserDTO } from '@crewchat/types/src/UserDTO';
 import SearchUsers from './SearchUsers';
 import { useRouter } from 'next/navigation';
 

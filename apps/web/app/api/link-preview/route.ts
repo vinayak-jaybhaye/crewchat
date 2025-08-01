@@ -11,19 +11,22 @@ export async function GET(req: NextRequest) {
     try {
         const { result } = await ogs({ url, timeout: 5000 });
 
-        if (result.error) {
-            return NextResponse.json({ error: "Failed to fetch OG data" }, { status: 500 });
-        }
-
         return NextResponse.json({
-            title: result.ogTitle,
-            description: result.ogDescription,
+            title: result.ogTitle || null,
+            description: result.ogDescription || null,
             image: result.ogImage?.[0]?.url || null,
-            siteName: result.ogSiteName,
-            url: result.requestUrl,
+            siteName: result.ogSiteName || null,
+            url: result.requestUrl || url,
         });
+        
     } catch (err) {
         console.warn("Link preview error:", err);
-        return NextResponse.json({ error: "Something went wrong" }, { status: 500 });
+        return NextResponse.json({
+            title: null,
+            description: null,
+            image: null,
+            siteName: null,
+            url,
+        });
     }
 }

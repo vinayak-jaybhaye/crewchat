@@ -3,11 +3,13 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { MessageDTO } from "@crewchat/types";
 import { useSocket } from "@/hooks/useSocket";
-import { fetchOldMessages, storeMessage } from "@/app/actions/MessageActions";
+import { fetchOldMessages } from "@/app/actions/MessageActions";
+import { fetchIdUsernameMap } from '@/app/actions/GroupChatActions';
 import { fetchChatData } from '@/app/actions/ChatActions';
 import { type ChatDetails } from '@/lib/chat/getChatDetails';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import { MessageBox, MessageWithMentions } from '@/components/atoms';
 
 import { LinkPreview } from '@/components/atoms';
 
@@ -17,19 +19,18 @@ type ChatBoxProps = {
 }
 
 function ChatBox({ userId, chatId }: ChatBoxProps) {
-    const [input, setInput] = useState("");
     const [loading, setLoading] = useState(false);
     const [loadingOlderMessages, setLoadingOlderMessages] = useState(false);
     const [error, setError] = useState("");
     const [chatData, setChatData] = useState<ChatDetails | null>(null);
     const [messages, setMessages] = useState<MessageDTO[]>([]);
     const [hasMoreMessages, setHasMoreMessages] = useState(true);
-    const { sendMessage, onMessage } = useSocket(chatId || "");
+    const { onMessage } = useSocket(chatId || "");
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const messagesContainerRef = useRef<HTMLDivElement>(null);
+    const [idUsernameMap, setIdUsernameMap] = useState<Record<string, string>>({});
 
     const router = useRouter();
-
 
     // Fetch initial chat data
     useEffect(() => {
@@ -37,11 +38,13 @@ function ChatBox({ userId, chatId }: ChatBoxProps) {
             setLoading(true);
             try {
                 const data = await fetchChatData(chatId);
+                const idUsernameMap = await fetchIdUsernameMap(chatId);
                 if (!data) {
                     setError("Chat not found");
                     return;
                 }
                 setChatData(data);
+                setIdUsernameMap(idUsernameMap);
             } catch (err) {
                 console.error("Failed to fetch chat data:", err);
                 setError("Failed to load chat data.");
@@ -148,22 +151,6 @@ function ChatBox({ userId, chatId }: ChatBoxProps) {
         return date.toLocaleTimeString([], options);
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!input.trim()) return;
-
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-
-        storeMessage(chatId, userId, input)
-            .then((savedMessage) => {
-                sendMessage(savedMessage);
-                setInput("");
-            })
-            .catch((error) => {
-                console.error("Failed to save message:", error);
-            });
-    };
-
     const isUserNearBottom = (el: HTMLElement): boolean => {
         const threshold = 800; // pixels
         return el.scrollHeight - el.scrollTop - el.clientHeight < threshold;
@@ -189,6 +176,10 @@ function ChatBox({ userId, chatId }: ChatBoxProps) {
         const urlRegex = /(https?:\/\/[^\s]+)/g;
         const match = text.match(urlRegex);
         return match ? match[0] : null;
+    }
+
+    const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }
 
     if (loading) {
@@ -309,7 +300,10 @@ function ChatBox({ userId, chatId }: ChatBoxProps) {
                                         )}
 
                                         {/* Message Text */}
-                                        <p className="text-sm whitespace-pre-wrap break-words">{cleanMessage}</p>
+                                        <MessageWithMentions
+                                            cleanMessage={cleanMessage}
+                                            idUsernameMap={idUsernameMap}
+                                        />
 
                                         {/* Timestamp */}
                                         <div className={`text-xs mt-2 ${isSender ? "text-[var(--primary-light)]" : "text-[var(--secondary)]"}`}>
@@ -326,40 +320,7 @@ function ChatBox({ userId, chatId }: ChatBoxProps) {
             </div>
 
             {/* Input Box */}
-            <form onSubmit={handleSubmit} className="bg-[var(--card)] border-t border-[var(--border)] p-4">
-                <div className="max-w-4xl mx-auto">
-                    <div className="flex items-center">
-                        <div className="flex-1 relative">
-                            <input
-                                type="text"
-                                value={input}
-                                onChange={(e) => setInput(e.target.value)}
-                                placeholder="Type your message..."
-                                className="w-full py-3 pl-4 pr-12 bg-[var(--background)] rounded-full focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
-                            />
-                            <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex space-x-1">
-                                {/* Attachment button (disabled for now) */}
-                                <button type="button" className="text-[var(--secondary)] hover:text-[var(--foreground)] p-1" disabled>
-                                    <svg width="20" height="20" viewBox="0 0 24 24" stroke="currentColor" fill="none">
-                                        <path d="M21 15C21 15.5304 20.7893 16.0391 20.4142 16.4142C20.0391 16.7893 19.5304 17 19 17H7L3 21V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H19C19.5304 3 20.0391 3.21071 20.4142 3.58579C20.7893 3.96086 21 4.46957 21 5V15Z" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                                    </svg>
-                                </button>
-
-                                {/* Send Button */}
-                                <button
-                                    type="submit"
-                                    disabled={!input.trim()}
-                                    className="bg-[var(--primary)] text-white rounded-full p-2 hover:bg-[var(--primary-dark)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                                >
-                                    <svg width="20" height="20" viewBox="0 0 24 24" stroke="currentColor" fill="none">
-                                        <path d="M22 2L11 13M22 2L15 22L11 13L2 9L22 2Z" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                                    </svg>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </form>
+            <MessageBox userId={userId} chatId={chatId} idUsernameMap={idUsernameMap} scrollToBottom={scrollToBottom} />
         </div>
     )
 }

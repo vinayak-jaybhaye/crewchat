@@ -47,7 +47,8 @@ export default function ChatList() {
                     placeholder="Search chats..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full px-4 py-2 border border-[var(--border)] rounded-md shadow-sm bg-[var(--input)] text-[var(--input-foreground)] placeholder:text-[var(--muted-foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]"
+                    className="w-full px-4 py-2 border-b border-[var(--border)] rounded-md shadow-sm bg-[var(--input)] text-[var(--input-foreground)] placeholder:text-[var(--muted-foreground)] focus:outline-none focus:ring-0 focus:border-b-2 focus:border-[var(--ring)] transition-all duration-150 ease-in-out"
+
                 />
             </div>
 

@@ -34,7 +34,7 @@ function GroupMembers({ chatId }: { chatId: string }) {
             }
         }
         fetchChatMetaData();
-    }, [ chatId ]);
+    }, [chatId]);
 
     const router = useRouter();
 

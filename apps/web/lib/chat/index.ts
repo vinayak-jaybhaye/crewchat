@@ -9,3 +9,4 @@ export { updateGroupChat } from "./updateGroupChat"
 export { getGroupMembers } from "./getGroupMembers";
 export { getChatDetails } from "./getChatDetails";
 export { getUserChatMetadata } from "./getUserChatMetadata";
+export { getIdUsernameMap } from "./getIdUsernameMap";

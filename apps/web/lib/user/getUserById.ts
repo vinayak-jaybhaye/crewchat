@@ -7,9 +7,21 @@ import { toUserDTO } from "@crewchat/utils";
 export async function getUserById(userId: string): Promise<UserDTO> {
     try {
         await connectToDB();
-        const user = await User.findById(new mongoose.Types.ObjectId(userId)).lean();
+        const orConditions = [];
+
+        if (mongoose.Types.ObjectId.isValid(userId)) {
+            orConditions.push({ _id: new mongoose.Types.ObjectId(userId) });
+        }
+
+        orConditions.push(
+            { username: userId },
+        );
+        const user = await User.findOne({
+            $or: orConditions
+        }).lean();
+
         if (!user) {
-            throw new Error("User not found");
+            throw new Error("User not found" + userId);
         }
         return toUserDTO(user);
     } catch (error) {

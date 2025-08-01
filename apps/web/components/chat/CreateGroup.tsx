@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { createGroupChat, addMembersToGroupChat } from "@/app/actions/GroupChatActions";
-import { UserDTO } from "@crewchat/types/UserDTO";
+import { UserDTO } from "@crewchat/types/src/UserDTO";
 import { useRouter } from "next/navigation";
 import { SearchUsers } from "../user";
 

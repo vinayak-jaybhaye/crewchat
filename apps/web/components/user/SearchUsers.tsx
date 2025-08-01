@@ -38,12 +38,12 @@ export default function UserSearchBox({ selectedUsers, setSelectedUsers }: UserS
     }, [query]);
 
     return (
-        <div className="p-4 rounded-lg border border-[var(--border-color)] bg-[var(--muted-bg)] shadow-sm">
+        <div className="p-4 rounded-xl border border-[var(--border)] bg-[var(--muted)] shadow-md">
             <input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search users..."
-                className="w-full p-2 rounded border border-[var(--border-color)] bg-transparent text-[var(--text-color)] placeholder-[var(--muted-text)] focus:outline-none focus:ring-2 focus:ring-blue-400"
+                className="w-full px-4 py-2 rounded-md bg-[var(--input)] text-[var(--input-foreground)] placeholder:text-[var(--muted-foreground)] border border-[var(--border)] focus:outline-none focus:ring-0 focus:border-b-2 focus:border-[var(--ring)] transition-all duration-150"
             />
             <ul className="mt-4 space-y-2 max-h-64 overflow-y-auto scrollbar-hide">
                 {suggestions.map((user) => {
@@ -52,9 +52,9 @@ export default function UserSearchBox({ selectedUsers, setSelectedUsers }: UserS
                         <li
                             key={user._id}
                             onClick={() => handleUserClick(user)}
-                            className={`p-3 rounded cursor-pointer transition-colors duration-200 border border-transparent ${isSelected
-                                    ? 'bg-blue-100 text-blue-900 dark:bg-blue-900/20 dark:text-blue-300 border-blue-400'
-                                    : 'hover:bg-[var(--hover-bg)] text-[var(--text-color)]'
+                            className={`px-4 py-2 rounded-md cursor-pointer border transition-all duration-150 select-none ${isSelected
+                                    ? 'bg-[var(--primary)] text-white border-[var(--primary-hover)]'
+                                    : 'bg-[var(--card)] text-[var(--foreground)] hover:bg-[var(--card-hover)] border-[var(--border)]'
                                 }`}
                         >
                             {user.username}
