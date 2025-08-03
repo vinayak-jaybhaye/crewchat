@@ -9,7 +9,7 @@ import { getUserById } from "@/app/actions/UserActions"
 import { UserDTO } from "@crewchat/types"
 import Image from "next/image"
 import type { Call } from "./CallWindow"
-import type {Socket} from "socket.io-client"
+import type { Socket } from "socket.io-client"
 
 interface AudioCallWindowProps {
     socket: Socket | null
@@ -26,7 +26,7 @@ export function AudioCallWindow({
     DeleteCall,
     call
 }: AudioCallWindowProps) {
-    const localRef = useRef<HTMLAudioElement>(null)
+    // const localRef = useRef<HTMLAudioElement>(null)
     const remoteRef = useRef<HTMLAudioElement>(null)
 
     const [duration, setDuration] = useState(0)
@@ -36,7 +36,7 @@ export function AudioCallWindow({
     const { caller, acceptedAt, createdAt } = call
 
     const {
-        localStream,
+        // localStream,
         remoteStream,
         toggleMicrophone,
         micOn,
@@ -71,11 +71,6 @@ export function AudioCallWindow({
         return () => clearInterval(interval)
     }, [call, acceptedAt, createdAt])
 
-    // Stream assignment
-    useEffect(() => {
-        if (localRef.current && localStream)
-            localRef.current.srcObject = localStream
-    }, [localStream])
 
     useEffect(() => {
         if (remoteRef.current && remoteStream) {
@@ -85,20 +80,9 @@ export function AudioCallWindow({
     }, [remoteStream])
 
     const handleEndCall = async () => {
-        [localRef, remoteRef].forEach(ref => {
-            if (ref.current) ref.current.srcObject = null
-        })
         await hangUp()
         DeleteCall()
     }
-
-    useEffect(() => {
-        return () => {
-            [localRef, remoteRef].forEach(ref => {
-                if (ref.current) ref.current.srcObject = null
-            })
-        }
-    }, [])
 
     function formatTime(sec: number) {
         const mins = Math.floor(sec / 60).toString().padStart(2, "0")
@@ -159,8 +143,6 @@ export function AudioCallWindow({
                 </div>
                 }
                 <div className="flex items-center space-x-4">
-
-
                     <button
                         onClick={() => setIsFullScreen(!isFullScreen)}
                         className="p-2 rounded-lg hover:bg-slate-800/50 transition"

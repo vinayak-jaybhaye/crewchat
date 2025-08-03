@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { Socket } from 'socket.io-client';
-import { requestMicrophoneAccess, requestCameraAccess, requestCameraAndMicrophoneAccess } from '@/lib/permissions/media';
+import { requestCameraAccess, requestCameraAndMicrophoneAccess } from '@/lib/permissions/media';
 
 const configuration: RTCConfiguration = {
     iceServers: [
@@ -284,6 +284,15 @@ export function useCall({
     const deletePeerConnection = () => {
         if (peerConnectionRef.current) {
             console.log("🗑️ Deleting peer connection");
+
+            if (localStreamRef.current) {
+                const tracks = localStreamRef.current.getTracks();
+                tracks.forEach(track => {
+                    track.stop();
+                    localStreamRef.current?.removeTrack(track);
+                })
+            }
+
             peerConnectionRef.current.ontrack = null;
             peerConnectionRef.current.onicecandidate = null;
             peerConnectionRef.current.onnegotiationneeded = null;
@@ -533,26 +542,12 @@ export function useCall({
             console.log("📞 Reinitializing call as caller");
             await startCall();
         } else {
-            await deletePeerConnection();
+            deletePeerConnection();
         }
     };
 
     const hangUp = async () => {
         deletePeerConnection();
-
-        // free up resources
-        if (localStreamRef.current) {
-            localStreamRef.current.getTracks().forEach(track => track.stop());
-        }
-        if (remoteStreamRef.current) {
-            remoteStreamRef.current.getTracks().forEach(track => track.stop());
-        }
-        if (localScreenStream) {
-            localScreenStream.getTracks().forEach(track => track.stop());
-        }
-        if (remoteScreenStreamRef.current) {
-            remoteScreenStreamRef.current.getTracks().forEach(track => track.stop());
-        }
         console.log("📞 Call ended and resources released");
     }
 
@@ -569,6 +564,7 @@ export function useCall({
             socket!.off('webrtc-answer', handleAnswer);
             socket!.off('webrtc-ice-candidate', handleCandidate);
             socket!.off('reconnect-needed', handleReconnectNeeded);
+            deletePeerConnection()
         };
     }, [socket, remoteUserId, localUserId]);
 

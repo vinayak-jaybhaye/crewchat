@@ -8,7 +8,10 @@
     "build": "tsc -p tsconfig.json"
   },
   "dependencies": {
-    "@crewchat/types": "workspace:*",
-    "@crewchat/db": "workspace:*"
+    "@crewchat/db": "workspace:*",
+    "@crewchat/types": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.2"
   }
 }
