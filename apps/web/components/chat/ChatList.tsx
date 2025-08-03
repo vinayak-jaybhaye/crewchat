@@ -39,7 +39,7 @@ export default function ChatList() {
     };
 
     return (
-        <div className="relative flex flex-col h-full p-4 bg-[var(--background)] text-[var(--foreground)]">
+        <div className="relative flex flex-col h-full w-full p-4 bg-[var(--background)] text-[var(--foreground)]">
             {/* Search Bar */}
             <div className="mb-4">
                 <input
@@ -63,7 +63,7 @@ export default function ChatList() {
             </div>
 
             {/* Floating Action Button */}
-            <div className="absolute bottom-4 right-4">
+            <div className="absolute bottom-8 right-8">
                 <button
                     className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] active:bg-[var(--primary-active)] text-white p-3 rounded-full shadow-lg transition-colors focus:outline-none focus:ring-4 focus:ring-[var(--ring)]"
                     aria-label="New Chat"

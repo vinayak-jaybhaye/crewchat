@@ -173,6 +173,9 @@ function MessageBox({ chatId, userId, idUsernameMap, scrollToBottom }: MessageBo
             sendMessage(savedMessage);
             setMessage("");
             setMentionedUsers([]);
+            if (inputRef.current) {
+                inputRef.current.style.height = 'auto';
+            }
             setShowSuggestions(false);
         } catch (error) {
             console.error("Failed to save message:", error);
@@ -291,28 +294,30 @@ function MessageBox({ chatId, userId, idUsernameMap, scrollToBottom }: MessageBo
             >
                 <div className="max-w-4xl mx-auto">
                     <div className="flex items-center">
-                        <div className="flex-1 relative">
-
+                        <div className="flex-1 flex flex-row relative justify-around items-start">
                             <textarea
                                 ref={inputRef}
                                 value={message}
-                                onChange={(e) => handleInputChange(e.target.value)}
+                                onChange={(e) => {
+                                    handleInputChange(e.target.value)
+
+                                    const el = e.target;
+                                    el.style.height = 'auto';
+                                    el.style.height = `${el.scrollHeight}px`;
+                                }}
                                 onKeyDown={handleKeyDown}
-                                placeholder="Type your message... Use @ to mention someone"
-                                className="w-full py-3 px-4 bg-[var(--background)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition-all resize-none overflow-scroll scrollbar-hide"
+                                placeholder="start typing here..."
+                                className="w-full max-h-40 py-3 px-4 bg-[var(--background)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition-all resize-none overflow-scroll scrollbar-hide"
                                 rows={1}
                                 disabled={isLoading}
                                 autoComplete="off"
                             />
 
-
-                            {isLoading && (
-                                <div className="absolute right-14 top-1/2 transform -translate-y-1/2">
+                            <div className='h-full p-2'>
+                                {isLoading && (
                                     <div className="animate-spin rounded-full h-4 w-4 border-2 border-[var(--primary)] border-t-transparent"></div>
-                                </div>
-                            )}
+                                )}
 
-                            <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex space-x-1">
                                 <button
                                     type="submit"
                                     disabled={!message.trim() || isLoading}

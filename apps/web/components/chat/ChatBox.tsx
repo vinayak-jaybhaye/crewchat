@@ -10,6 +10,7 @@ import { type ChatDetails } from '@/lib/chat/getChatDetails';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { MessageBox, MessageWithMentions } from '@/components/atoms';
+import { ArrowLeft } from 'lucide-react'
 
 import { LinkPreview } from '@/components/atoms';
 
@@ -206,19 +207,25 @@ function ChatBox({ userId, chatId }: ChatBoxProps) {
     }
 
     return (
-        <div className="flex flex-col h-[90vh] w-full bg-[var(--background)] text-[var(--foreground)]">
+        <div className="flex flex-col h-[90vh] w-full text-[var(--foreground)]">
             {/* Header */}
             <header
                 className="bg-[var(--card)] shadow-sm py-4 px-6 flex items-center border-b border-[var(--border)] cursor-pointer"
                 onClick={() => router.push(`/chats/${chatId}/about`)}
             >
+                <button className='md:hidden cursor-pointer pr-2' onClick={(e) => {
+                    e.stopPropagation();
+                    router.replace('/chats')
+                }}>
+                    <ArrowLeft />
+                </button>
                 {chatData?.imageUrl || chatData?.isGroup ? (
                     <Image
                         src={chatData?.imageUrl || "/group-default.png"}
                         alt={chatData.name || "Chat"}
-                        width={48}
-                        height={48}
-                        className="w-12 h-12 rounded-full object-cover border bg-[var(--avatar-bg)]"
+                        width={38}
+                        height={38}
+                        className="w-10 h-10 rounded-full object-cover border bg-[var(--avatar-bg)]"
                     />
                 ) : (
                     <div className="w-12 h-12 rounded-full bg-[var(--avatar-bg)] text-[var(--avatar-text)] flex items-center justify-center text-lg font-semibold border border-[var(--border)]">
@@ -281,7 +288,7 @@ function ChatBox({ userId, chatId }: ChatBoxProps) {
 
                             return (
                                 <div key={msg._id} className={`flex mb-6 px-3 ${isSender ? "justify-end" : "justify-start"}`}>
-                                    <div className={`relative max-w-[85%] sm:max-w-md md:max-w-lg px-4 py-3 rounded-2xl break-words
+                                    <div className={`relative max-w-[85%] px-4 py-3 rounded-2xl break-words
                                         ${isSender
                                             ? "bg-[var(--primary)] text-white rounded-br-none"
                                             : "bg-[var(--card)] text-[var(--foreground)] rounded-bl-none shadow-md"}`}>

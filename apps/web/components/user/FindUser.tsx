@@ -26,12 +26,6 @@ function FindUser() {
 
       <div className="bg-[var(--muted-bg)] p-4 rounded-lg shadow-sm border border-[var(--border-color)]">
         <SearchUsers selectedUsers={selectedUsers} setSelectedUsers={setSelectedUsers} />
-
-        {selectedUsers.length === 0 && (
-          <p className="mt-4 text-center text-[var(--muted-text)] text-sm">
-            🔍 Start typing to find users...
-          </p>
-        )}
       </div>
       <div>
         <button onClick={() => router.back()} className="mt-6 px-4 py-2 bg-[var(--secondary)] text-[var(--text-color)] rounded-md hover:bg-opacity-80 transition">

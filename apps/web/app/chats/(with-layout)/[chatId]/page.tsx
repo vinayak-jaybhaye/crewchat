@@ -8,7 +8,7 @@ export default function ChatRoom({ params }: { params: Promise<{ chatId: string 
   const session = useSession();
 
   return (
-    <div className="flex flex-col h-screen bg-gray-50">
+    <div className="flex flex-col h-[90vh] bg-[var(--background)] ">
       <ChatBox userId={session.data?.user._id || ""} chatId={chatId} />
     </div>
   );

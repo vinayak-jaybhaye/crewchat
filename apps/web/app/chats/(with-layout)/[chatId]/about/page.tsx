@@ -4,11 +4,14 @@ import { UserChatMetaDataDTO, ChatDTO } from "@crewchat/types";
 
 import { fetchChatData, fetchUserChatMetaData } from '@/app/actions/ChatActions';
 import { AddMembers, GroupMembers } from "@/components/chat";
+import { ArrowLeft } from 'lucide-react'
+import { useRouter } from "next/navigation";
 
 export default function GroupInfoPage({ params }: { params: Promise<{ chatId: string }> }) {
     const { chatId } = use(params);
     const [chatData, setChatData] = useState<ChatDTO | null>(null);
     const [userChatMetadata, setUserChatMetadata] = useState<UserChatMetaDataDTO | null>(null);
+    const router = useRouter();
 
     useEffect(() => {
         async function fetchData() {
@@ -33,6 +36,9 @@ export default function GroupInfoPage({ params }: { params: Promise<{ chatId: st
         <div className="flex flex-col h-screen bg-[var(--background)] text-[var(--foreground)]">
             {/* Header */}
             <header className="bg-[var(--card)] border-b border-[var(--border)] px-6 py-4 shadow-sm sticky top-0 z-20">
+                <button onClick={() => router.back()}>
+                    <ArrowLeft />
+                </button>
                 <h1 className="text-xl font-semibold truncate">{chatData.name}</h1>
             </header>
 

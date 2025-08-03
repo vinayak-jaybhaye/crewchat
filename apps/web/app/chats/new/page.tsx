@@ -8,7 +8,7 @@ export default function Page() {
   const [tab, setTab] = useState<'createGroup' | 'findUser'>('createGroup');
 
   return (
-    <section className="min-h-screen w-full bg-[var(--app-bg)] text-[var(--text-color)] px-4 py-6">
+    <section className="w-full bg-[var(--background)] text-[var(--text-color)] px-4 py-6 overflow-auto scrollbar-hide">
       <header className="max-w-2xl mx-auto mb-6">
         <div className="flex justify-center gap-4">
           <button
