@@ -2,6 +2,7 @@
 
 import { useSession } from "next-auth/react";
 import { useGlobalSocket } from '@/context/SocketProvider';
+import { PhoneCall, Video } from 'lucide-react'
 
 export interface CallPayload {
     callId?: string;
@@ -36,29 +37,33 @@ function CallButton({ userId }: { userId: string }) {
         console.log("CallButton :: Initiated call:", callData);
     };
 
+    if (userId == session.user._id) return null;
+
     return (
-        <div className="flex gap-4 mt-4">
+        <div className="flex gap-4">
             <button
+                title="Video Call"
                 disabled={inCall}
                 onClick={() => handleCall("video")}
-                className={`px-4 py-2 rounded-lg font-medium transition-all
+                className={`px-4 py-2 rounded-lg font-medium transition-all cursor-pointer
           ${inCall
                         ? "bg-gray-300 text-gray-600 cursor-not-allowed"
                         : "bg-blue-600 text-white hover:bg-blue-700"}
         `}
             >
-                📹 Video Call
+                <Video />
             </button>
             <button
+                title="Audio Call"
                 disabled={inCall}
                 onClick={() => handleCall("audio")}
-                className={`px-4 py-2 rounded-lg font-medium transition-all
+                className={`px-4 py-2 rounded-lg font-medium transition-all cursor-pointer
           ${inCall
                         ? "bg-gray-300 text-gray-600 cursor-not-allowed"
                         : "bg-green-600 text-white hover:bg-green-700"}
         `}
             >
-                🎧 Audio Call
+                <PhoneCall />
             </button>
         </div>
     );

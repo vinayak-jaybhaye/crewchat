@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-/* Base variables (used as fallback/defaults) */
+/* === Base / Default Theme Variables === */
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -9,6 +9,7 @@
   --secondary: #94a3b8;
   --secondary-hover: #64748b;
   --text: #171717;
+  --text-secondary: #6b7280;
   --accent: #10b981;
   --accent-hover: #059669;
   --muted: #f3f4f6;
@@ -17,52 +18,45 @@
   --input: #f9fafb;
   --card: #ffffff;
   --card-foreground: #171717;
+  --card-hover: #f9fafb;
   --link: #2563eb;
   --link-hover: #1e40af;
   --error: #dc2626;
   --success: #16a34a;
   --warning: #facc15;
-  --card: #ffffff;
-  --card-hover: #f9fafb;
-  --border: #e5e7eb;
   --avatar-bg: #d1d5db;
   --avatar-text: #ffffff;
-  --foreground: #171717;
-  --muted-foreground: #6b7280;
 }
 
-/* Dark Theme */
+/* === Dark Theme === */
 .theme-dark {
   --background: #0a0a0a;
-  --foreground: #ededed;
+  --foreground: #f9fafb;
   --primary: #4f46e5;
   --primary-hover: #4338ca;
   --secondary: #6b7280;
   --secondary-hover: #4b5563;
-  --text-color: #ededed;
+  --text: #ededed;
+  --text-secondary: #9ca3af;
   --accent: #22c55e;
   --accent-hover: #16a34a;
   --muted: #1f2937;
   --muted-foreground: #9ca3af;
   --border: #374151;
   --input: #111827;
-  --card: #1e1e1e;
+  --card: #1f2937;
   --card-foreground: #f3f4f6;
+  --card-hover: #374151;
   --link: #818cf8;
   --link-hover: #6366f1;
   --error: #ef4444;
   --success: #4ade80;
   --warning: #fbbf24;
-  --card: #1f2937;
-  --card-hover: #374151;
-  --border: #374151;
   --avatar-bg: #4b5563;
   --avatar-text: #ffffff;
-  --foreground: #f9fafb;
-  --muted-foreground: #9ca3af;
 }
 
-/* Light Theme */
+/* === Light Theme === */
 .theme-light {
   --background: #ffffff;
   --foreground: #171717;
@@ -70,7 +64,8 @@
   --primary-hover: #1d4ed8;
   --secondary: #94a3b8;
   --secondary-hover: #64748b;
-  --text-color: #171717;
+  --text: #171717;
+  --text-secondary: #6b7280;
   --accent: #10b981;
   --accent-hover: #059669;
   --muted: #f3f4f6;
@@ -79,21 +74,17 @@
   --input: #f9fafb;
   --card: #ffffff;
   --card-foreground: #171717;
+  --card-hover: #f9fafb;
   --link: #2563eb;
   --link-hover: #1e40af;
   --error: #dc2626;
   --success: #16a34a;
   --warning: #facc15;
-  --card: #ffffff;
-  --card-hover: #f9fafb;
-  --border: #e5e7eb;
   --avatar-bg: #d1d5db;
   --avatar-text: #ffffff;
-  --foreground: #171717;
-  --muted-foreground: #6b7280;
 }
 
-/* Sepia Theme */
+/* === Sepia Theme === */
 .theme-sepia {
   --background: #f4ecd8;
   --foreground: #5b4636;
@@ -101,43 +92,39 @@
   --primary-hover: #8b4513;
   --secondary: #deb887;
   --secondary-hover: #c9a16b;
-  --text-color: #5b4636;
+  --text: #5b4636;
+  --text-secondary: #8c7761;
   --accent: #d2691e;
   --accent-hover: #b25514;
   --muted: #ede0c5;
   --muted-foreground: #7a5c43;
-  --border: #d2b48c;
+  --border: #e0d2b9;
   --input: #fdf6e3;
-  --card: #fffaf0;
+  --card: #f7f0dc;
   --card-foreground: #4b3621;
+  --card-hover: #efe3c0;
   --link: #8b5e3c;
   --link-hover: #5a3e2b;
   --error: #c0392b;
   --success: #6f9e6e;
   --warning: #e0b04f;
-  --card: #f7f0dc;
-  --card-hover: #efe3c0;
-  --border: #e0d2b9;
   --avatar-bg: #d9c4a6;
   --avatar-text: #5b4636;
-  --foreground: #5b4636;
-  --muted-foreground: #8c7761;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  transition: background 0.3s, color 0.3s;
 }
 
-/* Hide scrollbar when applied */
+/* === Scrollbar Hidden Utility === */
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
 
 .scrollbar-hide {
   -ms-overflow-style: none;
-  /* IE and Edge */
   scrollbar-width: none;
-  /* Firefox */
 }

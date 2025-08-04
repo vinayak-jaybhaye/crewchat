@@ -39,7 +39,7 @@ export default function ChatList() {
     };
 
     return (
-        <div className="relative flex flex-col h-full w-full p-4 bg-[var(--background)] text-[var(--foreground)]">
+        <div className="relative flex flex-col h-full w-full p-4 bg-[var(--background)] text-[var(--foreground)] border-r border-[var(--border)] shadow-lg">
             {/* Search Bar */}
             <div className="mb-4">
                 <input

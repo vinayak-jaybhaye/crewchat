@@ -4,7 +4,7 @@ import { UserChatMetaDataDTO, ChatDTO } from "@crewchat/types";
 
 import { fetchChatData, fetchUserChatMetaData } from '@/app/actions/ChatActions';
 import { AddMembers, GroupMembers } from "@/components/chat";
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react';
 import { useRouter } from "next/navigation";
 
 export default function GroupInfoPage({ params }: { params: Promise<{ chatId: string }> }) {
@@ -33,35 +33,41 @@ export default function GroupInfoPage({ params }: { params: Promise<{ chatId: st
     }
 
     return (
-        <div className="flex flex-col h-screen bg-[var(--background)] text-[var(--foreground)]">
+        <div className="flex flex-col h-[90vh] bg-[var(--background)] text-[var(--foreground)]">
             {/* Header */}
-            <header className="bg-[var(--card)] border-b border-[var(--border)] px-6 py-4 shadow-sm sticky top-0 z-20">
-                <button onClick={() => router.back()}>
-                    <ArrowLeft />
+            <header className="bg-[var(--card)] border-b border-[var(--border)] px-4 py-3 flex items-center gap-3 shadow-sm sticky top-0 z-20">
+                <button
+                    onClick={() => router.back()}
+                    className="p-2 rounded-lg hover:bg-[var(--muted)] transition"
+                >
+                    <ArrowLeft className="h-5 w-5" />
                 </button>
                 <h1 className="text-xl font-semibold truncate">{chatData.name}</h1>
             </header>
 
             {/* Chat Meta Info */}
-            <section className="bg-[var(--card)] px-6 py-4 border-b border-[var(--border)] space-y-1">
-                <p className="text-sm text-[var(--muted-foreground)]">
-                    <span className="font-medium text-[var(--foreground)]">Chat ID:</span> {chatId}
-                </p>
-                <p className="text-sm text-[var(--muted-foreground)]">
-                    <span className="font-medium text-[var(--foreground)]">Description:</span> {chatData.description || "No description available."}
-                </p>
+            <section className="bg-[var(--card)] px-6 py-4 border-b border-[var(--border)] space-y-2">
+                <div>
+                    <p className="text-xs font-medium text-[var(--muted-foreground)] uppercase mb-1">Chat ID</p>
+                    <p className="text-sm font-mono text-[var(--foreground)]">{chatId}</p>
+                </div>
+                <div>
+                    <p className="text-xs font-medium text-[var(--muted-foreground)] uppercase mb-1">Description</p>
+                    <p className="text-sm text-[var(--foreground)]">
+                        {chatData.description || <span className="italic text-[var(--muted-foreground)]">No description provided.</span>}
+                    </p>
+                </div>
             </section>
 
-            {/* Members & Group Info */}
-            <div className="flex-1 overflow-y-auto px-6 py-4 space-y-6">
+            {/* Members & Admin Area */}
+            <div className="flex-1 overflow-y-auto scrollbar-hide px-6 py-6 space-y-8">
                 <section>
-                    <h2 className="text-lg font-semibold mb-2">Members</h2>
+                    <h2 className="text-lg font-semibold mb-3 border-b border-[var(--border)] pb-2">Members</h2>
                     <GroupMembers chatId={chatId} />
                 </section>
 
                 {userChatMetadata.isAdmin && (
-                    <section className="pt-4 border-t border-[var(--border)]">
-                        <h2 className="text-lg font-semibold mb-2">Add Members</h2>
+                    <section>
                         <AddMembers chatId={chatId} />
                     </section>
                 )}

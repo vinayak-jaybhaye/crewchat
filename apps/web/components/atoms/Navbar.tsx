@@ -43,7 +43,7 @@ function Navbar() {
     }, [showOptions]);
 
     return (
-        <nav className="flex sticky top-0 z-50 items-center justify-between py-4 px-8 bg-[var(--background)] text-[var(--navbar-text)] shadow-sm border-b border-[var(--border-color)]">
+        <nav className="flex sticky top-0 z-50 items-center justify-between py-4 px-8 bg-[var(--background)] text-[var(--text)] shadow-sm border-b border-[var(--border)]">
             <div
                 onClick={() => {
                     if (session) {

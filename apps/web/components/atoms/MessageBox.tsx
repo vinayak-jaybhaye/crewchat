@@ -1,3 +1,5 @@
+'use client'
+
 import { useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import { storeMessage } from "@/app/actions/MessageActions";
 import { useSocket } from '@/hooks/useSocket';

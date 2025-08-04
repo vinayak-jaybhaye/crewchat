@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { startChat } from "@/app/actions/ChatActions";
 import { useTransition } from "react";
+import { MessageSquareMore } from 'lucide-react'
 
 export function StartChatButton({ userId }: { userId: string }) {
     const router = useRouter();
@@ -27,11 +28,12 @@ export function StartChatButton({ userId }: { userId: string }) {
 
     return (
         <button
+            title="Message"
             onClick={handleStartChat}
             disabled={isPending}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-all"
+            className="px-4 cursor-pointer py-2 bg-[var(--secondary)] text-[var(--text)] rounded-md hover:bg-blue-700 transition-all"
         >
-            {isPending ? "Starting..." : "Start Chatting"}
+            {isPending ? "Loading..." : (<MessageSquareMore />)}
         </button>
     );
 }
