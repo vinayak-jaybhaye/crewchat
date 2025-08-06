@@ -1,8 +1,9 @@
 'use client';
 
-import useTheme from '@/hooks/useTheme'; // Update path if needed
+import useTheme from '@/hooks/useTheme';
 import { useState } from 'react';
 import { BackButton, ChangeUsernameForm } from '@/components/atoms';
+import { signOut } from 'next-auth/react';
 
 const themes = [
     { id: "light", name: "light", class: "bg-white text-gray-900" },
@@ -23,7 +24,7 @@ export default function SettingsPage() {
 
     return (
         <div className="max-w-3xl mx-auto px-6 py-12 space-y-10">
-           <BackButton title='Settings' />
+            <BackButton title='Settings' />
 
             {/* Appearance */}
             <section>
@@ -46,7 +47,7 @@ export default function SettingsPage() {
             </section>
 
             {/* Username */}
-           <ChangeUsernameForm />
+            <ChangeUsernameForm />
 
             {/* Notifications */}
             <section>
@@ -71,9 +72,6 @@ export default function SettingsPage() {
                     className="w-full sm:w-64 border px-4 py-2 rounded focus:ring-2 focus:ring-[var(--primary)]"
                 >
                     <option value="en">English</option>
-                    <option value="hi">Hindi</option>
-                    <option value="es">Spanish</option>
-                    <option value="fr">French</option>
                 </select>
             </section>
 
@@ -82,14 +80,8 @@ export default function SettingsPage() {
                 <h2 className="text-xl font-semibold text-red-600 mb-4">Account</h2>
                 <div className="space-y-4">
                     <button
-                        className="w-full text-left text-sm text-red-600 hover:underline"
-                        onClick={() => {/* implement later */ }}
-                    >
-                        Delete Account
-                    </button>
-                    <button
-                        className="w-full text-left text-sm text-gray-600 hover:underline"
-                        onClick={() => {/* implement later */ }}
+                        className="w-full text-left text-sm text-gray-600 hover:underline cursor-pointer"
+                        onClick={() => signOut()}
                     >
                         Log Out
                     </button>

@@ -18,7 +18,7 @@ export async function createGroupChat(groupName: string, description?: string) {
         if( !groupName || groupName.trim() === "") {
             throw new Error("Group name is required");
         }
-        connectToDB();
+        await connectToDB();
         const currentUser = await getCurrentUser();
         if (!currentUser) {
             throw new Error("Unauthorized access to create group chat");

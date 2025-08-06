@@ -25,6 +25,5 @@ MentionSchema.index({ mentionedUserId: 1 });
 MentionSchema.index({ messageId: 1 });
 MentionSchema.index({ messageId: 1, mentionedUserId: 1 }, { unique: true });
 
-const Mention = mongoose.model<IMention>("Mention", MentionSchema);
-
+const Mention = mongoose.models.Mention || mongoose.model<IMention>("Mention", MentionSchema);
 export default Mention;

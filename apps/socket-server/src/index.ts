@@ -27,7 +27,13 @@ async function startServer() {
   setupSocket(io);
 
   const PORT = process.env.PORT || 3001;
-  server.listen(PORT, () => console.log(`✅ WS server running on port ${PORT}`));
+  server.listen({
+    port: PORT,
+    host: '0.0.0.0',
+  }, () => {
+    console.log(`✅ WS server running on port ${PORT}`);
+  });
+
 }
 
 startServer(); 

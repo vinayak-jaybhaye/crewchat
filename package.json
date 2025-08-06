@@ -6,7 +6,11 @@
     "dev": "concurrently \"pnpm --filter @crewchat/web dev\" \"pnpm --filter @crewchat/socket-server dev\"",
     "dev:web": "pnpm --filter @crewchat/web dev",
     "dev:socket": "pnpm --filter @crewchat/socket-server dev",
-    "build": "pnpm turbo run build"
+    "build": "pnpm turbo run build",
+    "build:web": "pnpm --filter @crewchat/web... build",
+    "build:socket": "pnpm --filter @crewchat/socket-server... build",
+    "start:web": "pnpm --filter @crewchat/web start",
+    "start:socket": "pnpm --filter @crewchat/socket-server start"
   },
   "devDependencies": {
     "concurrently": "^8.2.2",

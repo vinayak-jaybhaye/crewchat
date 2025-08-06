@@ -9,7 +9,7 @@ export type AddMembersToGroupChatParams = {
 
 export async function addMembersToGroupChat({ chatId, memberIds }: AddMembersToGroupChatParams): Promise<void> {
     try {
-        connectToDB();
+        await connectToDB();
 
         // check if chat exists
         const chat = await Chat.findById(chatId);

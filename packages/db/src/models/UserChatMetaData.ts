@@ -27,4 +27,5 @@ const UserChatMetaDataSchema = new Schema<IUserChatMetaData>(
 
 UserChatMetaDataSchema.index({ userId: 1, chatId: 1 }, { unique: true });
 
-export default mongoose.models.UserChatMetaData || mongoose.model<IUserChatMetaData>("UserChatMetaData", UserChatMetaDataSchema);
+const UserChatMetaData = mongoose.models.UserChatMetaData || mongoose.model<IUserChatMetaData>("UserChatMetaData", UserChatMetaDataSchema);
+export default UserChatMetaData;

@@ -1,0 +1,39 @@
+# Dependency folders
+node_modules
+**/node_modules
+.pnpm-store
+
+# Build outputs
+dist
+build
+.next
+out
+.turbo
+
+# Logs and debug files
+*.log
+logs
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment files
+.env
+.env.*.local
+*.local
+
+# Editor/OS files
+.vscode
+.idea
+.DS_Store
+Thumbs.db
+ehthumbs.db
+*.swp
+*.tsbuildinfo
+
+# Docker override files
+docker-compose.override.yml
+
+# Test coverage
+coverage
