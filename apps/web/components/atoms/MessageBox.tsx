@@ -316,20 +316,21 @@ function MessageBox({ chatId, userId, idUsernameMap, scrollToBottom }: MessageBo
                             />
 
                             <div className='h-full p-2'>
-                                {isLoading && (
+                                {isLoading ? (
                                     <div className="animate-spin rounded-full h-4 w-4 border-2 border-[var(--primary)] border-t-transparent"></div>
-                                )}
+                                ) : (
+                                    <button
+                                        type="submit"
+                                        disabled={!message.trim() || isLoading}
+                                        className="bg-[var(--primary)] text-white rounded-full p-2 hover:bg-[var(--primary-dark)] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-105"
+                                        title="Send message"
+                                    >
+                                        <svg width="20" height="20" viewBox="0 0 24 24" stroke="currentColor" fill="none">
+                                            <path d="M22 2L11 13M22 2L15 22L11 13L2 9L22 2Z" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                        </svg>
 
-                                <button
-                                    type="submit"
-                                    disabled={!message.trim() || isLoading}
-                                    className="bg-[var(--primary)] text-white rounded-full p-2 hover:bg-[var(--primary-dark)] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-105"
-                                    title="Send message"
-                                >
-                                    <svg width="20" height="20" viewBox="0 0 24 24" stroke="currentColor" fill="none">
-                                        <path d="M22 2L11 13M22 2L15 22L11 13L2 9L22 2Z" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                                    </svg>
-                                </button>
+                                    </button>
+                                )}
                             </div>
                         </div>
                     </div>

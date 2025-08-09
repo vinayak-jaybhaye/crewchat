@@ -1,4 +1,4 @@
-import { Message, User } from "@crewchat/db";
+import { Message, User, Chat } from "@crewchat/db";
 import { toMessageDTO } from "@crewchat/utils";
 import { connectToDB } from "@/lib/db";
 import mongoose from "mongoose";
@@ -18,10 +18,16 @@ export async function saveMessageToDB(
             content,
         });
 
-        // put user object in the message instead of senderId
-        newMessage.senderId = await User.findById(senderId)
+        // Update the Chat document's lastMessage reference and updatedAt timestamp
+        const updatedChat = await Chat.findByIdAndUpdate(chatId, {
+            lastMessage: newMessage._id,
+            updatedAt: new Date(),
+        });
 
-        return toMessageDTO(newMessage);
+        // Populate sender object in message for DTO
+        const populatedMessage = await newMessage.populate("senderId", "_id username avatarUrl");
+
+        return toMessageDTO(populatedMessage);
 
     } catch (error) {
         console.error("Error saving message:", error);

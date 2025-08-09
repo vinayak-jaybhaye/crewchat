@@ -15,11 +15,15 @@ export default function GroupInfoPage({ params }: { params: Promise<{ chatId: st
 
     useEffect(() => {
         async function fetchData() {
-            const chat = await fetchChatData(chatId);
-            setChatData(chat);
-
-            const userMetadata = await fetchUserChatMetaData(chatId);
-            setUserChatMetadata(userMetadata);
+            try {
+                const chat = await fetchChatData(chatId);
+                setChatData(chat);
+    
+                const userMetadata = await fetchUserChatMetaData(chatId);
+                setUserChatMetadata(userMetadata);
+            } catch (error) {
+                router.replace('/chats');
+            }
         }
         fetchData();
     }, [chatId]);

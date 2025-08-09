@@ -24,6 +24,15 @@ export async function getChats(userId: string): Promise<ChatDTO[]> {
     // 2. Fetch the actual chats
     const chats = await Chat.find({ _id: { $in: chatIds } })
         .populate("members", "username avatarUrl")
+        .populate({
+            path: "lastMessage",
+            select: "content senderId",
+            populate: {
+                path: "senderId",
+                select: "username"
+            }
+        })
+        .sort({ updatedAt: -1 })
         .lean();
 
     // 3. Prepare safe serializable chat data
@@ -39,6 +48,11 @@ export async function getChats(userId: string): Promise<ChatDTO[]> {
         }
         chat.name = name;
         chat.imageUrl = imageUrl;
+        chat.lastMessage = {
+            content: chat.lastMessage?.content || "",
+            senderId: chat.lastMessage?.senderId?._id || null,
+            username: chat.lastMessage?.senderId.username || ""
+        }
 
         // Convert to DTO
         return toChatDTO(chat);

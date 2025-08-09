@@ -11,6 +11,36 @@ function ChatCard({ chat }: { chat: ChatDTO }) {
         router.push(`/chats/${chat._id}`);
     };
 
+    type LastMessage = {
+        username?: string;
+        content: string;
+    };
+
+    const formatLastMessage = (lastMessage: LastMessage) => {
+        const regex = /@mention:\{[0-9a-fA-F]{24}\}/g;
+
+        // Replace mentions with @someone
+        const replaced = lastMessage.content.replace(regex, '@someone');
+
+        // Trim for preview (cut on word boundary)
+        const maxLength = 50;
+        let preview = replaced;
+        if (replaced.length > maxLength) {
+            // cut at last space before maxLength or just slice
+            const cutIndex = replaced.lastIndexOf(' ', maxLength);
+            preview = cutIndex > 0 ? replaced.slice(0, cutIndex) : replaced.slice(0, maxLength);
+            preview += '…';
+        }
+
+        return (
+            <span>
+                <strong>{lastMessage.username ?? 'Someone'}</strong>: {preview}
+            </span>
+        );
+    };
+
+
+
     return (
         <div
             className="flex items-center gap-4 py-2 px-4 rounded-xl border border-[var(--border)] bg-[var(--card)] hover:bg-[var(--card-hover)] cursor-pointer transition-all shadow-sm"
@@ -35,7 +65,13 @@ function ChatCard({ chat }: { chat: ChatDTO }) {
                     {chat.name}
                 </h2>
                 <p className="text-sm text-[var(--muted-foreground)] truncate">
-                    {chat.description && `${chat.description}`}
+                    {
+                        chat.lastMessage ?
+                            <>{formatLastMessage(chat.lastMessage)}</>
+                            : (
+                                chat.description && `${chat.description}`
+                            )
+                    }
                 </p>
             </div>
         </div>

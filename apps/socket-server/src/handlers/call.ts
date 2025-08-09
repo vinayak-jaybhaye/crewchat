@@ -38,6 +38,7 @@ export function handleCallEvents(io: Server, socket: Socket) {
     // Call initiated
     socket.on("call", async ({ other, type, caller }) => {
         console.log(`CALL INITIATED FROM  ${caller} to ${other} of type ${type}`);
+        if(other === caller) return;
         const existingCallerCallId = await redis.get(`user:${caller}:activeCall`);
 
         if (existingCallerCallId) {

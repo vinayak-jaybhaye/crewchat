@@ -9,10 +9,10 @@ import { fetchChatData } from '@/app/actions/ChatActions';
 import { type ChatDetails } from '@/lib/chat/getChatDetails';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { MessageBox, MessageWithMentions } from '@/components/atoms';
+import { MessageBox, Loader } from '@/components/atoms';
 import { ArrowLeft } from 'lucide-react'
 
-import { LinkPreview } from '@/components/atoms';
+import ChatMessage from './ChatMessage';
 
 type ChatBoxProps = {
     userId: string,
@@ -141,17 +141,6 @@ function ChatBox({ userId, chatId }: ChatBoxProps) {
         return () => container.removeEventListener('scroll', handleScroll);
     }, [handleScroll]);
 
-    const isCurrentUser = (senderId: string) => senderId === userId;
-
-    const formatTime = (date: Date) => {
-        const options: Intl.DateTimeFormatOptions = {
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: true,
-        };
-        return date.toLocaleTimeString([], options);
-    };
-
     const isUserNearBottom = (el: HTMLElement): boolean => {
         const threshold = 800; // pixels
         return el.scrollHeight - el.scrollTop - el.clientHeight < threshold;
@@ -173,20 +162,14 @@ function ChatBox({ userId, chatId }: ChatBoxProps) {
         onMessage(handleNewMessage);
     }, [onMessage]);
 
-    const extractUrl = (text: string): string | null => {
-        const urlRegex = /(https?:\/\/[^\s]+)/g;
-        const match = text.match(urlRegex);
-        return match ? match[0] : null;
-    }
-
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center h-full text-[var(--muted-foreground)]">
-                <p>Loading chat...</p>
+            <div className="flex items-center justify-center h-full">
+                <Loader title="Loading chat..." size={40} color="#1976d2" secondaryColor="#e0e0e0" />
             </div>
         );
     }
@@ -252,14 +235,8 @@ function ChatBox({ userId, chatId }: ChatBoxProps) {
 
                     {/* Loading old messages */}
                     {loadingOlderMessages && (
-                        <div className="text-center py-4">
-                            <div className="inline-flex items-center px-4 py-2 font-semibold leading-6 text-sm rounded-md text-[var(--secondary)] bg-[var(--background)] shadow">
-                                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-[var(--secondary)]" viewBox="0 0 24 24" fill="none">
-                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                                </svg>
-                                Loading older messages...
-                            </div>
+                        <div className="flex items-center justify-center py-4">
+                            <Loader title="Loading older messages..." size={30} color="#1976d2" secondaryColor="#e0e0e0" />
                         </div>
                     )}
 
@@ -278,48 +255,14 @@ function ChatBox({ userId, chatId }: ChatBoxProps) {
                             <p className="text-sm mt-2">Send a message to start the conversation</p>
                         </div>
                     ) : (
-                        messages.map((msg) => {
-                            let senderId: string;
-                            if (typeof msg.senderId === 'string') senderId = msg.senderId;
-                            else senderId = msg.senderId._id;
-                            const isSender = isCurrentUser(senderId);
-                            const link = msg.content && extractUrl(msg.content);
-                            const cleanMessage = link ? msg.content.replace(link, "").trim() : msg.content;
-
-                            return (
-                                <div key={msg._id} className={`flex mb-6 px-3 ${isSender ? "justify-end" : "justify-start"}`}>
-                                    <div className={`relative max-w-[85%] px-4 py-3 rounded-2xl break-words
-                                        ${isSender
-                                            ? "bg-[var(--primary)] text-white rounded-br-none"
-                                            : "bg-[var(--card)] text-[var(--foreground)] rounded-bl-none shadow-md"}`}>
-
-                                        {/* Sender name */}
-                                        <div className={`text-xs font-medium mb-1
-                                            ${isSender ? "text-[var(--primary-light)]" : "text-[var(--secondary)]"}`}>
-                                            {typeof msg.senderId === 'string' ? msg.senderId : msg.senderId.username || "Unknown"}
-                                        </div>
-
-                                        {/* Link Preview */}
-                                        {link && (
-                                            <div className="mb-2 w-full">
-                                                <LinkPreview url={link} />
-                                            </div>
-                                        )}
-
-                                        {/* Message Text */}
-                                        <MessageWithMentions
-                                            cleanMessage={cleanMessage}
-                                            idUsernameMap={idUsernameMap}
-                                        />
-
-                                        {/* Timestamp */}
-                                        <div className={`text-xs mt-2 ${isSender ? "text-[var(--primary-light)]" : "text-[var(--secondary)]"}`}>
-                                            {formatTime(new Date(msg.createdAt))}
-                                        </div>
-                                    </div>
-                                </div>
-                            );
-                        })
+                        messages.map((msg) =>
+                            <ChatMessage
+                                key={msg._id}
+                                msg={msg}
+                                currentUserId={userId}
+                                idUsernameMap={idUsernameMap}
+                            />
+                        )
                     )}
 
                     <div ref={messagesEndRef} />

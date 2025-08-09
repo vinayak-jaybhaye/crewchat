@@ -1,2 +1,2 @@
-export * from './models';
-export { connectToDB } from './connect';
+export * from './models/index.js';
+export { connectToDB } from './connect.js';

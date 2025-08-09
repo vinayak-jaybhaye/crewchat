@@ -10,5 +10,10 @@ export interface ChatDTO {
     description?: string;
     createdAt?: string;
     updatedAt?: string;
+    lastMessage? :{
+        content: string;
+        senderId: string | null;
+        username?: string;
+    }
     lastSeen?: string | null;
 }

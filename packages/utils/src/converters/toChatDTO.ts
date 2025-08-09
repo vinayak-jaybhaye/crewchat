@@ -12,6 +12,11 @@ export function toChatDTO(chat: any): ChatDTO {
         imageUrl: chat.imageUrl || null,
         createdAt: chat.createdAt.toISOString() || undefined,
         updatedAt: chat.updatedAt?.toISOString() || undefined,
+        lastMessage: {
+            content: chat.lastMessage?.content || "",
+            senderId: chat.lastMessage?.senderId?.toString() || null,
+            username: chat.lastMessage?.username || null
+        }
     };
 }
 

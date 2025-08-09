@@ -1,5 +1,6 @@
 import { Server, Socket } from "socket.io";
 import { MessageDTO } from "@crewchat/types";
+import { getChatMembers } from "../utils/getChatMembers";
 
 export function handleChatEvents(io: Server, socket: Socket) {
     // Join chat room
@@ -9,7 +10,15 @@ export function handleChatEvents(io: Server, socket: Socket) {
     });
 
     // Send chat message
-    socket.on("send-message", ({ chatId, message }: { chatId: string; message: MessageDTO }) => {
+    socket.on("send-message", async ({ chatId, message }: { chatId: string; message: MessageDTO }) => {
         io.to(chatId).emit("receive-message", message);
+
+        const members = await getChatMembers(chatId);
+        if (members.length === 0) return;
+
+        members.forEach((memberId) => {
+            io.to(memberId).emit("notification", message);
+        });
     });
+
 }

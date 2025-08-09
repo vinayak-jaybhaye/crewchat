@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useSession, signIn, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
+import Avatar from './Avatar';
 
 function Navbar() {
     const { data: session, status } = useSession();
@@ -61,15 +61,15 @@ function Navbar() {
                 {status === 'loading' ? (
                     <span>Loading...</span>
                 ) : session ? (
-                    <div className="flex items-center space-x-4">
-                        <Image
-                            ref={avatarRef}
-                            src={session.user.avatarUrl || '/group-default.png'}
-                            alt={session.user.username || 'User'}
-                            width={32}
-                            height={32}
-                            onClick={() => setShowOptions(prev => !prev)}
-                            className="w-8 h-8 rounded-full object-cover border bg-gray-300 cursor-pointer transition-transform duration-200 hover:scale-105"
+                    <div className="flex items-center space-x-4 cursor-pointer"
+                        ref={avatarRef}
+                        onClick={() => setShowOptions(prev => !prev)}
+
+                    >
+                        <Avatar
+                            username={session.user.username || 'User'}
+                            avatarUrl={session.user.avatarUrl}
+                            size={32}
                         />
                     </div>
                 ) : (

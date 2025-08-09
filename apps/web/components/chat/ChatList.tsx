@@ -6,12 +6,17 @@ import { fetchUserChats } from "@/app/actions/ChatActions";
 import { ChatDTO } from '@crewchat/types';
 import { Plus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useGlobalSocket } from '@/context/SocketProvider';
+import { useSession } from 'next-auth/react';
 
 export default function ChatList() {
     const router = useRouter();
     const [chats, setChats] = useState<ChatDTO[]>([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [matchedChats, setMatchedChats] = useState<ChatDTO[]>([]);
+    const socket = useGlobalSocket();
+    const session = useSession()
+
 
     useEffect(() => {
         const fetchChats = async () => {
@@ -33,6 +38,47 @@ export default function ChatList() {
             setMatchedChats(filteredChats);
         }
     }, [searchQuery, chats]);
+
+    useEffect(() => {
+        if (!socket) return;
+
+        socket.on('notification', (message) => {
+            const lastMessage = {
+                content: message.content,
+                senderId: message.senderId._id,
+                username: message.senderId.username
+            };
+
+            setChats((prevChats) => {
+                // Find index of chat with message.chatId
+                const chatIndex = prevChats.findIndex(chat => chat._id === message.chatId);
+
+                if (chatIndex === -1) {
+                    // Chat not found — maybe fetch chats again or ignore
+                    return prevChats;
+                }
+
+                // Create updated chat object with new lastMessage and updatedAt (optional)
+                const updatedChat = {
+                    ...prevChats[chatIndex],
+                    lastMessage,
+                    updatedAt: new Date().toISOString(), // or message.createdAt if available
+                };
+
+                // Create new chats array with updated chat moved to front
+                return [
+                    updatedChat,
+                    ...prevChats.slice(0, chatIndex),
+                    ...prevChats.slice(chatIndex + 1),
+                ];
+            });
+        });
+
+
+        return () => {
+            socket.off('notification');
+        }
+    }, [socket, session.data?.user._id]);
 
     const handleCreateChat = () => {
         router.push('/chats/new');

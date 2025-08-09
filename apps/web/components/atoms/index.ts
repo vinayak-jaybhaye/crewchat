@@ -5,6 +5,8 @@ import MessageBox from "./MessageBox";
 import { MessageWithMentions } from "./MessageWithMentions";
 import BackButton from "./BackButton";
 import ChangeUsernameForm from "./ChangeUsernameForm";
+import Loader from "./Loader";
+import Avatar from "./Avatar";
 
 export {
     LinkPreview,
@@ -13,5 +15,7 @@ export {
     MessageBox,
     MessageWithMentions,
     BackButton,
-    ChangeUsernameForm
+    ChangeUsernameForm,
+    Loader,
+    Avatar
 }

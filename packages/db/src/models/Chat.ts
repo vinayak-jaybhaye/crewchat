@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose, { Schema, Document, mongo } from "mongoose";
 
 export interface IChat extends Document {
     name?: string;
@@ -9,6 +9,7 @@ export interface IChat extends Document {
     description?: string;
     createdAt?: Date;
     updatedAt?: Date;
+    lastMessage?: mongoose.Types.ObjectId[];
 }
 
 const ChatSchema = new Schema<IChat>(
@@ -19,6 +20,7 @@ const ChatSchema = new Schema<IChat>(
         isGroup: { type: Boolean, default: false },
         imageUrl: { type: String },
         description: { type: String },
+        lastMessage: { type: Schema.Types.ObjectId, ref: "Message" },
     },
     {
         timestamps: true

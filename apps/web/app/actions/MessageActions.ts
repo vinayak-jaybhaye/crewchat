@@ -11,7 +11,7 @@ export async function fetchOldMessages(chatId: string, timestamp: string, limit:
     if (!user) {
         throw new Error('User not authenticated');
     }
-    return getOldMessages({ chatId, timestamp, limit });
+    return getOldMessages({ chatId, userId: user._id, timestamp, limit });
 }
 
 export async function storeMessage(chatId: string, senderId: string, content: string, mentionedUserIds: string[] = []) {

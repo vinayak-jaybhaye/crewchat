@@ -1,9 +1,11 @@
-import { UserDTO } from "./UserDTO";
-
 export interface MessageDTO {
     _id: string;
     content: string;
-    senderId: string | UserDTO;
+    senderId: string | {
+        _id: string;
+        username: string;
+        avatarUrl?: string;
+    };
     chatId: string;
     createdAt: string;
     updatedAt: string;
