@@ -43,7 +43,7 @@ function ChatCard({ chat }: { chat: ChatDTO }) {
 
     return (
         <div
-            className="flex items-center gap-4 py-2 px-4 rounded-xl border border-[var(--border)] bg-[var(--card)] hover:bg-[var(--card-hover)] cursor-pointer transition-all shadow-sm"
+            className="flex items-center gap-4 py-2 px-4 rounded-sm bg-[var(--card)] hover:bg-[var(--card-hover)] cursor-pointer transition-all shadow-sm"
             onClick={handleChatClick}
         >
             {chat?.imageUrl || chat?.isGroup ? (

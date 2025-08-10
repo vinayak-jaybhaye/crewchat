@@ -17,14 +17,6 @@ const extractUrl = (text: string): string | null => {
     return match ? match[0] : null;
 };
 
-const getInitials = (username: string): string => {
-    return username
-        .split(' ')
-        .map(word => word.charAt(0).toUpperCase())
-        .slice(0, 2)
-        .join('');
-};
-
 type MessageProps = {
     msg: MessageDTO;
     currentUserId: string;
@@ -71,7 +63,7 @@ export default function ChatMessage({ msg, currentUserId, idUsernameMap }: Messa
                 {/* Message header with sender info */}
                 <div className="flex items-center gap-2 mb-1 ml-1">
                     <span className="text-sm font-semibold text-[var(--foreground)]">
-                        {isSender ? "You" : senderInfo.username}
+                        {senderInfo.username}
                     </span>
                     {msg.pinned && (
                         <span className="text-xs text-[var(--muted-foreground)]">

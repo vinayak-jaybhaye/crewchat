@@ -4,7 +4,7 @@ const THEME_KEY = 'app-theme';
 const themeClasses = ['theme-light', 'theme-dark', 'theme-sepia'];
 
 export default function useTheme() {
-    const [theme, setThemeState] = useState<string>('light');
+    const [theme, setThemeState] = useState<string>('theme-light');
 
     const applyTheme = (newTheme: string) => {
         const body = document.body;
@@ -13,7 +13,7 @@ export default function useTheme() {
         themeClasses.forEach(cls => body.classList.remove(cls));
 
         // Add the selected theme class
-        body.classList.add(`theme-${newTheme}`);
+        body.classList.add(newTheme);
     };
 
     const setTheme = (newTheme: string) => {
@@ -23,7 +23,7 @@ export default function useTheme() {
     };
 
     useEffect(() => {
-        const savedTheme = localStorage.getItem(THEME_KEY) || 'light';
+        const savedTheme = localStorage.getItem(THEME_KEY) || 'theme-light';
         setTheme(savedTheme);
     }, []);
 

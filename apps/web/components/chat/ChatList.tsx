@@ -99,7 +99,7 @@ export default function ChatList() {
             </div>
 
             {/* Chat List */}
-            <div className="flex-1 overflow-y-auto space-y-3 scrollbar-hide">
+            <div className="flex-1 overflow-y-auto space-y-1 scrollbar-hide">
                 {(searchQuery ? matchedChats : chats).map(chat => (
                     <ChatCard key={chat._id} chat={chat} />
                 ))}

@@ -66,7 +66,6 @@ function ChatBox({ userId, chatId }: ChatBoxProps) {
 
             const oldestMessage = messages[0];
             const olderMessages = await fetchOldMessages(chatId, oldestMessage.createdAt, 20);
-            console.log("Loaded older messages:", olderMessages);
 
             if (olderMessages.length === 0) {
                 setHasMoreMessages(false);

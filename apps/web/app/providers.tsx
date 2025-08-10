@@ -2,6 +2,7 @@
 
 import { SessionProvider, useSession } from "next-auth/react";
 import { SocketProvider } from "@/context/SocketProvider";
+import useTheme from "@/hooks/useTheme";
 
 function InnerProviders({ children }: { children: React.ReactNode }) {
     const { data: session, status } = useSession();
@@ -13,10 +14,21 @@ function InnerProviders({ children }: { children: React.ReactNode }) {
     return <SocketProvider userId={session?.user._id}>{children}</SocketProvider>;
 }
 
+function ThemeProvider({ children }: { children: React.ReactNode }) {
+    useTheme();
+    return (
+        <>
+            {children}
+        </>
+    );
+}
+
 export function Providers({ children }: { children: React.ReactNode }) {
     return (
         <SessionProvider>
-            <InnerProviders>{children}</InnerProviders>
+            <ThemeProvider>
+                <InnerProviders>{children}</InnerProviders>
+            </ThemeProvider>
         </SessionProvider>
     );
 }

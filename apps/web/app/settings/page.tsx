@@ -6,14 +6,13 @@ import { BackButton, ChangeUsernameForm } from '@/components/atoms';
 import { signOut } from 'next-auth/react';
 
 const themes = [
-    { id: "light", name: "light", class: "bg-white text-gray-900" },
-    { id: "dark", name: "dark", class: "bg-gray-900 text-white" },
-    { id: "sepia", name: "sepia", class: "bg-[#f4ecd8] text-[#5b4636]" },
+    { id: "theme-light", name: "light", class: "bg-white text-gray-900" },
+    { id: "theme-dark", name: "dark", class: "bg-gray-900 text-white" },
+    { id: "theme-sepia", name: "sepia", class: "bg-[#f4ecd8] text-[#5b4636]" },
 ];
 
 export default function SettingsPage() {
     const { theme, setTheme } = useTheme();
-    const [username, setUsername] = useState('');
     const [notificationsEnabled, setNotificationsEnabled] = useState(true);
     const [language, setLanguage] = useState('en');
 

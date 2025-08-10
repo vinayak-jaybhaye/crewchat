@@ -24,7 +24,7 @@ function FindUser() {
         </p>
       </header>
 
-      <div className="bg-[var(--muted-bg)] p-4 rounded-lg shadow-sm border border-[var(--border-color)]">
+      <div className="bg-[var(--muted-bg)] rounded-lg shadow-sm">
         <SearchUsers selectedUsers={selectedUsers} setSelectedUsers={setSelectedUsers} />
       </div>
       <div>
