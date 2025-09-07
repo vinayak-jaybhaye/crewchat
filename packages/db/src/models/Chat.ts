@@ -9,7 +9,7 @@ export interface IChat extends Document {
     description?: string;
     createdAt?: Date;
     updatedAt?: Date;
-    lastMessage?: mongoose.Types.ObjectId[];
+    lastMessage?: mongoose.Types.ObjectId;
 }
 
 const ChatSchema = new Schema<IChat>(

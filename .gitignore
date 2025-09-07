@@ -18,11 +18,11 @@ pnpm-debug.log*
 .next/
 out/
 
-# VSCode
-.vscode/
+# Turborepo
+.turbo
 
-# Mac system files
-.DS_Store
+# Vercel
+.vercel/
 
 # Optional build folders
 dist/
@@ -35,20 +35,27 @@ build/
 docker-compose.override.yml
 
 # OS generated files
+.DS_Store
 Thumbs.db
 ehthumbs.db
 
 # pnpm
-.pnpm-debug.log
 .pnpm-store/
 
 # IDE specific
+.vscode/
 .idea/
 *.swp
+*.sublime-workspace
+*.sublime-project
 
 # Output
 coverage/
+.nyc_output/
 *.local
 
-# turbo
-.turbo
+# Misc
+*.pem
+*.tmp
+*.temp
+.eslintcache

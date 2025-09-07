@@ -1,23 +1,22 @@
 {
     "name": "@crewchat/db",
     "version": "1.0.0",
-    "main": "dist/index.js",
-    "types": "dist/index.d.ts",
-    "type": "module",
     "private": true,
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
     "exports": {
-        ".": "./dist/index.js"
+        ".": {
+            "import": "./dist/index.js",
+            "require": "./dist/index.js",
+            "types": "./dist/index.d.ts"
+        }
     },
     "scripts": {
-        "build": "tsc"
-    },
-    "dependencies": {
-        "aws4": "^1.13.2",
-        "mongoose": "^8.16.4"
+        "build": "tsc -b",
+        "dev": "nodemon"
     },
     "devDependencies": {
-        "@types/mongoose": "^5.11.97",
-        "@types/node": "^24.0.14",
-        "typescript": "^5.8.3"
+        "nodemon": "^3.1.10",
+        "typescript": "^5.9.2"
     }
 }

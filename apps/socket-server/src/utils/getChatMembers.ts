@@ -1,5 +1,6 @@
 import { redis } from '../server/redis';
 import { UserChatMetaData } from "@crewchat/db";
+import { UserChatMetaDataDTO } from '@crewchat/types';
 import { connectToDB } from './db';
 
 // Constants for better maintainability
@@ -18,10 +19,7 @@ export async function getChatMembers(chatId: string): Promise<string[]> {
 
         // 2. Fallback to database
         await connectToDB();
-        const members = await UserChatMetaData.find(
-            { chatId },
-            { userId: 1, _id: 0 } // Explicitly exclude _id
-        ).lean(); // Use lean() for better performance
+        const members: UserChatMetaDataDTO[] = await (UserChatMetaData as any).find({ chatId }).exec();
 
         if (!members?.length) {
             // Cache empty results too to prevent cache penetration

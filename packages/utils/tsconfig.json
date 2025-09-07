@@ -1,14 +1,10 @@
 {
+  "extends": "@crewchat/typescript-config/base.json",
   "compilerOptions": {
-    "target": "ESNext",
-    "module": "ESNext",
-    "declaration": true,
-    "outDir": "dist",
-    "moduleResolution": "node",
-    "strict": true,
-    "esModuleInterop": true
+    "outDir": "./dist",
+    "rootDir": "./src", 
+    "composite": true,
+    "incremental": true
   },
-  "include": [
-    "src/index.ts"
-  ]
+  "include": ["src"]
 }

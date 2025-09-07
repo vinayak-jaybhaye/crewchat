@@ -6,14 +6,14 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "eslint"
   },
   "dependencies": {
-    "@crewchat/db": "workspace:^",
-    "@crewchat/types": "workspace:^",
-    "@crewchat/utils": "workspace:^",
-    "lucide-react": "^0.525.0",
-    "next": "15.4.1",
+    "@crewchat/db": "workspace:*",
+    "@crewchat/types": "workspace:*",
+    "@crewchat/utils": "workspace:*",
+    "lucide-react": "^0.542.0",
+    "next": "15.5.2",
     "next-auth": "^4.24.11",
     "open-graph-scraper": "^6.10.0",
     "react": "19.1.0",
@@ -21,14 +21,15 @@
     "socket.io-client": "^4.8.1"
   },
   "devDependencies": {
+    "@crewchat/eslint-config": "workspace:*",
+    "@crewchat/typescript-config": "workspace:*",
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
-    "@types/next-auth": "^3.15.0",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "15.4.1",
+    "eslint-config-next": "15.5.2",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

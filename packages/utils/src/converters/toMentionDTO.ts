@@ -1,4 +1,4 @@
-import { MentionDTO } from '@crewchat/types'
+import { MentionDTO } from '@crewchat/types';
 
 export function toMentionDTO(mention: any): MentionDTO {
     return {

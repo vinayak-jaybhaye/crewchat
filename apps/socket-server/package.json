@@ -1,26 +1,29 @@
 {
   "name": "@crewchat/socket-server",
+  "version": "1.0.0",
+  "private": true,
   "scripts": {
-    "dev": "tsx watch src/index.ts",
-    "build": "tsc",
+    "dev": "nodemon",
+    "build": "tsc -b",
     "start": "node dist/index.js"
   },
+  "dependencies": {
+    "@crewchat/db": "workspace:*",
+    "@crewchat/types": "workspace:*",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.2",
+    "express": "^5.1.0",
+    "redis": "^5.8.2",
+    "socket.io": "^4.8.1"
+  },
   "devDependencies": {
-    "@crewchat/db": "workspace:^",
-    "@crewchat/types": "workspace:^",
+    "@crewchat/eslint-config": "workspace:*",
+    "@crewchat/typescript-config": "workspace:*",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
-    "@types/node": "^20.19.8",
-    "ts-node-dev": "^2.0.0",
-    "tsx": "^4.20.3",
-    "typescript": "^5.8.3"
-  },
-  "dependencies": {
-    "cors": "^2.8.5",
-    "dotenv": "^17.2.0",
-    "express": "^5.1.0",
-    "mongoose": "^8.16.4",
-    "redis": "^5.6.0",
-    "socket.io": "^4.8.1"
+    "@types/node": "^20.19.13",
+    "nodemon": "^3.1.10",
+    "npm-run-all": "^4.1.5",
+    "typescript": "^5.9.2"
   }
 }
