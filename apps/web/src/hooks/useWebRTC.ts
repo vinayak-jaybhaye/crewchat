@@ -49,7 +49,7 @@ export function useCall({
 
     if (micOn) {
       // Turn microphone OFF and release hardware
-      console.log("🎤 Turning microphone OFF and releasing hardware...");
+      console.log("Turning microphone OFF and releasing hardware...");
 
       audioTracks.forEach(track => {
         track.stop(); // This releases the hardware
@@ -63,11 +63,11 @@ export function useCall({
       setLocalStream(new MediaStream(localStreamRef.current.getTracks()));
 
       setMicOn(localStreamRef.current.getAudioTracks().length > 0);
-      console.log("🎤 Microphone turned OFF, hardware released");
+      console.log("Microphone turned OFF, hardware released");
 
     } else {
       // Turn microphone ON - need to request new hardware access
-      console.log("🎤 Turning microphone ON, requesting hardware access...");
+      console.log("Turning microphone ON, requesting hardware access...");
 
       try {
         // Get new audio stream (since we released hardware)
@@ -84,10 +84,10 @@ export function useCall({
 
 
           setMicOn(localStreamRef.current.getAudioTracks().length > 0);
-          console.log("🎤 Microphone turned ON, hardware acquired");
+          console.log("Microphone turned ON, hardware acquired");
         }
       } catch (error) {
-        console.warn("❌ Error accessing microphone:", error);
+        console.warn("Error accessing microphone:", error);
         await audioTransceiverRef.current?.sender.replaceTrack(null);
         setMicOn(false);
       }
@@ -97,7 +97,7 @@ export function useCall({
   // Make sure to properly clean up and recreate transceivers
   const deletePeerConnection = () => {
     if (peerConnectionRef.current) {
-      console.log("🗑️ Deleting peer connection");
+      console.log("Deleting peer connection");
 
       // Stop and release microphone/audio tracks BEFORE nulling the ref
       if (localStreamRef.current) {
@@ -129,18 +129,18 @@ export function useCall({
       setRemoteDescriptionSet(false);
       setConnectionStarted(false);
     }
-    console.log("✅ Peer connection deleted");
+    console.log("Peer connection deleted");
   }
 
 
   const startCall = useCallback(async () => {
     if (!remoteUserId || !localUserId) {
-      console.warn("⚠️ Cannot start call: already connected or peer missing");
+      console.warn("Cannot start call: already connected or peer missing");
       return;
     }
     setIsOfferer(isCaller);
     deletePeerConnection();
-    console.log("📞 Starting call as", isCaller ? "caller" : "callee");
+    console.log("Starting call as", isCaller ? "caller" : "callee");
     if (isCaller) await prepareConnection();
   }, [socket, remoteUserId, localUserId, callType]);
 
@@ -148,7 +148,7 @@ export function useCall({
   async function createPeerConnection() {
     if (!socket || !remoteUserId || !localUserId) return;
 
-    console.log("🔧 Creating peer connection...");
+    console.log("Creating peer connection...");
     const pc = new RTCPeerConnection(configuration);
     peerConnectionRef.current = pc;
 
@@ -156,19 +156,19 @@ export function useCall({
 
     audioTransceiverRef.current = audioTsc;
 
-    console.log("🔁 Transceivers created:", { audio: audioTsc });
+    console.log("Transceivers created:", { audio: audioTsc });
 
     try {
       // Request microphone access
       const mediaAccessGranted = await requestMicrophoneAccess();
       if (!mediaAccessGranted) {
-        console.warn("❗ Media access denied");
+        console.warn("Media access denied");
         await audioTransceiverRef.current?.sender.replaceTrack(null);
       } else {
         toggleMicrophone();
       }
     } catch (error) {
-      console.error("❌ Error getting local media:", error);
+      console.error("Error getting local media:", error);
     }
 
     pc.ontrack = (event) => {
@@ -176,7 +176,7 @@ export function useCall({
 
       if (!remoteStreamRef.current) remoteStreamRef.current = new MediaStream();
       if (track.kind === 'audio') {
-        console.log("📥 Received remote audio track");
+        console.log("Received remote audio track");
         remoteStreamRef.current.addTrack(track);
         setRemoteStream(remoteStreamRef.current);
       }
@@ -193,7 +193,7 @@ export function useCall({
     };
 
     if (isOfferer && !pc.signalingState.includes("closed")) {
-      console.log("📤 Emitting offer from createPeerConnection");
+      console.log("Emitting offer from createPeerConnection");
       const offer = await pc.createOffer();
       await pc.setLocalDescription(offer);
       socket.emit('webrtc-offer', {
@@ -205,7 +205,7 @@ export function useCall({
     
     pc.onnegotiationneeded = async () => {
       if (true) {
-        console.log("🔄 Negotiation needed, creating offer...");
+        console.log("Negotiation needed, creating offer...");
         const offer = await pc.createOffer();
         await pc.setLocalDescription(offer);
         socket.emit('webrtc-offer', {
@@ -214,23 +214,23 @@ export function useCall({
           offer,
         });
       } else {
-        console.warn("❗ Negotiation needed but not the offerer");
+        console.warn("Negotiation needed but not the offerer");
       }
     }
   }
 
   async function prepareConnection() {
-    connectionStarted && console.warn("⚠️ Connection already started, skipping preparation");
+    connectionStarted && console.warn("Connection already started, skipping preparation");
     setConnectionStarted(true);
     if (!peerConnectionRef.current) {
-      console.log("🔧 Preparing peer connection...");
+      console.log("Preparing peer connection...");
       createPeerConnection();
     }
   }
 
   
   const handleOffer = async ({ from, to, offer }: { from: string; to: string; offer: RTCSessionDescriptionInit }) => {
-    console.log("📩 Received offer from", from);
+    console.log("Received offer from", from);
     if (!peerConnectionRef.current) {
       await createPeerConnection();
     }
@@ -240,21 +240,21 @@ export function useCall({
 
     await pc!.setRemoteDescription(offer);
     setRemoteDescriptionSet(true);
-    console.log("✅ Set remote description (offer)");
+    console.log("Set remote description (offer)");
 
     for (const candidate of iceCandidateQueue.current) {
       try {
         await pc!.addIceCandidate(new RTCIceCandidate(candidate));
-        console.log("✅ Applied queued ICE candidate");
+        console.log("Applied queued ICE candidate");
       } catch (err) {
-        console.error("❌ Error applying queued ICE", err);
+        console.error("Error applying queued ICE", err);
       }
     }
     iceCandidateQueue.current = [];
 
     const answer = await pc!.createAnswer();
     await pc!.setLocalDescription(answer);
-    console.log("📤 Sending answer to", from);
+    console.log("Sending answer to", from);
 
     socket!.emit('webrtc-answer', {
       from: localUserId,
@@ -269,14 +269,14 @@ export function useCall({
 
     await pc.setRemoteDescription(new RTCSessionDescription(answer));
     setRemoteDescriptionSet(true);
-    console.log("✅ Set remote description (answer)");
+    console.log("Set remote description (answer)");
 
     for (const candidate of iceCandidateQueue.current) {
       try {
         await pc.addIceCandidate(new RTCIceCandidate(candidate));
-        console.log("✅ Applied queued ICE candidate (answer)");
+        console.log("Applied queued ICE candidate (answer)");
       } catch (err) {
-        console.error("❌ Error applying ICE (answer)", err);
+        console.error("Error applying ICE (answer)", err);
       }
     }
     iceCandidateQueue.current = [];
@@ -286,23 +286,23 @@ export function useCall({
     const pc = peerConnectionRef.current;
     if (to !== localUserId || !pc) return;
     if (!remoteDescriptionSet) {
-      console.log("📥 Queuing ICE candidate (remoteDescription not set)");
+      console.log("Queuing ICE candidate (remoteDescription not set)");
       iceCandidateQueue.current.push(candidate);
       return;
     }
 
     try {
       await pc.addIceCandidate(new RTCIceCandidate(candidate));
-      console.log("✅ Added ICE candidate directly");
+      console.log("Added ICE candidate directly");
     } catch (err) {
-      console.error("❌ Error adding ICE candidate:", err);
+      console.error("Error adding ICE candidate:", err);
     }
   };
 
   const handleReconnectNeeded = async () => {
-    console.warn("🔄 Reconnect needed, deleting peer connection");
+    console.warn("Reconnect needed, deleting peer connection");
     if (isCaller) {
-      console.log("📞 Reinitializing call as caller");
+      console.log("Reinitializing call as caller");
       await startCall();
     } else {
       deletePeerConnection();
@@ -311,7 +311,7 @@ export function useCall({
 
   const hangUp = async () => {
     deletePeerConnection();
-    console.log("📞 Call ended and resources released");
+    console.log("Call ended and resources released");
   }
 
   useEffect(() => {
@@ -332,13 +332,13 @@ export function useCall({
   }, [socket, remoteUserId, localUserId]);
   
   if (!socket || !remoteUserId || !localUserId) {
-    console.error("❌ Missing socket or user IDs");
+    console.error("Missing socket or user IDs");
     return {
       localStream: null,
       remoteStream: null,
-      toggleMicrophone: () => console.warn("⚠️ Cannot toggle microphone: missing socket or user IDs"),
+      toggleMicrophone: () => console.warn("Cannot toggle microphone: missing socket or user IDs"),
       micOn: false,
-      hangUp: () => console.warn("⚠️ Hangup not implemented yet")
+      hangUp: () => console.warn("Hangup not implemented yet")
     };
   }
   

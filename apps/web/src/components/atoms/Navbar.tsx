@@ -14,7 +14,7 @@ function Navbar() {
 
     useEffect(() => {
         if (status === 'unauthenticated') {
-            router.replace('/login');
+            router.replace('/');
         }
     }, [status, router]);
 
@@ -75,7 +75,7 @@ function Navbar() {
                 ) : (
                     <button
                         onClick={() => signIn()}
-                        className="bg-[var(--primary)] hover:brightness-90 text-[var(--button-text)] px-4 py-2 rounded-md text-sm font-semibold transition"
+                        className="bg-[var(--primary)] hover:brightness-90 text-[var(--button-text)] px-4 py-2 rounded-md text-sm font-semibold transition cursor-pointer"
                     >
                         Sign in
                     </button>

@@ -31,7 +31,7 @@ async function startServer() {
     port: PORT,
     host: '0.0.0.0',
   }, () => {
-    console.log(`✅ WS server running on port ${PORT}`);
+    console.log(`WS server running on port ${PORT}`);
   });
 
 }
