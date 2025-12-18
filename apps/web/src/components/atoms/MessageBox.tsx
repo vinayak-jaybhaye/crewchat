@@ -276,6 +276,9 @@ function MessageBox({ chatId, userId, idUsernameMap, scrollToBottom }: MessageBo
         }
     };
 
+    useEffect(() => {
+        inputRef.current?.focus();
+    }, [handleSubmit]);
 
     return (
         <div className="relative">
