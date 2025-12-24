@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "nodemon",
-    "build": "tsc -b",
+    "build": "tsc -p tsconfig.json",
     "start": "node dist/index.js"
   },
   "dependencies": {
@@ -18,12 +18,9 @@
   },
   "devDependencies": {
     "@crewchat/eslint-config": "workspace:*",
-    "@crewchat/typescript-config": "workspace:*",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
     "@types/node": "^20.19.13",
-    "nodemon": "^3.1.10",
-    "npm-run-all": "^4.1.5",
-    "typescript": "^5.9.2"
+    "nodemon": "^3.1.10"
   }
 }

@@ -3,10 +3,9 @@
   "extends": "./base.json",
   "compilerOptions": {
     "plugins": [{ "name": "next" }],
-    "module": "ESNext",
-    "moduleResolution": "Bundler",
-    "allowJs": true,
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
     "jsx": "preserve",
+    "allowJs": true,
     "noEmit": true
   }
 }

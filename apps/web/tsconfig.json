@@ -1,5 +1,4 @@
 {
-  "extends": "@crewchat/typescript-config/base.json",
   "compilerOptions": {
     "plugins": [
       {
@@ -30,6 +29,7 @@
     "jsx": "preserve"
   },
   "include": [
+    ".next/types",
     "next-env.d.ts",
     "src",
     ".next/types/**/*.ts"

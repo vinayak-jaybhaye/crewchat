@@ -1,15 +1,36 @@
-FROM node:18-alpine
-
-# Enable pnpm
+# ---------- Base ----------
+FROM node:22-alpine AS base
+WORKDIR /app
 RUN corepack enable
 
-WORKDIR /app
+# ---------- Build ----------
+FROM base AS build
 
-COPY . .
+# Copy workspace manifests
+COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
+COPY packages ./packages
+COPY apps/socket-server/package.json ./apps/socket-server/package.json
 
+# Install ALL deps needed to build
 RUN pnpm install --filter @crewchat/socket-server...
-RUN pnpm build:socket
+
+# Copy source and build
+COPY apps/socket-server ./apps/socket-server
+RUN pnpm --filter @crewchat/socket-server build
+
+# ---------- Runtime ----------
+FROM base AS runtime
+WORKDIR /app
+ENV NODE_ENV=production
+
+# Copy only runtime package.json
+COPY apps/socket-server/package.json ./
+
+# Install ONLY production deps (THIS IS THE KEY)
+RUN pnpm install --prod
+
+# Copy built output
+COPY --from=build /app/apps/socket-server/dist ./dist
 
 EXPOSE 3001
-
-CMD ["pnpm", "start:socket"]
+CMD ["node", "dist/index.js"]
