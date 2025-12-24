@@ -12,19 +12,18 @@
     "build:web": "pnpm --filter @crewchat/web... build",
     "build:socket": "pnpm --filter @crewchat/socket-server... build",
     "start:web": "pnpm --filter @crewchat/web start",
-    "start:socket": "pnpm --filter @crewchat/socket-server start"
+    "start:socket": "pnpm --filter @crewchat/socket-server start",
+    "clean": "pnpm exec rimraf -g \"**/node_modules\" \"**/dist\" \"**/.next\" \"**/.turbo\""
   },
   "devDependencies": {
     "@types/node": "^24.3.1",
     "prettier": "^3.6.2",
+    "rimraf": "^6.1.2",
     "turbo": "^2.5.6",
     "typescript": "5.9.2"
   },
   "packageManager": "pnpm@9.0.0",
   "engines": {
     "node": ">=18"
-  },
-  "dependencies": {
-    "mongoose": "^8.18.0"
   }
 }

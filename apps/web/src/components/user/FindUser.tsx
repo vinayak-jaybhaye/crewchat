@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { UserDTO } from '@crewchat/types/src/UserDTO';
 import SearchUsers from './SearchUsers';
 import { useRouter } from 'next/navigation';
+import { Search } from 'lucide-react';
 
 function FindUser() {
   const [selectedUsers, setSelectedUsers] = useState<UserDTO[]>([]);
@@ -16,23 +17,28 @@ function FindUser() {
   }, [selectedUsers, router]);
 
   return (
-    <section className="w-full min-h-[60vh] max-w-2xl mx-auto px-4 py-6 text-[var(--text-color)]">
-      <header className="mb-6">
-        <h2 className="text-2xl font-bold mb-2">Find Users</h2>
-        <p className="text-sm text-[var(--muted-text)]">
-          Search for your friends and start a chat with them.
-        </p>
-      </header>
+    <div className="bg-[var(--card)] rounded-2xl border border-[var(--border)] shadow-sm overflow-hidden min-h-[400px]">
+      <div className="p-6 border-b border-[var(--border)]">
+        <h2 className="text-xl font-semibold text-[var(--foreground)] flex items-center gap-2">
+          <Search className="w-5 h-5 text-[var(--primary)]" />
+          Find Friends
+        </h2>
+        <p className="text-sm text-[var(--muted-foreground)]">Search for users to start a conversation</p>
+      </div>
 
-      <div className="bg-[var(--muted-bg)] rounded-lg shadow-sm">
+      <div className="p-6">
         <SearchUsers selectedUsers={selectedUsers} setSelectedUsers={setSelectedUsers} />
+
+        <div className="mt-8 flex justify-end">
+          <button
+            onClick={() => router.back()}
+            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors"
+          >
+            Cancel
+          </button>
+        </div>
       </div>
-      <div>
-        <button onClick={() => router.back()} className="mt-6 px-4 py-2 bg-[var(--secondary)] text-[var(--text-color)] rounded-md hover:bg-opacity-80 transition">
-          Go Back
-        </button>
-      </div>
-    </section>
+    </div>
   );
 }
 

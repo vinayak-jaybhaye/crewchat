@@ -62,7 +62,7 @@ function LinkPreview({ url }: { url: string }) {
             ) : (
                 preview.image && (
                     <div className="w-full h-32 w-36 overflow-hidden">
-                    {/* // eslint-disable-next-line @next/next/no-img-element */}
+                        {/* eslint-disable @next/next/no-img-element */}
                         <img
                             src={preview.image}
                             alt={preview.title || "Link preview"}

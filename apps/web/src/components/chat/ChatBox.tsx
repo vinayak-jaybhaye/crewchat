@@ -9,8 +9,8 @@ import { fetchChatData } from '@/app/actions/ChatActions';
 import { type ChatDetails } from '@/lib/chat/getChatDetails';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { MessageBox, Loader } from '@/components/atoms';
-import { ArrowLeft } from 'lucide-react'
+import { MessageBox } from '@/components/atoms';
+import { ArrowLeft, Loader2, MoreVertical, MessageSquare } from 'lucide-react'
 
 import ChatMessage from './ChatMessage';
 
@@ -167,16 +167,23 @@ function ChatBox({ userId, chatId }: ChatBoxProps) {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center h-full">
-                <Loader title="Loading chat..." size={40} color="#1976d2" secondaryColor="#e0e0e0" />
+            <div className="flex flex-col items-center justify-center h-full gap-3 bg-[var(--background)]">
+                <Loader2 className="w-8 h-8 animate-spin text-[var(--primary)]" />
+                <p className="text-sm font-medium text-[var(--muted-foreground)]">Loading chat...</p>
             </div>
         );
     }
 
     if (!chatId) {
         return (
-            <div className="flex items-center justify-center h-full text-[var(--muted-foreground)]">
-                <p>Select a chat to start messaging</p>
+            <div className="flex flex-col items-center justify-center h-full text-[var(--muted-foreground)] bg-[var(--background)] gap-4">
+                <div className="w-16 h-16 rounded-full bg-[var(--muted)] flex items-center justify-center">
+                    <MessageSquare className="w-8 h-8 opacity-50" />
+                </div>
+                <div className="text-center">
+                    <p className="text-lg font-medium text-[var(--foreground)]">No Chat Selected</p>
+                    <p className="text-sm">Select a chat to start messaging</p>
+                </div>
             </div>
         );
     }
@@ -189,69 +196,92 @@ function ChatBox({ userId, chatId }: ChatBoxProps) {
     }
 
     return (
-        <div className="flex flex-col h-[90vh] w-full text-[var(--foreground)]">
+        <div className="flex flex-col h-[90vh] w-full bg-[var(--background)] text-[var(--foreground)] relative overflow-hidden">
             {/* Header */}
             <header
-                className="bg-[var(--card)] shadow-sm py-4 px-6 flex items-center border-b border-[var(--border)] cursor-pointer"
+                className="absolute top-0 left-0 right-0 z-10 bg-[var(--background)]/80 backdrop-blur-md border-b border-[var(--border)] py-3 px-4 flex items-center justify-between shadow-sm transition-all"
                 onClick={() => router.push(`/chats/${chatId}/about`)}
             >
-                <button className='md:hidden cursor-pointer pr-2' onClick={(e) => {
-                    e.stopPropagation();
-                    router.replace('/chats')
-                }}>
-                    <ArrowLeft />
-                </button>
-                {chatData?.imageUrl || chatData?.isGroup ? (
-                    <Image
-                        src={chatData?.imageUrl || "/group-default.png"}
-                        alt={chatData.name || "Chat"}
-                        width={38}
-                        height={38}
-                        className="w-10 h-10 rounded-full object-cover border bg-[var(--avatar-bg)]"
-                    />
-                ) : (
-                    <div className="w-12 h-12 rounded-full bg-[var(--avatar-bg)] text-[var(--avatar-text)] flex items-center justify-center text-lg font-semibold border border-[var(--border)]">
-                        {chatData?.name?.[0]?.toUpperCase() || "?"}
-                    </div>
-                )}
+                <div className="flex items-center gap-3 flex-1 min-w-0 group cursor-pointer">
+                    <button
+                        className='md:hidden p-2 -ml-2 rounded-full hover:bg-[var(--muted)] text-[var(--muted-foreground)] transition-colors'
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            router.replace('/chats')
+                        }}
+                    >
+                        <ArrowLeft className="w-5 h-5" />
+                    </button>
 
-                <div className="ml-4">
-                    <h1 className="font-semibold text-[var(--foreground)]">{chatData?.name || "Chat"}</h1>
-                    <p className="text-xs text-[var(--secondary)] flex items-center">
-                        <span className="w-2 h-2 bg-green-500 rounded-full mr-2" />
-                        ID: {chatId}
-                    </p>
+                    <div className="relative flex-shrink-0">
+                        {chatData?.imageUrl || chatData?.isGroup ? (
+                            <Image
+                                src={chatData?.imageUrl || "/group-default.png"}
+                                alt={chatData.name || "Chat"}
+                                width={40}
+                                height={40}
+                                className="w-10 h-10 rounded-full object-cover border-2 border-[var(--background)] shadow-sm group-hover:scale-105 transition-transform"
+                            />
+                        ) : (
+                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[var(--primary)] to-[var(--accent)] text-white flex items-center justify-center text-lg font-bold shadow-sm group-hover:scale-105 transition-transform">
+                                {chatData?.name?.[0]?.toUpperCase() || "?"}
+                            </div>
+                        )}
+                        <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-[var(--background)] rounded-full"></span>
+                    </div>
+
+                    <div className="flex-1 min-w-0">
+                        <h1 className="font-semibold text-sm sm:text-base leading-tight truncate group-hover:text-[var(--primary)] transition-colors">
+                            {chatData?.name || "Chat"}
+                        </h1>
+                        <p className="text-xs text-[var(--muted-foreground)] truncate">
+                            ID: {chatId}
+                        </p>
+                    </div>
                 </div>
+
+                <button
+                    className="p-2 rounded-full hover:bg-[var(--muted)] text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors"
+                >
+                    <MoreVertical className="w-5 h-5" />
+                </button>
             </header>
 
             {/* Messages */}
             <div
                 ref={messagesContainerRef}
-                className="flex-1 overflow-y-auto w-full bg-[var(--card)] p-4 scrollbar-hide"
+                className="flex-1 overflow-y-auto w-full pt-[72px] px-2 sm:px-4 pb-2 scrollbar-hide bg-[var(--background)]"
                 style={{ scrollBehavior: 'smooth' }}
             >
-                <div className="max-w-4xl mx-auto">
+                <div className="max-w-4xl mx-auto space-y-2">
 
                     {/* Loading old messages */}
                     {loadingOlderMessages && (
                         <div className="flex items-center justify-center py-4">
-                            <Loader title="Loading older messages..." size={30} color="#1976d2" secondaryColor="#e0e0e0" />
+                            <div className="flex items-center gap-2 px-3 py-1.5 bg-[var(--muted)]/50 rounded-full text-xs text-[var(--muted-foreground)]">
+                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                <span>Loading history...</span>
+                            </div>
                         </div>
                     )}
 
                     {/* Start of conversation */}
                     {!hasMoreMessages && messages.length > 0 && (
-                        <div className="text-center py-4 text-sm text-[var(--secondary)]">
-                            • Beginning of conversation •
+                        <div className="flex items-center justify-center py-6">
+                            <div className="px-4 py-1.5 bg-[var(--muted)]/30 text-[var(--muted-foreground)] text-xs rounded-full border border-[var(--border)]/50">
+                                Beginning of conversation
+                            </div>
                         </div>
                     )}
 
                     {/* No messages */}
                     {messages.length === 0 && !loading ? (
-                        <div className="text-center py-10 text-[var(--secondary)]">
-                            <div className="mx-auto w-24 h-24 bg-[var(--avatar-bg)] rounded-full mb-4" />
-                            <p>No messages yet</p>
-                            <p className="text-sm mt-2">Send a message to start the conversation</p>
+                        <div className="flex flex-col items-center justify-center py-16 text-[var(--muted-foreground)] opacity-70">
+                            <div className="w-20 h-20 rounded-2xl bg-[var(--muted)]/50 flex items-center justify-center mb-4 rotate-3">
+                                <MessageSquare className="w-10 h-10" />
+                            </div>
+                            <p className="font-semibold text-lg">No messages yet</p>
+                            <p className="text-sm">Start the conversation!</p>
                         </div>
                     ) : (
                         messages.map((msg) =>
@@ -269,7 +299,9 @@ function ChatBox({ userId, chatId }: ChatBoxProps) {
             </div>
 
             {/* Input Box */}
-            <MessageBox userId={userId} chatId={chatId} idUsernameMap={idUsernameMap} scrollToBottom={scrollToBottom} />
+            <div className="flex-shrink-0 z-20 bg-[var(--background)]">
+                <MessageBox userId={userId} chatId={chatId} idUsernameMap={idUsernameMap} scrollToBottom={scrollToBottom} />
+            </div>
         </div>
     )
 }

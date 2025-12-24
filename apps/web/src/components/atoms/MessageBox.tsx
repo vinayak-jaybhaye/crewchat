@@ -149,7 +149,7 @@ function MessageBox({ chatId, userId, idUsernameMap, scrollToBottom }: MessageBo
         if (showSuggestions) updateModalPosition();
     }, [showSuggestions, updateModalPosition]);
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = useCallback(async (e: React.FormEvent) => {
         e.preventDefault();
         if (!message.trim() || isLoading) return;
 
@@ -184,7 +184,7 @@ function MessageBox({ chatId, userId, idUsernameMap, scrollToBottom }: MessageBo
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [message, isLoading, chatId, userId, mentionedUsers, sendMessage, scrollToBottom]);
 
     const handleInputChange = (value: string) => {
         setMessage(value);

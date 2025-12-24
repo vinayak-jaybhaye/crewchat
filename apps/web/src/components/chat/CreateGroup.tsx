@@ -5,6 +5,7 @@ import { createGroupChat, addMembersToGroupChat } from "@/app/actions/GroupChatA
 import { UserDTO } from "@crewchat/types/src/UserDTO";
 import { useRouter } from "next/navigation";
 import { SearchUsers } from "../user";
+import { Users, FileText, Check, Loader2 } from 'lucide-react';
 
 function CreateGroup() {
   const router = useRouter();
@@ -51,84 +52,93 @@ function CreateGroup() {
   };
 
   return (
-    <div className="min-h-screen w-full px-6 py-12 bg-[var(--background)] text-[var(--foreground)] transition-colors duration-300">
-      <div className="max-w-3xl mx-auto space-y-10">
-        {/* Header */}
-        <header className="text-center">
-          <h1 className="text-4xl font-bold mb-2">Create a New Group</h1>
-          <p className="text-[var(--secondary)] text-base max-w-md mx-auto">
-            Organize your team, friends, or family into a dedicated chat group.
-          </p>
-        </header>
+    <div className="bg-[var(--card)] rounded-2xl border border-[var(--border)] shadow-sm overflow-hidden">
+      <div className="p-6 border-b border-[var(--border)]">
+        <h2 className="text-xl font-semibold text-[var(--foreground)]">Group Details</h2>
+        <p className="text-sm text-[var(--muted-foreground)]">Create a space for your team or friends</p>
+      </div>
 
-        {/* Form Fields */}
-        <div className="space-y-6">
-          {/* Group Name */}
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              Group Name <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              placeholder="e.g., Study Buddies"
-              value={groupName}
-              onChange={(e) => setGroupName(e.target.value)}
-              className="w-full text-base px-4 py-3 border border-gray-300 rounded-md bg-transparent focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition"
-            />
+      <div className="p-6 space-y-6">
+        {/* Group Name */}
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-[var(--foreground)] flex items-center gap-2">
+            <Users className="w-4 h-4 text-[var(--muted-foreground)]" />
+            Group Name
+          </label>
+          <input
+            type="text"
+            placeholder="e.g. Weekend Trip Squad"
+            value={groupName}
+            onChange={(e) => setGroupName(e.target.value)}
+            className="w-full px-4 py-2.5 rounded-lg bg-[var(--background)] border border-[var(--border)] text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent transition-all outline-none"
+          />
+        </div>
+
+        {/* Description */}
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-[var(--foreground)] flex items-center gap-2">
+            <FileText className="w-4 h-4 text-[var(--muted-foreground)]" />
+            Description <span className="text-[var(--muted-foreground)] font-normal ml-auto text-xs">(optional)</span>
+          </label>
+          <textarea
+            placeholder="What's this group about?"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            className="w-full px-4 py-2.5 rounded-lg bg-[var(--background)] border border-[var(--border)] text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent transition-all outline-none resize-none min-h-[100px]"
+          />
+        </div>
+
+        {/* Selected Members */}
+        {selectedUsers.length > 0 && (
+          <div className="flex flex-wrap gap-2 pt-2">
+            {selectedUsers.map((user) => (
+              <span
+                key={user._id}
+                className="inline-flex items-center gap-1 bg-[var(--primary)]/10 text-[var(--primary)] px-3 py-1 rounded-full text-xs font-medium border border-[var(--primary)]/20"
+              >
+                {user.username}
+              </span>
+            ))}
           </div>
+        )}
 
-          {/* Description */}
-          <div>
-            <label className="block text-sm font-medium mb-1">Description (optional)</label>
-            <textarea
-              placeholder="Write something about this group..."
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className="w-full text-base px-4 py-3 border border-gray-300 rounded-md bg-transparent focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition resize-none"
-              rows={4}
-            />
-          </div>
-
-          {/* Error Message */}
-          {error && <p className="text-red-600 text-sm font-medium">{error}</p>}
-
-          {/* Selected Members */}
-          <div>
-            {selectedUsers.length > 0 ? (
-              <div className="flex flex-wrap gap-2">
-                {selectedUsers.map((user) => (
-                  <span
-                    key={user._id}
-                    className="bg-[var(--primary)] bg-opacity-10 text-[var(--primary)] px-3 py-1 rounded-full text-sm"
-                  >
-                    {user.username}
-                  </span>
-                ))}
-              </div>
-            ) : (
-              <p className="text-sm text-[var(--secondary)]">No members selected.</p>
-            )}
-          </div>
-
-          {/* Search and Add */}
+        {/* Search and Add */}
+        <div className="pt-2">
           <SearchUsers selectedUsers={selectedUsers} setSelectedUsers={setSelectedUsers} />
+        </div>
 
-          {/* Actions */}
-          <div className="flex gap-4">
-            <button
-              onClick={() => router.back()}
-              className="bg-[var(--secondary)] bg-opacity-10 hover:bg-opacity-20 text-[var(--text-color)] font-medium px-6 py-3 rounded-md transition"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleCreate}
-              disabled={loading}
-              className="bg-[var(--primary)] hover:bg-opacity-90 text-[var(--text-color)] font-medium px-6 py-3 rounded-md transition disabled:opacity-60"
-            >
-              {loading ? "Creating..." : "Create Group"}
-            </button>
+        {/* Error Message */}
+        {error && (
+          <div className="p-3 rounded-lg bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-900 text-red-600 dark:text-red-400 text-sm">
+            {error}
           </div>
+        )}
+
+        {/* Actions */}
+        <div className="flex items-center justify-end gap-3 pt-4 border-t border-[var(--border)]">
+          <button
+            onClick={() => router.back()}
+            className="px-4 py-2 text-sm font-medium text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleCreate}
+            disabled={loading}
+            className="flex items-center gap-2 bg-[var(--primary)] hover:bg-[var(--primary)]/90 text-[var(--primary-foreground)] px-6 py-2 rounded-lg text-sm font-medium transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {loading ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Creating...
+              </>
+            ) : (
+              <>
+                <Check className="w-4 h-4" />
+                Create Group
+              </>
+            )}
+          </button>
         </div>
       </div>
     </div>

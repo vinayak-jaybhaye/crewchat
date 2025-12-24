@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 const THEME_KEY = 'app-theme';
 const themeClasses = ['theme-light', 'theme-dark', 'theme-sepia'];
@@ -16,12 +16,12 @@ export default function useTheme() {
         body.classList.add(newTheme);
     };
 
-    const setTheme = (newTheme: string) => {
+    const setTheme = useCallback((newTheme: string) => {
         setThemeState(newTheme);
         applyTheme(newTheme);
         localStorage.setItem(THEME_KEY, newTheme);
-    };
-
+    }, []);
+    
     useEffect(() => {
         const savedTheme = localStorage.getItem(THEME_KEY) || 'theme-light';
         setTheme(savedTheme);
