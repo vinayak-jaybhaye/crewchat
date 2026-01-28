@@ -1,0 +1,61 @@
+# Node modules
+node_modules/
+**/node_modules/
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Env files
+.env
+.env.*.local
+
+# Next.js build
+.next/
+out/
+
+# Turborepo
+.turbo
+
+# Vercel
+.vercel/
+
+# Optional build folders
+dist/
+build/
+
+# Typescript
+*.tsbuildinfo
+
+# Docker
+docker-compose.override.yml
+
+# OS generated files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+
+# pnpm
+.pnpm-store/
+
+# IDE specific
+.vscode/
+.idea/
+*.swp
+*.sublime-workspace
+*.sublime-project
+
+# Output
+coverage/
+.nyc_output/
+*.local
+
+# Misc
+*.pem
+*.tmp
+*.temp
+.eslintcache

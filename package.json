@@ -1,0 +1,31 @@
+{
+  "name": "crewchat",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "pnpm -r build",
+    "dev": "pnpm -r dev",
+    "start": "pnpm -r start",
+    "typecheck": "pnpm -r typecheck",
+    "lint": "pnpm -r lint",
+    "clean": "pnpm -r clean",
+    "reset": "pnpm clean && pnpm install",
+    "build:db": "pnpm --filter @crewchat/db build",
+    "dev:db": "pnpm --filter @crewchat/db dev",
+    "build:web": "pnpm --filter @crewchat/web build",
+    "dev:message": "pnpm --filter @crewchat/message dev",
+    "build:message": "pnpm --filter @crewchat/message build",
+    "dev:web": "pnpm --filter @crewchat/web dev",
+    "build:socket": "pnpm --filter @crewchat/socket build",
+    "dev:socket": "pnpm --filter @crewchat/socket dev",
+    "dev:chat": "pnpm --filter @crewchat/chat dev",
+    "build:chat": "pnpm --filter @crewchat/chat build",
+    "dev:user": "pnpm --filter @crewchat/user dev",
+    "build:user": "pnpm --filter @crewchat/user build"
+  },
+  "packageManager": "pnpm@10.27.0",
+  "devDependencies": {
+    "@types/node": "^25.0.10",
+    "typescript": "^5.9.3"
+  }
+}
