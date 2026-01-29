@@ -8,6 +8,7 @@ export interface UpdateUsernameParams {
 
 export interface UpdateUsernameResponse {
     success: boolean;
+    message: string
 }
 
 export interface CheckUsernameAvailabilityParams {
@@ -27,17 +28,15 @@ export async function updateUsername(params: UpdateUsernameParams): Promise<Upda
 
     // check if username is already taken
     const user = await UserModel.findOne({ username: params.username });
-    if (user) throw new Error("Username already taken");
+    if (user) return {
+        success: false,
+        message: "Username already taken."
+    };
 
     await UserModel.updateOne({ _id: new Types.ObjectId(params.userId) }, { username: params.username });
 
     return {
         success: true,
+        message: "Username updated successfully."
     }
-}
-
-export async function checkUsernameAvailability(params: CheckUsernameAvailabilityParams): Promise<CheckUsernameAvailabilityResponse> {
-    const user = await UserModel.findOne({ username: params.username });
-    if (user) return { available: false };
-    return { available: true };
 }

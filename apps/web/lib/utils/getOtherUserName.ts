@@ -1,6 +1,6 @@
 import { auth } from "@/auth";
 
-export default async function getOtherUserName( members: { userId: string; name: string }[]) {
+export default async function getOtherUserName(members: { userId: string; name: string }[]) {
   const session = await auth();
   if (!session?.user) return "Unknown User";
   const currentUserId = session.user?.mongoId;

@@ -13,7 +13,7 @@ import type { ChatStore } from "@/store/chat.store";
 interface ChatWindowParams {
   chatId: string,
   currentUserId: string,
-  setIsAboutChatOpen: (open: boolean) => void
+  setIsAboutChatOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export default function ChatWindow({ chatId, currentUserId, setIsAboutChatOpen }: ChatWindowParams) {
@@ -55,7 +55,7 @@ export default function ChatWindow({ chatId, currentUserId, setIsAboutChatOpen }
         chatId,
         messages: olderMessages,
         hasMore: olderMessages.length === 30,
-        cursor: olderMessages[0].createdAt,
+        cursor: olderMessages[0]?.createdAt,
       });
 
     } finally {

@@ -7,12 +7,23 @@ export interface ChatMember {
   username: string;
   avatarUrl?: string;
   role: "admin" | "member";
-
 }
 
-export async function getChatMembers(
-  chatId: string
-): Promise<ChatMember[]> {
+export async function getChatMembers({
+  chatId,
+  userId,
+}: {
+  chatId: string,
+  userId: string,
+}): Promise<ChatMember[]> {
+  // Check if user is a member of the chat
+  const isMember = await UserChatMetaDataModel.exists({
+    chatId: new Types.ObjectId(chatId),
+    userId: new Types.ObjectId(userId),
+  });
+  
+  if (!isMember) throw new Error("Forbidden");
+
   const members = await UserChatMetaDataModel.find({ chatId: new Types.ObjectId(chatId) })
     .select("userId role")
     .lean();

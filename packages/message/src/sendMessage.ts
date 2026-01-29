@@ -11,7 +11,7 @@ interface Message {
   id: string;
   chatId: string;
   senderId: string;
-  content: string | null;
+  content: string;
   createdAt: Date;
   editedAt: Date | null;
   deletedAt: Date | null;

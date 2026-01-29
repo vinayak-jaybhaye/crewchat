@@ -1,10 +1,15 @@
 import { Types } from "mongoose";
 import { ChatModel, UserChatMetaDataModel } from "@crewchat/db";
 
-export async function leaveGroup(
-  chatId: string,
-  userId: string,
-) {
+export interface LeaveGroupInput {
+  chatId: string;
+  userId: string;
+}
+
+export async function leaveGroup({
+  chatId,
+  userId,
+}: LeaveGroupInput) {
   const chat = await ChatModel.findById(new Types.ObjectId(chatId)).lean();
   if (!chat) throw new Error("Chat not found");
   if (!chat.isGroup) throw new Error("Cannot leave a DM");

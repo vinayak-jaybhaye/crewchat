@@ -4,14 +4,11 @@ import { useEffect, useState, useTransition } from "react";
 import { getChatsAction } from "@/lib/actions/chat.actions";
 import { ChatPreviewDTO } from "@/lib/types/chat.types";
 import { Search } from "lucide-react";
-import { ChatListItem, ChatListHeader }from "@/components/chat";
+import { ChatListItem, ChatListHeader } from "@/components/chat";
 
 // store
 import { useChatStore } from "@/store/chat.store";
 import type { ChatStore } from "@/store/chat.store";
-
-// utils
-import { formatTime } from "@/lib/utils/time";
 
 export default function ChatList() {
   const [isPending, startTransition] = useTransition();

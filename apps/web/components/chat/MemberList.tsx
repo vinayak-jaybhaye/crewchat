@@ -4,81 +4,112 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useChatStore, ChatStore } from "@/store/chat.store";
 import { useUserStore, UserStore } from "@/store/user.store";
-import { MemberListItem } from "@/components/chat";
+import { MemberListItem, AddMembers } from "@/components/chat";
+import { addMembersAction } from "@/lib/actions/chat.actions";
 
 import {
-    changeMemberRoleAction,
-    removeMemberAction,
+  changeMemberRoleAction,
+  removeMemberAction,
 } from "@/lib/actions/chat.actions";
 
-export default function MemberList({ chatId, currentUserId, currentUserRole }: { chatId: string; currentUserId: string, currentUserRole: string }) {
-    const router = useRouter();
-    const membersData = useChatStore((s: ChatStore) => s.chatMembersByChatId[chatId]);
-    const usersById = useUserStore((s: UserStore) => s.usersById);
-    const updateMembership = useChatStore((s: ChatStore) => s.updateMembership);
-    const removeChatMember = useChatStore((s: ChatStore) => s.removeChatMember);
-    const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null);
+export interface Member {
+  id: string;
+  username: string;
+  avatarUrl: string | null;
+  email: string;
+  lastActive?: string;
+  role: "member" | "admin";
+  isMe: boolean;
+}
 
-    const members = (membersData ?? [])
-        .map((m) => {
-            const user = usersById[m.userId];
-            if (!user) return null;
+export default function MemberList({ chatId, currentUserId, currentUserRole }: { chatId: string; currentUserId: string, currentUserRole: "member" | "admin" }) {
+  const router = useRouter();
+  const membersData = useChatStore((s: ChatStore) => s.chatMembersByChatId[chatId]);
+  const usersById = useUserStore((s: UserStore) => s.usersById);
+  const updateMembership = useChatStore((s: ChatStore) => s.updateMembership);
+  const removeChatMember = useChatStore((s: ChatStore) => s.removeChatMember);
+  const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null);
 
-            return {
-                ...user,
-                role: m.role,
-                isMe: m.userId === currentUserId
-            };
-        }).filter(Boolean);
+  const members = (membersData ?? [])
+    .map((m) => {
+      const user = usersById[m.userId];
+      if (!user) return null;
+
+      return {
+        ...user,
+        role: m.role,
+        isMe: m.userId === currentUserId
+      };
+    }).filter(Boolean);
 
 
-    if (members.length === 0) {
-        return <div className="text-sm text-muted">No members</div>;
+  if (members.length === 0) {
+    return <div className="text-sm text-muted">No members</div>;
+  }
+
+  const handlePromote = async (memberId: string) => {
+    try {
+      await changeMemberRoleAction(chatId, memberId, "admin");
+      updateMembership(chatId, memberId, "admin");
+    } catch (error) {
+      console.error("Failed to promote", error);
     }
+  };
 
-    const handlePromote = async (memberId: string) => {
-        try {
-            await changeMemberRoleAction(chatId, memberId, "admin");
-            updateMembership(chatId, memberId, "admin");
-        } catch (error) {
-            console.error("Failed to promote", error);
-        }
-    };
+  const handleDemote = async (memberId: string) => {
+    try {
+      await changeMemberRoleAction(chatId, memberId, "member");
+      updateMembership(chatId, memberId, "member");
+    } catch (error) {
+      console.error("Failed to demote", error);
+    }
+  };
 
-    const handleDemote = async (memberId: string) => {
-        try {
-            await changeMemberRoleAction(chatId, memberId, "member");
-            updateMembership(chatId, memberId, "member");
-        } catch (error) {
-            console.error("Failed to demote", error);
-        }
-    };
+  const handleRemove = async (memberId: string) => {
+    try {
+      await removeMemberAction(chatId, memberId);
+      removeChatMember(chatId, memberId);
+    } catch (error) {
+      console.error("Failed to remove", error);
+    }
+  };
 
-    const handleRemove = async (memberId: string) => {
-        try {
-            await removeMemberAction(chatId, memberId);
-            removeChatMember(chatId, memberId);
-        } catch (error) {
-            console.error("Failed to remove", error);
-        }
-    };
+  const handleAddMembers = async (membersToAdd: string[]) => {
+    try {
+      await addMembersAction(chatId, membersToAdd);
+    } catch (error) {
+      console.error("Failed to add members", error);
+    }
+  }
 
-    return (
+  return (
+    <div>
+      <AddMembers
+        excludeIds={members.flatMap(m => (m?.id ? [m.id] : []))}
+        handleAddMembers={handleAddMembers}
+      />
+      <div className="flex flex-col gap-2 pr-2">
         <div>
-            {members.map((member) => (
-                <MemberListItem
-                    key={member.id}
-                    member={member}
-                    currentUserRole={currentUserRole}
-                    currentUserId={currentUserId}
-                    selectedMemberId={selectedMemberId}
-                    setSelectedMemberId={setSelectedMemberId}
-                    onPromote={handlePromote}
-                    onDemote={handleDemote}
-                    onRemove={handleRemove}
-                    onDM={() => router.push(`/newchat/${member.id}`)}
-                />
-            ))}
+          Members ({members.length})
         </div>
-    );
+        {members
+          .filter((member): member is Member => Boolean(member))
+          .map((member) => (
+            <MemberListItem
+              key={member.id}
+              member={member}
+              currentUserRole={currentUserRole}
+              currentUserId={currentUserId}
+              selectedMemberId={selectedMemberId}
+              setSelectedMemberId={setSelectedMemberId}
+              onPromote={handlePromote}
+              onDemote={handleDemote}
+              onRemove={handleRemove}
+              onDM={() => router.push(`/newchat/${member.id}`)}
+            />
+          ))}
+
+      </div>
+    </div >
+  );
 }

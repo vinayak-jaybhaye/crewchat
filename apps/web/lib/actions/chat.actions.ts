@@ -5,7 +5,7 @@ import { connectToDB } from "@crewchat/db";
 import {
   createDM, getChats, getChatPreviewById, getChatDetails, getChatMembers,
   togglePin, toggleMute, markChatAsRead, createGroup, DMExists,
-  changeMemberRole, removeMember
+  changeMemberRole, removeMember, addMembers, leaveGroup
 } from "@crewchat/chat";
 import { ChatPreviewDTO, ChatDetailsDTO, ChatMemberDTO, MinimalChatPreviewDTO } from "@/lib/types/chat.types";
 
@@ -35,7 +35,11 @@ export async function DMExistsAction(otherUserId: string) {
 }
 
 
-export async function createGroupAction(name: string, memberIds: string[], imageUrl: string | null) {
+export async function createGroupAction({
+  name, memberIds, imageUrl, description
+}: {
+  name: string, memberIds: string[], imageUrl: string | null, description: string
+}): Promise<string> {
   const session = await auth();
   if (!session?.user) throw new Error("Unauthorized");
 
@@ -45,7 +49,8 @@ export async function createGroupAction(name: string, memberIds: string[], image
     ownerId: session.user.mongoId,
     name,
     memberIds,
-    imageUrl,
+    imageUrl: imageUrl ?? undefined,
+    description,
   });
 
   return chatId;
@@ -70,7 +75,6 @@ export async function getChatsAction(): Promise<ChatPreviewDTO[]> {
     lastMessage: chat.lastMessage
       ? {
         id: chat.lastMessage.id,
-        username: chat.lastMessage.username,
         content: chat.lastMessage.content,
         senderId: chat.lastMessage.senderId,
         deletedAt: chat.lastMessage.deletedAt
@@ -121,11 +125,12 @@ export async function getChatDetailsByIdAction(chatId: string): Promise<ChatDeta
       ? {
         id: chat.otherMemberDetails.id,
         username: chat.otherMemberDetails.username,
-        avatarUrl: chat.otherMemberDetails.avatarUrl ?? null,
+        avatarUrl: chat.otherMemberDetails.avatarUrl ?? undefined,
         email: chat.otherMemberDetails.email,
-        lastActive: chat.otherMemberDetails.lastActive?.toISOString(),
+        lastActive: chat.otherMemberDetails.lastActive.toISOString(),
       }
       : undefined,
+
   };
 }
 
@@ -135,7 +140,7 @@ export async function getChatMembersByIdAction(chatId: string): Promise<ChatMemb
 
   await connectToDB(process.env.MONGODB_URI!);
 
-  const chat = await getChatMembers(chatId, session.user.mongoId);
+  const chat = await getChatMembers({chatId, userId: session.user.mongoId});
 
 
   return chat.map(member => ({
@@ -143,7 +148,6 @@ export async function getChatMembersByIdAction(chatId: string): Promise<ChatMemb
     username: member.username,
     avatarUrl: member.avatarUrl ?? null,
     email: member.email,
-    lastActive: member.lastActive?.toISOString(),
     role: member.role,
   }));
 }
@@ -200,4 +204,32 @@ export async function removeMemberAction(chatId: string, userId: string) {
     userIdToRemove: userId,
   });
   return { success: true };
+}
+
+export async function addMembersAction(chatId: string, userIds: string[]) {
+  const session = await auth();
+  if (!session?.user?.mongoId) throw new Error("Unauthorized");
+
+  await connectToDB(process.env.MONGODB_URI!);
+
+  await addMembers({
+    chatId,
+    actorId: session.user.mongoId,
+    userIdsToAdd: userIds,
+  });
+  return { success: true };
+}
+
+export async function leaveGroupAction(chatId: string): Promise<boolean> {
+  const session = await auth();
+  if (!session?.user?.mongoId) throw new Error("Unauthorized");
+
+  await connectToDB(process.env.MONGODB_URI!);
+
+  await leaveGroup({
+    chatId,
+    userId: session.user.mongoId,
+  });
+
+  return true;
 }

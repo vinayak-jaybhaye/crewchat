@@ -1,49 +1,65 @@
 import { Types } from "mongoose";
 import { ChatModel, UserChatMetaDataModel } from "@crewchat/db";
 
-export interface AddMemberInput {
+export interface AddMembersInput {
   chatId: string;
-  actorId: string; // who is performing the action
-  userIdToAdd: string;
+  actorId: string;
+  userIdsToAdd: string[];
 }
 
-export async function addMember({
+export async function addMembers({
   chatId,
   actorId,
-  userIdToAdd,
-}: AddMemberInput) {
+  userIdsToAdd,
+}: AddMembersInput) {
+  const chatObjectId = new Types.ObjectId(chatId);
+  const actorObjectId = new Types.ObjectId(actorId);
 
   // Chat must exist and be a group
-  const chat = await ChatModel.findById(new Types.ObjectId(chatId)).lean();
+  const chat = await ChatModel.findById(chatObjectId).lean();
   if (!chat) throw new Error("Chat not found");
   if (!chat.isGroup) throw new Error("Cannot add members to a DM");
 
   // Actor must be admin
   const actorMeta = await UserChatMetaDataModel.findOne({
-    chatId: new Types.ObjectId(chatId),
-    userId: new Types.ObjectId(actorId),
+    chatId: chatObjectId,
+    userId: actorObjectId,
+    role: "admin",
   }).lean();
 
-  if (!actorMeta || actorMeta.role !== "admin") {
+  if (!actorMeta) {
     throw new Error("Only admins can add members");
   }
 
-  // Check if user already a member (idempotent)
-  const existing = await UserChatMetaDataModel.findOne({
-    chatId: new Types.ObjectId(chatId),
-    userId: new Types.ObjectId(userIdToAdd),
+  // Normalize user IDs
+  const userObjectIds = userIdsToAdd.map(id => new Types.ObjectId(id));
+
+  // Find existing members (idempotency)
+  const existingMembers = await UserChatMetaDataModel.find({
+    chatId: chatObjectId,
+    userId: { $in: userObjectIds },
   }).lean();
 
-  if (existing) {
-    return { added: false };
+  const existingUserIds = new Set(
+    existingMembers.map(m => m.userId.toString())
+  );
+
+  // Filter users that are NOT already members
+  const usersToInsert = userObjectIds
+    .filter(id => !existingUserIds.has(id.toString()))
+    .map(userId => ({
+      chatId: chatObjectId,
+      userId,
+      role: "member",
+    }));
+
+  // Insert all at once
+  if (usersToInsert.length > 0) {
+    await UserChatMetaDataModel.insertMany(usersToInsert);
   }
 
-  // Add member
-  await UserChatMetaDataModel.create({
-    chatId: new Types.ObjectId(chatId),
-    userId: new Types.ObjectId(userIdToAdd),
-    role: "member",
-  });
-
-  return { added: true };
+  return {
+    addedCount: usersToInsert.length,
+    skippedCount: existingMembers.length,
+  };
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { MessageCircle, Phone, Video } from "lucide-react";
+import { ProfilePic } from "@/components/user"
 
 interface User {
   id: string;
@@ -15,17 +16,7 @@ export default function UserPreview({ user, onDM }: { user: User; onDM: () => vo
       {/* Top section */}
       <div className="flex items-center gap-4">
         {/* Avatar */}
-        {user.avatarUrl ? (
-          <img
-            src={user.avatarUrl}
-            alt={user.username}
-            className="w-16 h-16 rounded-full object-cover"
-          />
-        ) : (
-          <div className="w-16 h-16 rounded-full bg-neutral-700 flex items-center justify-center text-xl font-semibold">
-            {user.username.charAt(0).toUpperCase()}
-          </div>
-        )}
+        <ProfilePic size={64} src={user.avatarUrl} name={user.username} />
 
         {/* User info */}
         <div className="flex-1 min-w-0">

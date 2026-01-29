@@ -13,6 +13,7 @@ export interface Chat {
   otherMemberDetails?: {
     id: string;
     name: string;
+    username: string;
     avatarUrl?: string;
     email: string;
     lastActive: Date;

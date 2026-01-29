@@ -18,6 +18,7 @@ export const { auth, signIn, signOut, handlers } = NextAuth({
     strategy: "jwt",
   },
   secret: NEXTAUTH_SECRET,
+  trustHost: true,
 
   providers: [
     Google({

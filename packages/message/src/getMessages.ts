@@ -12,7 +12,7 @@ export interface Message {
   id: string;
   chatId: string;
   senderId: string;
-  content: string | null;
+  content: string;
   createdAt: Date;
   editedAt: Date | null;
   deletedAt: Date | null;
@@ -52,7 +52,7 @@ export async function getMessages({
     id: m._id.toString(),
     chatId: m.chatId.toString(),
     senderId: m.senderId.toString(),
-    content: m.deletedAt ? null : m.content,
+    content: m.deletedAt ? "" : m.content,
     createdAt: m.createdAt,
     editedAt: m.editedAt ?? null,
     deletedAt: m.deletedAt ?? null,

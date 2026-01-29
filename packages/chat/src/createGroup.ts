@@ -4,7 +4,8 @@ import { ChatModel, UserChatMetaDataModel } from "@crewchat/db";
 export interface CreateGroupInput {
   ownerId: string;
   name: string;
-  imageUrl: string;
+  imageUrl?: string;
+  description: string;
   memberIds: string[];
 }
 
@@ -12,6 +13,7 @@ export async function createGroup({
   ownerId,
   name,
   imageUrl,
+  description,
   memberIds,
 }: CreateGroupInput) {
   if (!name.trim()) {
@@ -28,6 +30,7 @@ export async function createGroup({
     isGroup: true,
     name,
     imageUrl,
+    description,
   });
 
   const metaDocs = [

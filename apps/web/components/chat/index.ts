@@ -8,6 +8,7 @@ import ChatWindow from './ChatWindow';
 import ChatPageLayout from './ChatPageLayout';
 import MemberList from './MemberList';
 import MemberListItem from './MemberListItem';
+import AddMembers from './AddMembers';
 import MessageBubble from './MessageBubble';
 import EmptyChatState from './EmptyChatState';
 
@@ -22,6 +23,7 @@ export {
   ChatPageLayout,
   MemberList,
   MemberListItem,
+  AddMembers,
   MessageBubble,
   EmptyChatState,
 };
