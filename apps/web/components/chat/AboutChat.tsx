@@ -1,12 +1,12 @@
 "use client";
 
+import { MemberList,  } from "@/components/chat";
 import { ChatDetailsDTO } from "@/lib/types/chat.types";
-import MemberList from "@/components/chat/MemberList";
 import { Bell, Ban, LogOut, Phone, X, Video, UserPlus } from "lucide-react";
-import ProfilePic from "@/components/user/ProfilePic";
+import { ProfilePic } from "@/components/user";
 import { getChatDetailsByIdAction } from "@/lib/actions/chat.actions";
 import { useEffect, useState } from "react";
-import Switch from "@/components/ui/Switch";
+import { Switch } from "@/components/ui";
 import { toggleMuteAction } from "@/lib/actions/chat.actions";
 
 export default function AboutChat({ chatId, setIsAboutChatOpen, currentUserId }: { chatId: string, setIsAboutChatOpen: (open: boolean) => void, currentUserId: string }) {

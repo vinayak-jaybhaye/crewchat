@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useChatStore, ChatStore } from "@/store/chat.store";
 import { useUserStore, UserStore } from "@/store/user.store";
-import MemberListItem from "./MemberListItem";
+import { MemberListItem } from "@/components/chat";
 
 import {
     changeMemberRoleAction,

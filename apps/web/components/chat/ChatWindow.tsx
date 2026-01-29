@@ -4,8 +4,8 @@ import React, { useRef, useState, useEffect } from "react";
 import { getMessagesAction, sendMessageAction, editMessageAction, deleteMessageAction } from "@/lib/actions/message.actions";
 import { MessageDTO } from "@/lib/types/message.types";
 import { Send } from "lucide-react";
-import ChatHeader from "@/components/chat/ChatHeader";
-import MessageBubble from "./MessageBubble";
+import { ChatHeader } from "@/components/chat";
+import { MessageBubble } from "@/components/chat";
 
 import { useChatStore } from "@/store/chat.store";
 import type { ChatStore } from "@/store/chat.store";

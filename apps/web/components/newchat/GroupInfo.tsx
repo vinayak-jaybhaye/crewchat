@@ -1,6 +1,5 @@
 import { Check } from "lucide-react";
-import { useState } from 'react';
-import AvatarPicker from "@/components/ui/AvatarPicker";
+import { AvatarPicker } from "@/components/ui";
 
 interface GroupInfoProps {
     step: "group-members" | "group-info";

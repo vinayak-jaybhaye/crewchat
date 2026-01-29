@@ -1,8 +1,10 @@
+"use client";
+
 import { useState, useRef, useEffect } from "react";
 import { MessageDTO } from "@/lib/types/message.types";
 import { formatTime } from "@/lib/utils/time";
 import { useUserStore } from "@/store/user.store";
-import ProfilePic from "../user/ProfilePic";
+import { ProfilePic } from "@/components/user";
 import { MoreVertical, Edit2, Trash2, X, Check, Ban } from "lucide-react";
 
 interface MessageBubbleProps {

@@ -1,6 +1,6 @@
 "use client";
 
-import ProfilePic from "@/components/user/ProfilePic";
+import { ProfilePic } from "@/components/user";
 import { useLongPress } from "@/hooks/userLongPress";
 import { useEffect, useRef } from "react";
 

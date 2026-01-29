@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { MinimalChatPreviewDTO } from "@/lib/types/chat.types";
 import { ArrowLeft } from "lucide-react";
-import ProfilePic from "@/components/user/ProfilePic";
+import { ProfilePic } from "@/components/user";
 
 export default function ChatHeader({ chat, setIsAboutChatOpen }: { chat: MinimalChatPreviewDTO, setIsAboutChatOpen: (open: boolean) => void }) {
     // loading state

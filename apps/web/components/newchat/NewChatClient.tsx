@@ -74,7 +74,7 @@ export default function NewChatClient({ userId }: { userId: string }) {
 
       {/* Empty state */}
       <div className="flex-1 flex items-center justify-center text-neutral-500">
-        👋 Say hi to {recipient.username}
+          Say hi to {recipient.username}
       </div>
 
       {/* Input */}

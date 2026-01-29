@@ -1,6 +1,6 @@
 import { Check } from "lucide-react";
 import { User } from "@/types";
-import ProfilePic from "@/components/user/ProfilePic";
+import { ProfilePic } from "@/components/user";
 
 interface UserListProps {
     step: "contacts" | "group-members" | "group-info";

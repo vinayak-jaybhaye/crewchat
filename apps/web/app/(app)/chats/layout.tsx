@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import ChatList from "@/components/chat/ChatList";
+import { ChatList } from "@/components/chat";
 
 export default function ChatsLayout({ children }: { children: ReactNode }) {
   return (

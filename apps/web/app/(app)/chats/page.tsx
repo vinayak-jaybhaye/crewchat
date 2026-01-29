@@ -1,5 +1,4 @@
-import ChatList from "@/components/chat/ChatList";
-import EmptyChatState from "@/components/chat/EmptyChatState";
+import { ChatList, EmptyChatState } from "@/components/chat";
 
 export default function ChatsPage() {
   return (

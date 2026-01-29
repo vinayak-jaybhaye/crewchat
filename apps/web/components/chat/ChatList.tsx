@@ -4,8 +4,7 @@ import { useEffect, useState, useTransition } from "react";
 import { getChatsAction } from "@/lib/actions/chat.actions";
 import { ChatPreviewDTO } from "@/lib/types/chat.types";
 import { Search } from "lucide-react";
-import ChatListItem from "@/components/chat/ChatListItem";
-import ChatListHeader from "@/components/chat/ChatListHeader";
+import { ChatListItem, ChatListHeader }from "@/components/chat";
 
 // store
 import { useChatStore } from "@/store/chat.store";

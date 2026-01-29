@@ -3,8 +3,8 @@
 import { useLongPress } from "@/hooks/userLongPress";
 import { ChatPreviewDTO } from "@/lib/types/chat.types";
 import { Pin, BellOff } from "lucide-react";
-import ProfilePic from "@/components/user/ProfilePic";
-import ChatOptions from "./ChatOptions";
+import { ProfilePic } from "@/components/user";
+import { ChatOptions } from "@/components/chat";
 import { useRouter } from "next/navigation";
 import { useUserStore } from "@/store/user.store";
 import { formatTime } from "@/lib/utils/time";

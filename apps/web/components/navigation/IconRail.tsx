@@ -1,5 +1,5 @@
 import Link from "next/link";
-import ProfilePic from "@/components/user/ProfilePic";
+import { ProfilePic } from "@/components/user";
 import { IconRailNavigation } from "./IconRailNavigation";
 import { auth } from "@/auth";
 

@@ -1,6 +1,6 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
-import ChatPageLayout from "@/components/chat/ChatPageLayout";
+import { ChatPageLayout } from "@/components/chat";
 
 export default async function ChatPage({ params }: { params: Promise<{ chatId: string }>; }) {
   const { chatId } = await params;
