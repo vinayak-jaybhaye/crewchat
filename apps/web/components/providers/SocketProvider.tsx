@@ -6,7 +6,6 @@ import { useSession } from "next-auth/react";
 import { useChatStore } from "@/store/chat.store";
 import { MessageDTO as Message } from "@/lib/types/message.types";
 
-
 type SocketContextType = {
   isConnected: boolean;
 };
@@ -17,54 +16,72 @@ const SocketContext = createContext<SocketContextType>({
 
 export const useSocket = () => useContext(SocketContext);
 
-export default function SocketProvider({ children }: { children: React.ReactNode }) {
-  const { data: session, status } = useSession();
+export default function SocketProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const { status } = useSession();
   const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
     if (status !== "authenticated") return;
 
-    const socket = getSocket();
+    let socket: ReturnType<typeof getSocket> | null = null;
+    let active = true;
 
-    socket.auth = { userId: session.user.mongoId };
-    socket.connect();
+    async function connectSocket() {
+      try {
+        // Fetch short-lived socket token
+        const res = await fetch("/api/socket-token");
+        if (!res.ok) return;
 
-    // define event listeners
-    const onConnect = () => setIsConnected(true);
-    const onDisconnect = () => setIsConnected(false);
+        const { token } = await res.json();
+        if (!active) return;
 
-    const onMessageNew = (message: Message) => {
-      useChatStore.getState().addMessage(message);
-    };
-    const onMessageEdit = ({ chatId, messageId, content }: { chatId: string; messageId: string; content: string }) => {
-      useChatStore.getState().updateMessage(chatId, { messageId, content, editedAt: new Date().toISOString() } as any);
-    };
-    const onMessageDelete = ({ chatId, messageId }: { chatId: string; messageId: string }) => {
-      useChatStore.getState().deleteMessage(chatId, { messageId, deletedAt: new Date().toISOString() } as any);
-    };
+        // Create socket with token
+        socket = getSocket(token);
 
-    socket.on("connect", onConnect);
-    socket.on("disconnect", onDisconnect);
-    socket.on("message:new", onMessageNew);
-    socket.on("message:edit", onMessageEdit);
-    socket.on("message:delete", onMessageDelete);
+        // Register listeners
+        socket.on("connect", () => setIsConnected(true));
+        socket.on("disconnect", () => setIsConnected(false));
 
+        // New message update
+        socket.on("message:new", (message: Message) => {
+          useChatStore.getState().addMessage(message);
+        });
+
+        // Message edit update
+        socket.on("message:edit", ({ chatId, messageId, content }) => {
+          useChatStore.getState().updateMessage(chatId, {
+            messageId,
+            content,
+            editedAt: new Date().toISOString(),
+          } as any);
+        });
+
+        // Message delete Update
+        socket.on("message:delete", ({ chatId, messageId }) => {
+          useChatStore.getState().deleteMessage(chatId, {
+            messageId,
+            deletedAt: new Date().toISOString(),
+          } as any);
+        });
+
+        // Connect
+        socket.connect();
+      } catch (err) {
+        console.error("Socket connection failed:", err);
+      }
+    }
+
+    connectSocket();
 
     return () => {
-      socket.off("connect", onConnect);
-      socket.off("disconnect", onDisconnect);
-      socket.off("message:new", onMessageNew);
-      socket.off("message:edit", onMessageEdit);
-      socket.off("message:delete", onMessageDelete);
+      active = false;
+      socket?.disconnect();
     };
-  }, [status, session?.user?.mongoId]);
-
-  useEffect(() => {
-    return () => {
-      const socket = getSocket();
-      socket.disconnect();
-    };
-  }, []);
+  }, [status]);
 
   return (
     <SocketContext.Provider value={{ isConnected }}>

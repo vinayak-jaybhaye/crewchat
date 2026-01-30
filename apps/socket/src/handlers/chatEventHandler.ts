@@ -32,7 +32,7 @@ export async function handleChatEvent(
     io: Server,
     event: ChatMessageEvent | ChatMessageEditEvent | ChatMessageDeleteEvent
 ) {
-    console.log("Chat event", event);
+    console.log("Chat event", event.type);
     // switch on event type
     switch (event.type) {
         case "message:new": {

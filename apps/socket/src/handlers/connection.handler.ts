@@ -4,7 +4,7 @@ import { getAllChatIds } from "../db/getAllChatIds";
 export async function registerConnectionHandler(io: Server) {
   io.on("connection", async (socket: Socket) => {
     // const userId = socket.data.userId;
-    const userId = socket.handshake.auth.userId;
+    const userId = socket.data.userId;
 
     if (!userId) {
       console.warn("Socket connected without userId, disconnecting");
@@ -19,9 +19,9 @@ export async function registerConnectionHandler(io: Server) {
     console.log(`User ${userId} connected via socket ${socket.id}`);
 
     chatIds.forEach((chatId) => {
-      console.log(`User ${userId} joined chat ${chatId}`);
       socket.join(`chat:${chatId}`);
     });
+    console.log(`User ${userId} joined chats`, chatIds);
 
 
     socket.on("disconnect", () => {

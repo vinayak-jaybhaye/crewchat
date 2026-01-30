@@ -7,9 +7,9 @@ import { connectToDB, UserModel } from "@crewchat/db";
 
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
-const NEXTAUTH_SECRET = process.env.NEXTAUTH_SECRET;
+const AUTH_SECRET = process.env.AUTH_SECRET;
 
-if(!GOOGLE_CLIENT_ID || ! GOOGLE_CLIENT_SECRET || ! NEXTAUTH_SECRET) {
+if(!GOOGLE_CLIENT_ID || ! GOOGLE_CLIENT_SECRET || ! AUTH_SECRET) {
   throw new Error("Missing environment variables for authentication");
 }
 
@@ -17,7 +17,7 @@ export const { auth, signIn, signOut, handlers } = NextAuth({
   session: {
     strategy: "jwt",
   },
-  secret: NEXTAUTH_SECRET,
+  secret: AUTH_SECRET,
   trustHost: true,
 
   providers: [

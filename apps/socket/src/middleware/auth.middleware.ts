@@ -1,36 +1,57 @@
-import jwt, { JwtPayload } from "jsonwebtoken";
-import { Socket } from "socket.io";
+// WHEN SOCKET SERVER IS ON THE SAME DOMAIN AS NEXT APP, USE NEXT-AUTH JWT TOKENS INSTEAD:
+import { getToken } from "next-auth/jwt";
+import type { Socket } from "socket.io";
 
-interface AuthTokenPayload extends JwtPayload {
-    sub: string; // userId
+export async function authMiddlewareCookie(
+  socket: Socket,
+  next: (err?: Error) => void
+) {
+  try {
+    const token = await getToken({
+      req: {
+        headers: {
+          cookie: socket.handshake.headers.cookie ?? "",
+        },
+      } as any,
+      secret: process.env.AUTH_SECRET,
+    });
+
+    if (!token?.sub) {
+      return next(new Error("Unauthorized"));
+    }
+
+    // token contains session from next auth
+    // source of truth
+    socket.data.userId = token.mongoId;
+
+    next();
+  } catch (err) {
+    console.error("Socket auth failed:", err);
+    next(new Error("Unauthorized"));
+  }
 }
 
-export function authMiddleware(
-    socket: Socket,
-    next: (err?: Error) => void
+
+//  WHEN SOCKET SERVER AND NEXT APP ARE ON DIFFERENT DOMAINS, USE JWT TOKENS INSTEAD:
+import jwt from "jsonwebtoken";
+
+export async function authMiddlewareJWT(
+  socket: Socket,
+  next: (err?: Error) => void
 ) {
-    console.log("Auth middleware");
-    const token = socket.handshake.auth?.token;
+  const token = socket.handshake.auth.token;
 
-    if (!token) {
-        return next(new Error("Unauthorized"));
-    }
+  if (!token) return next(new Error("Unauthorized"));
 
-    try {
-        const payload = jwt.verify(
-            token,
-            process.env.JWT_SECRET!
-        ) as AuthTokenPayload;
+  try {
+    const payload = jwt.verify(
+      token,
+      process.env.SOCKET_JWT_SECRET!
+    ) as { sub: string; mongoId: string };
 
-        if (!payload.sub) {
-            return next(new Error("Unauthorized"));
-        }
-
-        socket.data.userId = payload.sub;
-        next();
-    } catch (err) {
-        // optional internal logging
-        console.error("Socket auth failed:", err);
-        next(new Error("Unauthorized"));
-    }
+    socket.data.userId = payload.mongoId;
+    next();
+  } catch {
+    next(new Error("Unauthorized"));
+  }
 }
