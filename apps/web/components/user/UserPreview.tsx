@@ -2,6 +2,7 @@
 
 import { MessageCircle, Phone, Video } from "lucide-react";
 import { ProfilePic } from "@/components/user"
+import { useSocket } from "@/components/providers/SocketProvider";
 
 interface User {
   id: string;
@@ -11,6 +12,18 @@ interface User {
 }
 
 export default function UserPreview({ user, onDM }: { user: User; onDM: () => void }) {
+  const { startCall } = useSocket();
+
+  function handleStartVoiceCall() {
+    console.log("Starting voice call to", user.id);
+    startCall({ calleeId: user.id, type: "VOICE" });
+  }
+
+  function handleStartVideoCall() {
+    console.log("Starting video call to", user.id);
+    startCall({ calleeId: user.id, type: "VIDEO" });
+  }
+
   return (
     <div className="w-full max-w-md mx-auto rounded-2xl border border-neutral-800 bg-neutral-900 p-4">
       {/* Top section */}
@@ -41,6 +54,7 @@ export default function UserPreview({ user, onDM }: { user: User; onDM: () => vo
 
         <button
           className="flex items-center justify-center gap-2 rounded-xl bg-neutral-800 hover:bg-neutral-700 px-3 py-2 text-sm transition"
+          onClick={handleStartVoiceCall}
         >
           <Phone size={16} />
           Call
@@ -48,6 +62,7 @@ export default function UserPreview({ user, onDM }: { user: User; onDM: () => vo
 
         <button
           className="flex items-center justify-center gap-2 rounded-xl bg-neutral-800 hover:bg-neutral-700 px-3 py-2 text-sm transition"
+          onClick={handleStartVideoCall}
         >
           <Video size={16} />
           Video

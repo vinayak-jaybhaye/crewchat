@@ -77,6 +77,7 @@ export async function registerCallHandler(
 
     // Join caller to call room
     socket.join(`call:${callId}`);
+    io.to(`user:${calleeId}`).socketsJoin(`call:${callId}`);
 
     // Notify both sides
     socket.emit("call:outgoing", call);
@@ -113,9 +114,8 @@ export async function registerCallHandler(
     await redis.set(`user:activeCall:${call.callerId}`, callId, { EX: 1800 });
     await redis.set(`user:activeCall:${call.calleeId}`, callId, { EX: 1800 });
 
-    // Join callee to call room
-    socket.join(`call:${callId}`);
-
+    // REMOVED -> Join callee to call room - already joined during call:start
+    // socket.join(`call:${callId}`);
     // Notify both users
     io.to(`call:${callId}`).emit("call:connected", call);
 
