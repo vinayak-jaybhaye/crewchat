@@ -1,18 +1,23 @@
-import { createClient, RedisClientType } from "redis";
+import { createClient } from "redis";
 
-export let redisSub: RedisClientType;
+export const redis = createClient({
+  url: process.env.REDIS_URL,
+});
+
+export const redisSub = redis.duplicate();
+export type RedisClient = typeof redis;
 
 export async function connectRedis(url: string) {
-  const redis = createClient({ url });
+  if (!redis.isOpen) {
+    redis.on("error", (err) =>
+      console.error("Redis Client Error", err)
+    );
 
-  redis.on("error", (err: unknown) => console.error("Redis Client Error", err));
+    await redis.connect();
+    await redisSub.connect();
 
-  await redis.connect();
-
-  redisSub = redis.duplicate();
-  await redisSub.connect();
-
-  console.log("Redis connected");
+    console.log("Redis connected");
+  }
 
   return redis;
 }

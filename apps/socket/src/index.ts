@@ -46,8 +46,9 @@ async function startServer() {
     // io.use(authMiddlewareCookie);
 
     // register handlers
-    registerConnectionHandler(io);
-    registerChatHandlers(io);
+    await registerConnectionHandler(io, redis);
+    // CAN USE THIS LATER FOR GLOBAL CHAT FEATURES
+    // registerChatHandlers(io);
     await registerRedisHandlers(io);
 
     httpServer.listen(PORT, () => {
