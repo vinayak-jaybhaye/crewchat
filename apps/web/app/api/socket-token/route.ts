@@ -18,8 +18,6 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  console.log(session);
-
   // short-lived socket token
   const socketToken = jwt.sign(
     { mongoId: session.mongoId },
