@@ -9,7 +9,10 @@ import { registerConnectionHandler } from "./handlers/connection.handler";
 import { registerChatHandlers } from "./handlers/chat.handler";
 import { registerRedisHandlers } from "./handlers/redis.handler";
 import { connectToDB } from "@crewchat/db";
-import { authMiddlewareCookie, authMiddlewareJWT } from "./middleware/auth.middleware";
+import {
+    authMiddlewareCookie,
+    authMiddlewareJWT,
+} from "./middleware/auth.middleware";
 
 dotenv.config();
 
