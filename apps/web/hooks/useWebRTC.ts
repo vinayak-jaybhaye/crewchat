@@ -17,7 +17,6 @@ const rtcConfig: RTCConfiguration = {
   ],
 };
 
-
 export function useWebRTC(call: Call) {
   const { data: session } = useSession();
   const { sendOffer, sendAnswer, sendIceCandidate } = useSocket();
@@ -118,8 +117,7 @@ export function useWebRTC(call: Call) {
 
     async function handle() {
       const pc = pcRef.current!;
-
-
+      if (!signal) return;
       if (signal.type === "offer") {
         await pc.setRemoteDescription(signal.data);
         const answer = await pc.createAnswer();
