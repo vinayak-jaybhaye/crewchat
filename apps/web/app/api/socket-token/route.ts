@@ -14,7 +14,7 @@ export async function GET(req: Request) {
     secret: process.env.AUTH_SECRET,
   });
 
-  if (!session?.sub) {
+  if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -22,7 +22,7 @@ export async function GET(req: Request) {
   const socketToken = jwt.sign(
     { mongoId: session.mongoId },
     process.env.SOCKET_JWT_SECRET!,
-    { expiresIn: EXPIRY_SECONDS }
+    { expiresIn: EXPIRY_SECONDS },
   );
 
   return NextResponse.json({ token: socketToken });
