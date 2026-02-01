@@ -29,9 +29,18 @@ type SocketContextType = {
   endCall: (payload: CallEndPayload) => void;
 
   // webrtc
-  sendOffer: (payload: { callId: string; sdp: RTCSessionDescriptionInit }) => void;
-  sendAnswer: (payload: { callId: string; sdp: RTCSessionDescriptionInit }) => void;
-  sendIceCandidate: (payload: { callId: string; candidate: RTCIceCandidate }) => void;
+  sendOffer: (payload: {
+    callId: string;
+    sdp: RTCSessionDescriptionInit;
+  }) => void;
+  sendAnswer: (payload: {
+    callId: string;
+    sdp: RTCSessionDescriptionInit;
+  }) => void;
+  sendIceCandidate: (payload: {
+    callId: string;
+    candidate: RTCIceCandidate;
+  }) => void;
 };
 
 const noop = () => {
@@ -48,7 +57,6 @@ const SocketContext = createContext<SocketContextType>({
   sendAnswer: noop,
   sendIceCandidate: noop,
 });
-
 
 export const useSocket = () => useContext(SocketContext);
 
@@ -70,7 +78,9 @@ export default function SocketProvider({
     async function connectSocket() {
       try {
         // Fetch short-lived socket token
-        const res = await fetch("/api/socket-token");
+        const res = await fetch("/api/socket-token", {
+          credentials: "include",
+        });
         if (!res.ok) return;
 
         const { token } = await res.json();
@@ -79,7 +89,6 @@ export default function SocketProvider({
         // Create socket with token
         socketRef.current = getSocket(token);
         const socket = socketRef.current;
-
 
         // Register listeners
         socket.on("connect", () => setIsConnected(true));
@@ -137,7 +146,6 @@ export default function SocketProvider({
           }
         });
 
-
         // ----- WEBRTC SIGNALING -----
         // WebRTC signaling
         socket.on("webrtc:offer", ({ callId, sdp }) => {
@@ -164,7 +172,6 @@ export default function SocketProvider({
           });
         });
 
-
         // Connect
         socket.connect();
       } catch (err) {
@@ -179,7 +186,6 @@ export default function SocketProvider({
       socketRef.current?.disconnect();
       socketRef.current = null;
     };
-
   }, [status]);
 
   const startCall = (payload: CallStartPayload) => {
@@ -201,19 +207,37 @@ export default function SocketProvider({
   };
 
   // WEBRTC SIGNALING
-  const sendOffer = ({ callId, sdp }: { callId: string; sdp: RTCSessionDescriptionInit }) => {
+  const sendOffer = ({
+    callId,
+    sdp,
+  }: {
+    callId: string;
+    sdp: RTCSessionDescriptionInit;
+  }) => {
     const socket = socketRef.current;
     if (!socket || !isConnected) return;
     socket.emit("webrtc:offer", { callId, sdp });
   };
 
-  const sendAnswer = ({ callId, sdp }: { callId: string; sdp: RTCSessionDescriptionInit }) => {
+  const sendAnswer = ({
+    callId,
+    sdp,
+  }: {
+    callId: string;
+    sdp: RTCSessionDescriptionInit;
+  }) => {
     const socket = socketRef.current;
     if (!socket || !isConnected) return;
     socket.emit("webrtc:answer", { callId, sdp });
   };
 
-  const sendIceCandidate = ({ callId, candidate }: { callId: string; candidate: RTCIceCandidate }) => {
+  const sendIceCandidate = ({
+    callId,
+    candidate,
+  }: {
+    callId: string;
+    candidate: RTCIceCandidate;
+  }) => {
     const socket = socketRef.current;
     if (!socket || !isConnected) return;
     socket.emit("webrtc:ice", { callId, candidate });
