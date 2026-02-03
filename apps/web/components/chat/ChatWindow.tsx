@@ -10,6 +10,8 @@ import { MessageBubble } from "@/components/chat";
 import { useChatStore } from "@/store/chat.store";
 import type { ChatStore } from "@/store/chat.store";
 
+// import { generateRandomMessage } from "@/lib/utils/dev.utils";
+
 interface ChatWindowParams {
   chatId: string,
   currentUserId: string,
@@ -21,6 +23,10 @@ export default function ChatWindow({ chatId, currentUserId, setIsAboutChatOpen }
   const [inputText, setInputText] = useState("");
   const [sending, setSending] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const bottomRef = useRef<HTMLDivElement>(null);
+  const isNearBottomRef = useRef<boolean>(true);
 
   const bucket = useChatStore((s: ChatStore) => s.messagesByChatId[chatId]);
   const messages = bucket ? bucket.ids.map((id: string) => bucket.entities[id]) : [];
@@ -45,6 +51,11 @@ export default function ChatWindow({ chatId, currentUserId, setIsAboutChatOpen }
   // pagination (scroll up)
   async function loadOlderMessages() {
     if ((isHydrated && !hasMore) || loading) return;
+    const el = scrollRef.current;
+    if (!el) return;
+
+    const previousScrollHeight = el.scrollHeight;
+
     setLoading(true);
 
     try {
@@ -58,9 +69,38 @@ export default function ChatWindow({ chatId, currentUserId, setIsAboutChatOpen }
         cursor: olderMessages[0]?.createdAt,
       });
 
+      requestAnimationFrame(() => {
+        const newScrollHeight = el.scrollHeight;
+        el.scrollTop = newScrollHeight - previousScrollHeight;
+      });
+
     } finally {
       setLoading(false);
     }
+  }
+
+  useEffect(() => {
+    if(!isNearBottomRef.current) return;
+    scrollToBottom("smooth");
+  }, [messages.length]);
+
+  function handleScroll() {
+    const el = scrollRef.current;
+    if (!el) return;
+
+    const TOP_THRESHOLD = 80;  // how many pixels from top to trigger loading older messages
+    const BOTTOM_THRESHOLD = 120; // how many pixels from bottom to consider "near bottom"
+
+    if(el.scrollTop < TOP_THRESHOLD) {
+      loadOlderMessages();
+    }
+
+    const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
+    isNearBottomRef.current = distanceFromBottom < BOTTOM_THRESHOLD;
+  }
+
+  function scrollToBottom(behavior: ScrollBehavior = "auto") {
+    bottomRef.current?.scrollIntoView({ behavior });
   }
 
   async function handleSend() {
@@ -99,6 +139,8 @@ export default function ChatWindow({ chatId, currentUserId, setIsAboutChatOpen }
       <ChatHeader chat={chat} setIsAboutChatOpen={setIsAboutChatOpen} />
       <div
         className="flex-1 overflow-y-auto px-4 py-4 space-y-4"
+        ref={scrollRef}
+        onScroll={handleScroll}
       >
         {messages.map((msg: MessageDTO, i: number) => {
           const isMe = msg.senderId === currentUserId;
@@ -126,6 +168,7 @@ export default function ChatWindow({ chatId, currentUserId, setIsAboutChatOpen }
             />
           );
         })}
+        <div ref={bottomRef} />
       </div>
 
       <div className="p-3 border-t border-border-subtle bg-surface-selected">
