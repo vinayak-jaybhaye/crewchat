@@ -1,43 +1,42 @@
 "use client";
 
 import { MemberList } from "@/components/chat";
-import { ChatDetailsDTO } from "@/lib/types/chat.types";
+import { ChatDetailsDTO, ChatPreviewDTO } from "@/lib/types/chat.types";
 import { Bell, Ban, LogOut, Phone, X, Video } from "lucide-react";
 import { ProfilePic } from "@/components/user";
 import { getChatDetailsByIdAction, leaveGroupAction } from "@/lib/actions/chat.actions";
 import { useEffect, useState } from "react";
 import { Switch } from "@/components/ui";
 import { toggleMuteAction } from "@/lib/actions/chat.actions";
+import { useChatStore } from "@/store/chat.store";
 
 export default function AboutChat({ chatId, setIsAboutChatOpen, currentUserId }: { chatId: string, setIsAboutChatOpen: (open: boolean) => void, currentUserId: string }) {
   const [chatDetails, setChatDetails] = useState<ChatDetailsDTO | null>(null);
-  const [muted, setMuted] = useState(chatDetails?.muted ?? false);
   const [isMuting, setIsMuting] = useState(false);
+
+  // chat from store
+  const chat = useChatStore((s) => s.chatsById[chatId]);
 
   async function fetchChatDetails() {
     const chatDetails = await getChatDetailsByIdAction(chatId);
     setChatDetails(chatDetails);
+    // TODO: update chat in store with new details if needed
+    // useChatStore.getState().upsertChat(updatedChat);
   }
 
   useEffect(() => {
     fetchChatDetails();
   }, [chatId]);
 
-  useEffect(() => {
-    if (chatDetails) {
-      setMuted(chatDetails.muted);
-    }
-  }, [chatDetails]);
 
   const handleToggleMute = async (checked: boolean) => {
-    // Optimistic update
-    setMuted(checked);
+    useChatStore.getState().setMuted(chatId, !chat.muted);
     setIsMuting(true);
     try {
       await toggleMuteAction(chatId, checked);
+      useChatStore.getState().setMuted(chatId, checked);
     } catch (error) {
       // Revert on failure
-      setMuted(!checked);
       console.error("Failed to toggle mute", error);
     } finally {
       setIsMuting(false);
@@ -122,7 +121,7 @@ export default function AboutChat({ chatId, setIsAboutChatOpen, currentUserId }:
             </div>
           </div>
           <Switch
-            checked={muted}
+            checked={chat.muted}
             onCheckedChange={handleToggleMute}
             disabled={isMuting}
           />

@@ -2,6 +2,7 @@
 
 import React, { useRef, useState, useEffect } from "react";
 import { getMessagesAction, sendMessageAction, editMessageAction, deleteMessageAction } from "@/lib/actions/message.actions";
+import { markChatAsReadAction } from "@/lib/actions/chat.actions";
 import { MessageDTO } from "@/lib/types/message.types";
 import { Send } from "lucide-react";
 import { ChatHeader } from "@/components/chat";
@@ -22,6 +23,8 @@ export default function ChatWindow({ chatId, currentUserId, setIsAboutChatOpen }
   const [loading, setLoading] = useState(false);
   const [inputText, setInputText] = useState("");
   const [sending, setSending] = useState(false);
+
+  const [isNearBottom, setIsNearBottom] = useState(true);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -80,9 +83,10 @@ export default function ChatWindow({ chatId, currentUserId, setIsAboutChatOpen }
   }
 
   useEffect(() => {
-    if(!isNearBottomRef.current) return;
+    if (!isNearBottomRef.current) return;
     scrollToBottom("smooth");
-  }, [messages.length]);
+    markChatAsRead();
+  }, [isNearBottom, chatId]);
 
   function handleScroll() {
     const el = scrollRef.current;
@@ -91,16 +95,27 @@ export default function ChatWindow({ chatId, currentUserId, setIsAboutChatOpen }
     const TOP_THRESHOLD = 80;  // how many pixels from top to trigger loading older messages
     const BOTTOM_THRESHOLD = 120; // how many pixels from bottom to consider "near bottom"
 
-    if(el.scrollTop < TOP_THRESHOLD) {
+    if (el.scrollTop < TOP_THRESHOLD) {
       loadOlderMessages();
     }
 
     const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
     isNearBottomRef.current = distanceFromBottom < BOTTOM_THRESHOLD;
+    setIsNearBottom(isNearBottomRef.current);
   }
 
   function scrollToBottom(behavior: ScrollBehavior = "auto") {
     bottomRef.current?.scrollIntoView({ behavior });
+  }
+
+  async function markChatAsRead() {
+    try {
+      await markChatAsReadAction(chatId);
+      // update local state
+      useChatStore.getState().markChatAsRead(chatId);
+    } catch (error) {
+      console.error("Failed to mark chat as read", error);
+    }
   }
 
   async function handleSend() {

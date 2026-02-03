@@ -9,7 +9,7 @@ export default async function SettingsPage() {
   const session = await auth();
 
   if (!session?.user) {
-    redirect("/auth");
+    redirect("/");
   }
 
   const user = await getUserProfileDetailsAction();

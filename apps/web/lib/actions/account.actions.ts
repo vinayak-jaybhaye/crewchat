@@ -28,6 +28,13 @@ export async function getUserProfileDetailsAction(): Promise<UserDetailsDTO> {
 export async function enablePasswordAuthentication(password: string): Promise<boolean> {
   const session = await auth();
   if (!session?.user) throw new Error("Unauthorized");
+  // block example users from disabling auth their email contains "example.com"
+
+  if(!session.user.email || session.user.email.includes("example.com")) {
+    throw new Error("Action not allowed for example users");
+  }
+
+  if(password.length < 6) throw new Error("Password must be at least 6 characters long");
 
   await connectToDB(process.env.MONGODB_URI!);
 

@@ -5,7 +5,7 @@ import { ChatPageLayout } from "@/components/chat";
 export default async function ChatPage({ params }: { params: Promise<{ chatId: string }>; }) {
   const { chatId } = await params;
   const session = await auth();
-  if (!session?.user) redirect("/auth");
+  if (!session?.user) redirect("/");
 
   return (
     <ChatPageLayout

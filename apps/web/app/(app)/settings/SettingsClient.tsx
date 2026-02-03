@@ -26,7 +26,7 @@ export default function SettingsClient({ user }: SettingsClientProps) {
   const { mode, setTheme } = useThemeStore();
 
   const handleLogout = async () => {
-    await signOut({ callbackUrl: "/auth" });
+    await signOut({ callbackUrl: "/" });
   };
 
   const handleTogglePasswordParams = async () => {
@@ -93,6 +93,8 @@ export default function SettingsClient({ user }: SettingsClientProps) {
       setLoading(false);
     }
   };
+
+  const demoUser = user.email.endsWith("@example.com");
 
   return (
     <div className="space-y-8">
@@ -194,7 +196,7 @@ export default function SettingsClient({ user }: SettingsClientProps) {
               {!showPasswordInput && (
                 <button
                   onClick={handleTogglePasswordParams}
-                  disabled={loading}
+                  disabled={loading || demoUser}
                   className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${passwordEnabled
                     ? "bg-error/10 text-error hover:bg-error/20"
                     : "bg-accent-primary text-text-inverse hover:bg-accent-strong hover:scale-105"
@@ -211,6 +213,8 @@ export default function SettingsClient({ user }: SettingsClientProps) {
                   type="password"
                   placeholder="Set a password"
                   value={newPassword}
+                  minLength={6}
+                  maxLength={128}
                   onChange={(e) => setNewPassword(e.target.value)}
                   className="flex-1 bg-bg-muted border-2 border-border-subtle rounded-lg px-3 py-2 text-sm text-text-primary outline-none focus:border-accent-primary focus:ring-2 focus:ring-accent-primary/30 transition-all"
                 />

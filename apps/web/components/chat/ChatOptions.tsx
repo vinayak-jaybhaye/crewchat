@@ -4,6 +4,7 @@ import { useRef, useEffect } from "react";
 import { Pin, PinOff, Bell, BellOff, CheckCircle } from "lucide-react";
 import { togglePinAction, toggleMuteAction, markChatAsReadAction } from "@/lib/actions/chat.actions";
 import { useRouter } from "next/navigation";
+import { useChatStore } from "@/store/chat.store";
 
 interface ChatOptionsProps {
   chatId: string;
@@ -34,6 +35,30 @@ export default function ChatOptions({ chatId, pinned, muted, unreadCount, setCha
     router.refresh();
   };
 
+  const handleToggleMute = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setChatOptionsOpen(null);
+    try {
+      await toggleMuteAction(chatId, !muted);
+      useChatStore.getState().setMuted(chatId, !muted);
+      router.refresh();
+    } catch (error) {
+      console.error("Failed to toggle mute", error);
+    }
+  };
+
+  const handleTogglePin = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setChatOptionsOpen(null);
+    try {
+      await togglePinAction(chatId, !pinned);
+      useChatStore.getState().setPinned(chatId, !pinned);
+      router.refresh();
+    } catch (error) {
+      console.error("Failed to toggle pin", error);
+    }
+  };
+
   return (
     <div className="relative" ref={menuRef}>
       <div
@@ -42,7 +67,7 @@ export default function ChatOptions({ chatId, pinned, muted, unreadCount, setCha
       >
         <div className="flex flex-col py-1">
           <button
-            onClick={(e) => handleAction(() => togglePinAction(chatId, !pinned), e)}
+            onClick={(e) => handleAction(() => handleTogglePin(e), e)}
             className="px-4 py-2.5 text-sm text-left text-text-primary hover:bg-bg-muted hover:text-accent-primary flex items-center gap-3 transition-colors"
           >
             {pinned ? <PinOff size={16} /> : <Pin size={16} />}
@@ -50,7 +75,7 @@ export default function ChatOptions({ chatId, pinned, muted, unreadCount, setCha
           </button>
 
           <button
-            onClick={(e) => handleAction(() => toggleMuteAction(chatId, !muted), e)}
+            onClick={(e) => handleAction(() => handleToggleMute(e), e)}
             className="px-4 py-2.5 text-sm text-left text-text-primary hover:bg-bg-muted hover:text-accent-secondary flex items-center gap-3 transition-colors"
           >
             {muted ? <Bell size={16} /> : <BellOff size={16} />}

@@ -7,6 +7,7 @@ import { ProfilePic } from "@/components/user";
 import { ChatOptions } from "@/components/chat";
 import { useRouter } from "next/navigation";
 import { useUserStore } from "@/store/user.store";
+import { useChatStore } from "@/store/chat.store";
 import { formatTime } from "@/lib/utils/time";
 
 interface ChatListItemProps {
