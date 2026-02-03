@@ -1,0 +1,34 @@
+{
+  "groups": [
+    {
+      "key": "all",
+      "name": "all-hands",
+      "description": "General discussion",
+      "members": [
+        "dev1@example.com",
+        "dev2@example.com",
+        "dev3@example.com",
+        "dev4@example.com",
+        "dev5@example.com"
+      ]
+    }
+  ],
+  "dms": [
+    [
+      "dev1@example.com",
+      "dev2@example.com"
+    ],
+    [
+      "dev1@example.com",
+      "dev3@example.com"
+    ],
+    [
+      "dev1@example.com",
+      "dev4@example.com"
+    ],
+    [
+      "dev1@example.com",
+      "dev5@example.com"
+    ]
+  ]
+}

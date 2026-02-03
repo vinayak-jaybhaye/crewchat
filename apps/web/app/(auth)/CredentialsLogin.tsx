@@ -5,8 +5,8 @@ import { signIn } from "next-auth/react";
 import { useState } from "react";
 
 export default function CredentialsLogin() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("dev1@example.com");
+  const [password, setPassword] = useState("password1");
   const [error, setError] = useState<string | null>(null);
 
   async function onSubmit(e: React.FormEvent) {

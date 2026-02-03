@@ -1,0 +1,86 @@
+{
+  "group": [
+    {
+      "from": "dev1@example.com",
+      "text": "Welcome everyone"
+    },
+    {
+      "from": "dev2@example.com",
+      "text": "Nice to see this live"
+    },
+    {
+      "from": "dev3@example.com",
+      "text": "UI feels clean and fast"
+    },
+    {
+      "from": "dev4@example.com",
+      "text": "Group chat works smoothly"
+    },
+    {
+      "from": "dev5@example.com",
+      "text": "Looks ready to ship"
+    },
+    {
+      "from": "dev1@example.com",
+      "text": "Let's run through the checklist one more time"
+    },
+    {
+      "from": "dev2@example.com",
+      "text": "Testing looks solid on my end"
+    },
+    {
+      "from": "dev3@example.com",
+      "text": "Performance metrics are within target"
+    },
+    {
+      "from": "dev4@example.com",
+      "text": "All edge cases handled"
+    },
+    {
+      "from": "dev5@example.com",
+      "text": "Great work team! Merging to main"
+    }
+  ],
+  "dm": [
+    {
+      "from": "A",
+      "text": "Hey, quick question"
+    },
+    {
+      "from": "B",
+      "text": "Sure, what's up?"
+    },
+    {
+      "from": "A",
+      "text": "Is this persisted in DB?"
+    },
+    {
+      "from": "B",
+      "text": "Yep, Mongo + indexes"
+    },
+    {
+      "from": "A",
+      "text": "How's the query performance?"
+    },
+    {
+      "from": "B",
+      "text": "Sub-100ms for most queries, even with 10k messages"
+    },
+    {
+      "from": "A",
+      "text": "Nice! What about concurrent connections?"
+    },
+    {
+      "from": "B",
+      "text": "WebSocket handling 500+ without issues"
+    },
+    {
+      "from": "A",
+      "text": "Excellent. Ready for beta launch?"
+    },
+    {
+      "from": "B",
+      "text": "Definitely, let's go"
+    }
+  ]
+}
