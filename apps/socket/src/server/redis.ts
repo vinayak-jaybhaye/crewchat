@@ -12,7 +12,7 @@ export async function connectRedis(url: string) {
   if (!redis) {
     redis = createClient({
       url,
-      socket: { tls: true },
+      // socket: { tls: true },
     });
 
     redisSub = redis.duplicate();

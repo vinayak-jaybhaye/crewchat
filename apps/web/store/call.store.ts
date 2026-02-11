@@ -13,6 +13,7 @@ export interface Call {
 
   createdAt: number;
   connectedAt?: number;
+  rtcVersion: number;
 }
 
 interface CallStore {

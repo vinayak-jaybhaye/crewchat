@@ -31,9 +31,6 @@ export function useWebRTC(call: Call) {
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
 
-  const [isAudioEnabled, setIsAudioEnabled] = useState(true);
-  const [isVideoEnabled, setIsVideoEnabled] = useState(call.type === "VIDEO");
-
   // INIT WEBRTC
   useEffect(() => {
     let active = true;
@@ -107,7 +104,7 @@ export function useWebRTC(call: Call) {
       setLocalStream(null);
       setRemoteStream(null);
     };
-  }, [call.callId]);
+  }, [call.callId, call.rtcVersion]);
 
   // HANDLE SIGNALING
   useEffect(() => {
@@ -138,27 +135,24 @@ export function useWebRTC(call: Call) {
     }
 
     handle();
-  }, [signal, call.callId]);
+  }, [signal, call.callId, call.rtcVersion]);
 
   // TOGGLES
   const toggleAudio = () => {
-    const tracks = localStreamRef.current?.getAudioTracks() ?? [];
-    tracks.forEach((t) => (t.enabled = !t.enabled));
-    setIsAudioEnabled(tracks[0]?.enabled ?? false);
+    const track = localStreamRef.current?.getAudioTracks()[0];
+    if (!track) return;
+    track.enabled = !track.enabled;
   };
 
   const toggleVideo = () => {
-    const tracks = localStreamRef.current?.getVideoTracks() ?? [];
-    tracks.forEach((t) => (t.enabled = !t.enabled));
-    setIsVideoEnabled(tracks[0]?.enabled ?? false);
+    const track = localStreamRef.current?.getVideoTracks()[0];
+    if (!track) return;
+    track.enabled = !track.enabled;
   };
 
   return {
     localStream,
     remoteStream,
-
-    isAudioEnabled,
-    isVideoEnabled,
 
     toggleAudio,
     toggleVideo,

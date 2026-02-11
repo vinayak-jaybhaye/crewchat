@@ -4,7 +4,7 @@ import { Call } from "@/store/call.store";
 import { useSocket } from "@/components/providers/SocketProvider";
 import { useWebRTC } from "@/hooks/useWebRTC";
 import { useEffect, useRef, useState } from "react";
-import { Mic, MicOff, Video, VideoOff, Phone, Maximize2, Minimize2 } from "lucide-react";
+import { Mic, MicOff, Video, VideoOff, Phone, Minimize2 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useUserStore } from "@/store/user.store";
 import { ProfilePic } from "@/components/user";
@@ -37,9 +37,13 @@ export default function CallScreen({ call }: { call: Call }) {
     remoteStream,
     toggleAudio,
     toggleVideo,
-    isAudioEnabled,
-    isVideoEnabled,
   } = useWebRTC(call);
+
+  const isAudioEnabled =
+    localStream?.getAudioTracks()[0]?.enabled ?? false;
+
+  const isVideoEnabled =
+    localStream?.getVideoTracks()[0]?.enabled ?? false;
 
   const localVideoRef = useRef<HTMLVideoElement | null>(null);
   const remoteVideoRef = useRef<HTMLVideoElement | null>(null);
@@ -101,10 +105,11 @@ export default function CallScreen({ call }: { call: Call }) {
               />
             </>
           ) : (
-
             /* Voice call UI */
             <div className="flex h-full items-center justify-center">
               <div className="flex flex-col items-center gap-4">
+                { /* audio player */}
+                <audio ref={remoteVideoRef} autoPlay className="hidden" />
                 <div className="rounded-full bg-zinc-800 flex items-center justify-center">
                   <ProfilePic src={otherUserDetails?.avatarUrl} name={otherUserDetails?.username || "U"} size={96} />
                 </div>
@@ -115,7 +120,6 @@ export default function CallScreen({ call }: { call: Call }) {
             </div>
           )}
         </div>
-
 
         {/* Duration */}
         <div className="text-center text-zinc-400 font-bold pt-4">
@@ -149,7 +153,7 @@ export default function CallScreen({ call }: { call: Call }) {
             <Phone className="inline-block" />
           </button>
         </div>
-        <div>
+        <div className={`${call.type === "VIDEO" && "hidden"}`}>
           <Minimize2 className="absolute top-4 right-4 text-white cursor-pointer" onClick={() => setMinimized(true)} />
         </div>
       </div>

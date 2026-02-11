@@ -13,6 +13,7 @@ export interface Call {
 
   createdAt: number;
   connectedAt?: number;
+  rtcVersion: number;
 }
 
 export interface CallStartPayload {
@@ -62,6 +63,7 @@ export async function registerCallHandler(
       callerId: userId,
       calleeId,
       createdAt: Date.now(),
+      rtcVersion: 0,
     };
 
     // Store call in Redis
@@ -175,11 +177,16 @@ export async function registerCallHandler(
   }
 
   const call: Call = JSON.parse(callRaw);
+  // bump rtcversion on reconnection
+  call.rtcVersion = (call.rtcVersion ?? 0) + 1;
+
+  // persist back to redis
+  await redis.set(`call:${callId}`,JSON.stringify(call),{ KEEPTTL: true });
 
   // Make the user join the call room
   socket.join(`call:${callId}`);
-  // Emit the current call state to the user
-  socket.emit("call:resume", call);
+  // Emit the current call state to the room
+  io.to(`call:${callId}`).emit("call:resume", call);
 
   console.log(
     `User ${userId} resumed call ${callId} (state=${call.state})`
