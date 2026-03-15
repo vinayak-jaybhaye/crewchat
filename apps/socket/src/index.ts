@@ -32,6 +32,14 @@ if (!SOCKET_JWT_SECRET) throw new Error("Missing SOCKET_JWT_SECRET env var");
 const app = express();
 app.use(cors({ origin: CLIENT_ORIGIN, credentials: true }));
 
+app.get("/health", (req, res) => {
+    res.status(200).json({
+        status: "ok",
+        uptime: process.uptime(),
+        timestamp: Date.now()
+    });
+});
+
 async function startServer() {
     const redis = await connectRedis(REDIS_URL);
     await connectToDB(MONGODB_URI);
