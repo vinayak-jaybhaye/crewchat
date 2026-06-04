@@ -2,6 +2,9 @@
   "name": "crewchat",
   "version": "1.0.0",
   "private": true,
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "build": "pnpm -r build",
     "build:socket": "pnpm --filter @crewchat/socket... build",
@@ -14,8 +17,8 @@
     "build:message": "pnpm --filter @crewchat/message build",
     "build:chat": "pnpm --filter @crewchat/chat build",
     "build:user": "pnpm --filter @crewchat/user build",
-    "typecheck": "pnpm -r typecheck",
-    "lint": "pnpm -r lint",
+    "typecheck": "pnpm -r --if-present typecheck",
+    "lint": "pnpm -r --if-present lint",
     "clean": "pnpm -r clean",
     "reset": "pnpm clean && pnpm install"
   },

@@ -101,11 +101,15 @@ export default function SocketProvider({
 
         // Message edit update
         socket.on("message:edit", ({ chatId, messageId, content }) => {
+          const bucket = useChatStore.getState().messagesByChatId[chatId];
+          const existing = bucket?.entities[messageId];
+          if (!existing) return;
+
           useChatStore.getState().updateMessage(chatId, {
-            messageId,
+            ...existing,
             content,
             editedAt: new Date().toISOString(),
-          } as any);
+          });
         });
 
         // Message delete Update
@@ -113,7 +117,7 @@ export default function SocketProvider({
           useChatStore.getState().deleteMessage(chatId, {
             messageId,
             deletedAt: new Date().toISOString(),
-          } as any);
+          });
         });
 
         // ----- CALL EVENTS -----

@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CI: true
+  MONGODB_URI: mongodb://localhost:27017/crewchat
+  REDIS_URL: redis://localhost:6379
+  AUTH_SECRET: ci-auth-secret-must-be-at-least-32-chars
+  SOCKET_JWT_SECRET: ci-socket-secret-must-be-at-least-32-chars
+  AUTH_URL: http://localhost:3000
+  NEXT_PUBLIC_SOCKET_URL: http://localhost:3001
+  GOOGLE_CLIENT_ID: ci-google-client-id
+  GOOGLE_CLIENT_SECRET: ci-google-client-secret
+  CLIENT_ORIGIN: http://localhost:3000
+  PORT: "3001"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.27.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Build
+        run: pnpm build

@@ -1,10 +1,9 @@
 import { create } from "zustand";
 
-interface WebRTCSignal {
-  type: "offer" | "answer" | "ice";
-  callId: string;
-  data: any;
-}
+type WebRTCSignal =
+  | { type: "offer"; callId: string; data: RTCSessionDescriptionInit }
+  | { type: "answer"; callId: string; data: RTCSessionDescriptionInit }
+  | { type: "ice"; callId: string; data: RTCIceCandidateInit };
 
 interface WebRTCStore {
   signal: WebRTCSignal | null;

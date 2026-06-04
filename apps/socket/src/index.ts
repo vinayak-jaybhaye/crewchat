@@ -3,16 +3,13 @@ import http from "http";
 import { Server } from "socket.io";
 import cors from "cors";
 import dotenv from "dotenv";
+import mongoose from "mongoose";
 
-import { connectRedis } from "./server/redis";
+import { connectRedis, redis, redisSub } from "./server/redis";
 import { registerConnectionHandler } from "./handlers/connection.handler";
-import { registerChatHandlers } from "./handlers/chat.handler";
 import { registerRedisHandlers } from "./handlers/redis.handler";
 import { connectToDB } from "@crewchat/db";
-import {
-    authMiddlewareCookie,
-    authMiddlewareJWT,
-} from "./middleware/auth.middleware";
+import { authMiddlewareJWT } from "./middleware/auth.middleware";
 
 dotenv.config();
 
@@ -21,7 +18,7 @@ const REDIS_URL = process.env.REDIS_URL!;
 const MONGODB_URI = process.env.MONGODB_URI!;
 const AUTH_SECRET = process.env.AUTH_SECRET!;
 const SOCKET_JWT_SECRET = process.env.SOCKET_JWT_SECRET!;
-const PORT = process.env.PORT || 3001;
+const PORT = Number(process.env.PORT) || 3001;
 
 if (!CLIENT_ORIGIN) throw new Error("Missing CLIENT_ORIGIN env var");
 if (!REDIS_URL) throw new Error("Missing REDIS_URL env var");
@@ -32,39 +29,69 @@ if (!SOCKET_JWT_SECRET) throw new Error("Missing SOCKET_JWT_SECRET env var");
 const app = express();
 app.use(cors({ origin: CLIENT_ORIGIN, credentials: true }));
 
-app.get("/health", (req, res) => {
-    res.status(200).json({
-        status: "ok",
-        uptime: process.uptime(),
-        timestamp: Date.now()
-    });
+app.get("/health", (_req, res) => {
+  res.status(200).json({
+    status: "ok",
+    uptime: process.uptime(),
+    timestamp: Date.now(),
+  });
 });
 
-async function startServer() {
-    const redis = await connectRedis(REDIS_URL);
-    await connectToDB(MONGODB_URI);
+let httpServer: http.Server;
 
-    const httpServer = http.createServer(app);
-    const io = new Server(httpServer, {
-        cors: {
-            origin: CLIENT_ORIGIN,
-            credentials: true,
-        },
-    });
+async function shutdown(signal: string) {
+  console.log(`${signal} received, shutting down...`);
 
-    // auth middleware
-    io.use(authMiddlewareJWT);
-    // io.use(authMiddlewareCookie);
+  await new Promise<void>((resolve) => {
+    if (!httpServer) {
+      resolve();
+      return;
+    }
+    httpServer.close(() => resolve());
+  });
 
-    // register handlers
-    await registerConnectionHandler(io, redis);
-    // CAN USE THIS LATER FOR GLOBAL CHAT FEATURES
-    // registerChatHandlers(io);
-    await registerRedisHandlers(io);
+  try {
+    await redisSub?.quit();
+    await redis?.quit();
+  } catch (err) {
+    console.error("Redis shutdown error:", err);
+  }
 
-    httpServer.listen(PORT, () => {
-        console.log(`Socket server running on port ${PORT}`);
-    });
+  try {
+    await mongoose.disconnect();
+  } catch (err) {
+    console.error("MongoDB shutdown error:", err);
+  }
+
+  process.exit(0);
 }
 
-startServer();
+process.on("SIGTERM", () => shutdown("SIGTERM"));
+process.on("SIGINT", () => shutdown("SIGINT"));
+
+async function startServer() {
+  const redisClient = await connectRedis(REDIS_URL);
+  await connectToDB(MONGODB_URI);
+
+  httpServer = http.createServer(app);
+  const io = new Server(httpServer, {
+    cors: {
+      origin: CLIENT_ORIGIN,
+      credentials: true,
+    },
+  });
+
+  io.use(authMiddlewareJWT);
+
+  await registerConnectionHandler(io, redisClient);
+  await registerRedisHandlers(io);
+
+  httpServer.listen(PORT, () => {
+    console.log(`Socket server running on port ${PORT}`);
+  });
+}
+
+startServer().catch((err) => {
+  console.error("Failed to start socket server:", err);
+  process.exit(1);
+});

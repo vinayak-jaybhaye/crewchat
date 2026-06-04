@@ -1,21 +1,32 @@
 services:
   mongodb:
-    image: mongo
+    image: mongo:7
     container_name: crewchat-mongodb
     ports:
       - "27017:27017"
     volumes:
       - crewchat_mongodb:/data/db
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
 
   redis:
-    image: redis
+    image: redis:7-alpine
     container_name: crewchat-redis
     ports:
       - "6379:6379"
     volumes:
       - crewchat_redis:/data
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
   crewchat_mongodb:

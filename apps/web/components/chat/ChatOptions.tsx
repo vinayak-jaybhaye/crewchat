@@ -28,7 +28,7 @@ export default function ChatOptions({ chatId, pinned, muted, unreadCount, setCha
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleAction = async (action: () => Promise<any>, e: React.MouseEvent) => {
+  const handleAction = async (action: () => Promise<unknown>, e: React.MouseEvent) => {
     e.stopPropagation();
     setChatOptionsOpen(null);
     await action();

@@ -87,8 +87,10 @@ export default function SettingsClient({ user }: SettingsClientProps) {
       user.username = usernameInput; // Optimistic update or refresh needed
       setIsEditingUsername(false);
       router.refresh();
-    } catch (error: any) {
-      setUsernameError(error.message || "Failed to update username");
+    } catch (error: unknown) {
+      setUsernameError(
+        error instanceof Error ? error.message : "Failed to update username",
+      );
     } finally {
       setLoading(false);
     }

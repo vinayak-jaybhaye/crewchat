@@ -20,10 +20,6 @@ export default function ChatList() {
   const chatsById = useChatStore((s: ChatStore) => s.chatsById);
   const activeChatId = useChatStore((s: ChatStore) => s.activeChatId);
 
-  useEffect(() => {
-    if (chatOrder.length === 0) loadChats();
-  }, []);
-
   const loadChats = () => {
     startTransition(async () => {
       const data = await getChatsAction();
@@ -32,6 +28,11 @@ export default function ChatList() {
       useChatStore.getState().setChats(data);
     });
   };
+
+  useEffect(() => {
+    if (chatOrder.length === 0) loadChats();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- load once on mount when store is empty
+  }, []);
 
   const filteredChats = chatOrder
     .map((chatId: string) => chatsById[chatId])

@@ -9,7 +9,7 @@ const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
 const AUTH_SECRET = process.env.AUTH_SECRET;
 
-if(!GOOGLE_CLIENT_ID || ! GOOGLE_CLIENT_SECRET || ! AUTH_SECRET) {
+if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET || !AUTH_SECRET) {
   throw new Error("Missing environment variables for authentication");
 }
 
@@ -98,19 +98,18 @@ export const { auth, signIn, signOut, handlers } = NextAuth({
         );
       }
 
-      // Attach mongoId for jwt()
-      (user as any).mongoId = dbUser._id.toString();
-      (user as any).username = dbUser.username;
-      (user as any).avatarUrl = dbUser.avatarUrl;
+      user.mongoId = dbUser._id.toString();
+      user.username = dbUser.username;
+      user.avatarUrl = dbUser.avatarUrl;
 
       return true;
     },
 
     async jwt({ token, user }) {
       if (user) {
-        token.mongoId = (user as any).mongoId;
-        token.username = (user as any).username;
-        token.avatarUrl = (user as any).avatarUrl;
+        token.mongoId = user.mongoId;
+        token.username = user.username;
+        token.avatarUrl = user.avatarUrl;
       }
 
       return token;
