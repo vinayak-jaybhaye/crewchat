@@ -6,6 +6,8 @@
 2. Copy env samples into `apps/web/.env.local` and `apps/socket/.env`.
 3. Run `pnpm dev:web` and `pnpm dev:socket` in separate terminals.
 
+See [docs/DEVELOPMENT.md](./docs/DEVELOPMENT.md) for the full development guide and [docs/README.md](./docs/README.md) for all documentation.
+
 ## Before opening a PR
 
 ```bash

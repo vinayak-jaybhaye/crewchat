@@ -98,7 +98,21 @@ crewchat/
 └── docs/             # Architecture and deployment guides
 ```
 
-See [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) for system design and event flow.
+## Documentation
+
+Full developer documentation is in [`docs/`](./docs/README.md):
+
+| Guide | Description |
+|-------|-------------|
+| [Architecture](./docs/ARCHITECTURE.md) | System design and request flows |
+| [Data model](./docs/DATA_MODEL.md) | MongoDB schemas and relationships |
+| [Packages](./docs/PACKAGES.md) | Domain logic API reference |
+| [Web app](./docs/WEB_APP.md) | Next.js routes, actions, stores, components |
+| [Socket server](./docs/SOCKET_SERVER.md) | Realtime gateway, calls, WebRTC |
+| [Realtime](./docs/REALTIME.md) | Event catalog and pub/sub flows |
+| [Authentication](./docs/AUTH.md) | NextAuth and socket token auth |
+| [Development](./docs/DEVELOPMENT.md) | Local setup, conventions, CI |
+| [Deployment](./docs/DEPLOYMENT.md) | Production deployment |
 
 ## Scripts
 
