@@ -1,0 +1,26 @@
+# Render Blueprint — deploy from repository root (not apps/socket).
+# Docs: https://render.com/docs/monorepo-support
+
+services:
+  - type: web
+    name: crewchat-socket
+    runtime: node
+    rootDir: .
+    buildCommand: pnpm install --frozen-lockfile && pnpm build:socket
+    startCommand: pnpm start:socket
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "3001"
+      - key: CLIENT_ORIGIN
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: MONGODB_URI
+        sync: false
+      - key: AUTH_SECRET
+        sync: false
+      - key: SOCKET_JWT_SECRET
+        sync: false

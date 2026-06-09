@@ -14,6 +14,7 @@
   "dependencies": {
     "@auth/core": "^0.34.3",
     "@crewchat/db": "workspace:*",
+    "mongoose": "^9.1.5",
     "cors": "^2.8.6",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",

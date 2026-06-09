@@ -23,7 +23,22 @@ Typical targets: **Vercel**, **Railway**, **Fly.io**, or any Node host running `
 
 ## Socket server (`apps/socket`)
 
-Deploy as a long-running Node process (Railway, Fly.io, ECS, Kubernetes, etc.).
+Deploy as a long-running Node process (Railway, Fly.io, Render, ECS, Kubernetes, etc.).
+
+### Render
+
+Deploy from the **repository root**, not `apps/socket`. pnpm workspaces require the full monorepo at runtime so `@crewchat/db` and its dependencies resolve correctly.
+
+| Setting | Value |
+|---------|-------|
+| Root Directory | `.` (repo root) |
+| Build Command | `pnpm install --frozen-lockfile && pnpm build:socket` |
+| Start Command | `pnpm start:socket` |
+| Health Check Path | `/health` |
+
+A `render.yaml` blueprint is included at the repo root. If you previously set Root Directory to `apps/socket`, change it to the repo root and use the commands above.
+
+`PORT` is set automatically by Render — the socket server reads `process.env.PORT`.
 
 Optional container image (from repo root):
 

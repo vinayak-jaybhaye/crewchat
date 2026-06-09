@@ -19,3 +19,10 @@ export async function connectToDB(uri: string) {
   await global.mongooseConn;
   return mongoose;
 }
+
+export async function disconnectFromDB() {
+  if (global.mongooseConn) {
+    await mongoose.disconnect();
+    global.mongooseConn = undefined;
+  }
+}

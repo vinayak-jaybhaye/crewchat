@@ -3,12 +3,11 @@ import http from "http";
 import { Server } from "socket.io";
 import cors from "cors";
 import dotenv from "dotenv";
-import mongoose from "mongoose";
 
 import { connectRedis, redis, redisSub } from "./server/redis";
 import { registerConnectionHandler } from "./handlers/connection.handler";
 import { registerRedisHandlers } from "./handlers/redis.handler";
-import { connectToDB } from "@crewchat/db";
+import { connectToDB, disconnectFromDB } from "@crewchat/db";
 import { authMiddlewareJWT } from "./middleware/auth.middleware";
 
 dotenv.config();
@@ -58,7 +57,7 @@ async function shutdown(signal: string) {
   }
 
   try {
-    await mongoose.disconnect();
+    await disconnectFromDB();
   } catch (err) {
     console.error("MongoDB shutdown error:", err);
   }
