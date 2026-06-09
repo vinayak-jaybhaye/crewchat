@@ -10,7 +10,7 @@ flowchart TB
         Login[Login Page]
         NextAuth[NextAuth v5]
         Session[JWT Session]
-        SocketToken[/api/socket-token]
+        SocketToken["/api/socket-token"]
     end
 
     subgraph socket [Socket Server]
