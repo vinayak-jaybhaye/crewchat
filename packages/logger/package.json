@@ -1,5 +1,5 @@
 {
-  "name": "@crewchat/user",
+  "name": "@crewchat/logger",
   "version": "0.0.1",
   "private": true,
   "main": "dist/index.js",
@@ -12,14 +12,14 @@
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "dev": "tsc -p tsconfig.json --watch",
     "clean": "rm -rf dist",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@crewchat/db": "workspace:*",
-    "mongoose": "^9.1.5",
-    "zod": "^4.4.3"
+    "pino": "^9.6.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
   },
   "packageManager": "pnpm@10.27.0"
 }

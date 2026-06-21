@@ -18,7 +18,8 @@
   },
   "dependencies": {
     "@crewchat/db": "workspace:*",
-    "mongoose": "^9.1.5"
+    "mongoose": "^9.1.5",
+    "zod": "^4.4.3"
   },
   "packageManager": "pnpm@10.27.0"
 }

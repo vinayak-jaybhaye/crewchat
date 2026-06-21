@@ -19,12 +19,14 @@
     "build:user": "pnpm --filter @crewchat/user build",
     "typecheck": "pnpm -r --if-present typecheck",
     "lint": "pnpm -r --if-present lint",
+    "test": "vitest run",
     "clean": "pnpm -r clean",
     "reset": "pnpm clean && pnpm install"
   },
   "packageManager": "pnpm@10.27.0",
   "devDependencies": {
     "@types/node": "^25.0.10",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.9"
   }
 }

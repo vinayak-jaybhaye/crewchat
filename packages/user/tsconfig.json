@@ -2,6 +2,8 @@
   "compilerOptions": {
     "rootDir": "src",
     "outDir": "dist",
-    "declaration": true
-  }
+    "declaration": true,
+    "skipLibCheck": true
+  },
+  "exclude": ["src/**/__tests__/**", "dist"]
 }
