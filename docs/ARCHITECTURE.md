@@ -19,11 +19,13 @@ flowchart TB
         Socket[apps/socket]
     end
 
-    subgraph packages [Domain Packages]
+    subgraph packages [Shared Packages]
         DB["@crewchat/db"]
         Chat["@crewchat/chat"]
         Message["@crewchat/message"]
         User["@crewchat/user"]
+        Logger["@crewchat/logger"]
+        Types["@crewchat/types"]
     end
 
     subgraph stores [Data Stores]
@@ -38,6 +40,7 @@ flowchart TB
     Web --> Chat & Message & User
     Socket --> DB
     Chat & Message & User --> DB
+    Web & Socket & Chat & Message & User --> Logger & Types
     DB --> MongoDB
 
     Web -->|publish| Redis
@@ -160,7 +163,7 @@ sequenceDiagram
 
 ### Membership model
 
-Chat membership is tracked in `UserChatMetaData`, not solely in `Chat.members`. This supports per-user preferences (pin, mute, read receipts) and group admin roles.
+Chat membership is tracked exclusively in `UserChatMetaData` (there is no `Chat.members` array). This supports per-user preferences (pin, mute, read receipts) and group admin roles.
 
 ### Denormalized lastMessage
 

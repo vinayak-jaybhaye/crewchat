@@ -30,7 +30,6 @@ erDiagram
         boolean isGroup
         string imageUrl
         string description
-        ObjectId[] members
         LastMessage lastMessage
     }
 
@@ -50,6 +49,7 @@ erDiagram
         date lastDeleted
         boolean muted
         boolean pinned
+        int unreadCount
         string role
     }
 ```
@@ -80,7 +80,6 @@ erDiagram
 | `isGroup` | Boolean | required | `false` for DMs |
 | `imageUrl` | String | optional | Group avatar |
 | `description` | String | optional | Group description |
-| `members` | ObjectId[] | required, ref User | Populated for DMs; groups rely on `UserChatMetaData` |
 | `lastMessage` | embedded | optional | Denormalized snapshot for chat list |
 | `createdAt` / `updatedAt` | Date | auto | `updatedAt` bumped on new messages |
 
@@ -96,7 +95,6 @@ erDiagram
 | `createdAt` | Date | Original message timestamp |
 
 **Indexes:**
-- `{ members: 1 }`
 - `{ updatedAt: -1 }`
 
 ## Message (`messages` collection)
@@ -130,7 +128,8 @@ Per-user, per-chat state. **This is the authority for membership** — especiall
 | `lastDeleted` | Date | default `null` | Hides messages before this timestamp |
 | `muted` | Boolean | default `false` | Per-user mute |
 | `pinned` | Boolean | default `false` | Per-user pin |
-| `role` | String | enum: `member`, `admin`, `owner` | App uses `admin` / `member` only |
+| `unreadCount` | Number | default `0` | Pre-computed unread message count |
+| `role` | String | enum: `role` | App uses `admin` / `member` only |
 | `createdAt` / `updatedAt` | Date | auto | |
 
 **Indexes:**
@@ -141,7 +140,7 @@ Per-user, per-chat state. **This is the authority for membership** — especiall
 
 ### Membership via UserChatMetaData
 
-Group creation writes `UserChatMetaData` rows for the owner (`admin`) and each member (`member`) but does **not** populate `Chat.members`. All membership checks (`sendMessage`, `getMessages`, socket room joins) query `UserChatMetaData`.
+Group creation writes `UserChatMetaData` rows for the owner (`admin`) and each member (`member`). All membership checks (`sendMessage`, `getMessages`, socket room joins) query `UserChatMetaData`. `Chat.members` does not exist in the schema.
 
 ### Denormalized lastMessage
 
@@ -153,17 +152,16 @@ Messages are never hard-deleted. `deletedAt` is set; `getMessages` returns empty
 
 ### Unread count calculation
 
-`getChats` aggregates messages where:
-- `createdAt > max(lastSeen, lastDeleted)`
-- `senderId != currentUserId`
-- `deletedAt` is null
+`UserChatMetaData.unreadCount` is precomputed. It is incremented atomically on `sendMessage` for all other members of the chat, and is reset to `0` on `markChatAsRead`.
 
 ## Connection helper
 
 ```typescript
-import { connectToDB } from "@crewchat/db";
+import { withDB } from "@crewchat/db";
 
-await connectToDB(process.env.MONGODB_URI!);
+export const myAction = withDB(async () => {
+  // DB connection is automatically established and pooled
+});
 ```
 
-`connectToDB` uses a global singleton cache safe for Next.js hot reload (`packages/db/src/connect.ts`).
+`connectToDB` (negotiated by `withDB`) uses a global singleton cache safe for Next.js hot reload, and supports pool configuration via `MONGODB_MAX_POOL_SIZE` and `MONGODB_MIN_POOL_SIZE`.

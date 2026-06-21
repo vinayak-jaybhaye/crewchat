@@ -8,6 +8,8 @@ Maintain separate env files or secrets per environment (development, staging, pr
 - `SOCKET_JWT_SECRET`
 - `MONGODB_URI`
 - `REDIS_URL`
+- `MONGODB_MAX_POOL_SIZE` (optional, default 10)
+- `MONGODB_MIN_POOL_SIZE` (optional, default 2)
 
 The socket server additionally needs `CLIENT_ORIGIN` matching the web app’s public URL (scheme + host, no trailing slash).
 
@@ -20,6 +22,16 @@ Typical targets: **Vercel**, **Railway**, **Fly.io**, or any Node host running `
 3. Start with `pnpm start:web` or platform default (`next start`).
 
 `AUTH_URL` must be the canonical public URL (required for NextAuth callbacks).
+
+### Health check
+
+Configure your load balancer or orchestrator to probe:
+
+```
+GET /api/health
+```
+
+Expect `200` with JSON status representing active connection states of both Redis and MongoDB.
 
 ## Socket server (`apps/socket`)
 

@@ -8,13 +8,14 @@ Developer documentation for the CrewChat monorepo — a real-time team chat appl
 |----------|-------------------|
 | [Architecture](./ARCHITECTURE.md) | System design, component boundaries, and request flows |
 | [Data model](./DATA_MODEL.md) | MongoDB schemas, relationships, and indexing |
-| [Packages](./PACKAGES.md) | Shared domain logic (`@crewchat/db`, `chat`, `message`, `user`) |
+| [Packages](./PACKAGES.md) | Shared packages (`@crewchat/db`, `chat`, `logger`, `message`, `types`, `user`) |
 | [Web app](./WEB_APP.md) | Next.js UI, server actions, stores, and components |
 | [Socket server](./SOCKET_SERVER.md) | Socket.IO gateway, events, calls, and WebRTC relay |
 | [Realtime](./REALTIME.md) | Message delivery, Redis pub/sub, and socket event catalog |
 | [Authentication](./AUTH.md) | NextAuth, session JWT, and socket token flow |
 | [Development](./DEVELOPMENT.md) | Local setup, conventions, seeding, and CI |
 | [Deployment](./DEPLOYMENT.md) | Production topology, env vars, and health checks |
+
 
 ## Repository layout
 
@@ -26,7 +27,9 @@ crewchat/
 ├── packages/
 │   ├── db/               # Mongoose models and connection
 │   ├── chat/             # Chat CRUD, membership, preferences
+│   ├── logger/           # Pino structured logger
 │   ├── message/          # Send, edit, delete, paginate messages
+│   ├── types/            # Shared DTOs and API payload types
 │   └── user/             # User accounts and profile
 ├── docs/                 # This documentation
 ├── docker-compose.yml    # Local MongoDB + Redis
@@ -42,7 +45,7 @@ crewchat/
 | Realtime | Socket.IO, Redis pub/sub |
 | Calls | WebRTC (STUN), Socket.IO signaling |
 | Data | MongoDB (source of truth), Redis (coordination) |
-| Tooling | pnpm workspaces, TypeScript 5.9, ESLint |
+| Tooling | pnpm workspaces, TypeScript 5.9, ESLint, Vitest, Pino |
 
 ## Core design principle
 

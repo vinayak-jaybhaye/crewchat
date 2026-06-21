@@ -28,7 +28,7 @@ This design allows horizontal scaling: multiple socket instances share one Redis
 | Channel | Publisher | Subscriber | Events |
 |---------|-----------|------------|--------|
 | `chat:events` | `apps/web/lib/actions/message.actions.ts` | `apps/socket` | `message:new`, `message:edit`, `message:delete` |
-| `user:events` | — (not implemented) | `apps/socket` | `user:status:update` |
+| `user:events` | `apps/web/lib/userEvents.ts` | `apps/socket` | `chat:join`, `chat:join:many`, `chat:leave` |
 
 ### Message format
 

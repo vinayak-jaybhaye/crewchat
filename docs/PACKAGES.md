@@ -1,6 +1,6 @@
 # Domain Packages
 
-Four workspace packages under `packages/` implement all shared business logic. Both `apps/web` (server actions) and `apps/socket` (read-only membership queries) consume them.
+Six workspace packages under `packages/` implement all shared business logic. Both `apps/web` (server actions) and `apps/socket` (read-only membership queries) consume them.
 
 ## Dependency graph
 
@@ -10,17 +10,24 @@ graph TD
     chat["@crewchat/chat"]
     message["@crewchat/message"]
     user["@crewchat/user"]
+    logger["@crewchat/logger"]
+    types["@crewchat/types"]
 
     chat --> db
     message --> db
     user --> db
+    chat --> logger
+    message --> logger
+    user --> logger
 ```
 
 There are **no direct dependencies** between `chat`, `message`, and `user`. The application layer orchestrates cross-domain operations (e.g. create user, then create DM).
 
 | Package | NPM name | Purpose |
 |---------|----------|---------|
-| `db` | `@crewchat/db` | Mongoose models, `connectToDB()` |
+| `db` | `@crewchat/db` | Mongoose models, `connectToDB()`, `withDB()` |
+| `logger` | `@crewchat/logger` | Shared Pino structured logging |
+| `types` | `@crewchat/types` | Shared DTOs and API payload types |
 | `chat` | `@crewchat/chat` | Chat creation, membership, preferences |
 | `message` | `@crewchat/message` | Message CRUD and pagination |
 | `user` | `@crewchat/user` | User accounts, search, profile |
@@ -87,7 +94,7 @@ See [Data model](./DATA_MODEL.md) for schema details.
 **`getChats(userId)`**
 - Sorted by pinned DESC, then `updatedAt` DESC
 - For DMs: resolves `name` and `imageUrl` from the other user
-- Computes `unreadCount` via aggregation
+- Reads pre-computed `unreadCount` directly from `UserChatMetaData` (updated atomically on message send)
 
 **`addMembers({ chatId, actorId, userIdsToAdd })`**
 - Rejects DMs, non-admins
@@ -166,24 +173,27 @@ See [Data model](./DATA_MODEL.md) for schema details.
 - Returns `{ success: false }` if username taken
 
 **`updatePasswordAuthStatus(userId, enabled, password)`**
-- Sets `password_hash` — caller must hash with bcrypt first
+- Asserts that the password is a valid bcrypt hash prefix (`$2b$`)
+- Safely sets `password_hash` to `null` when disabling
 
 ---
 
 ## Usage pattern
 
 ```typescript
-import { connectToDB } from "@crewchat/db";
+import { withDB } from "@crewchat/db";
 import { sendMessage } from "@crewchat/message";
 import { getChats } from "@crewchat/chat";
 
-await connectToDB(process.env.MONGODB_URI!);
-
-const chats = await getChats(userId);
-const message = await sendMessage({ chatId, senderId: userId, content: "Hello" });
+// Wrap server actions or commands to auto-connect to database
+export const myAction = withDB(async (chatId, userId) => {
+  const chats = await getChats(userId);
+  const message = await sendMessage({ chatId, senderId: userId, content: "Hello" });
+  return { chats, message };
+});
 ```
 
-Always call `connectToDB` before any package function. In the web app, server actions handle this; the socket server connects at startup.
+Always ensure database connection before querying packages. Server actions do this automatically via `withDB`; the socket server connects at startup.
 
 ## Cross-package data flow
 
@@ -192,5 +202,5 @@ Always call `connectToDB` before any package function. In the web app, server ac
 | User accounts | `UserModel` | `user` |
 | Chat creation & membership | `ChatModel`, `UserChatMetaDataModel` | `chat` |
 | Messaging | `MessageModel`, `ChatModel.lastMessage` | `message` |
-| Unread counts | `MessageModel` + `UserChatMetaDataModel` | `chat` (`getChats`) |
+| Unread counts | `UserChatMetaDataModel.unreadCount` | `chat` (`getChats`) |
 | Read receipts | `UserChatMetaDataModel.lastSeen` | `chat` (`markChatAsRead`) |
