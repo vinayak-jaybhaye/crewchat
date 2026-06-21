@@ -6,14 +6,23 @@ interface SearchUsersInput {
   limit?: number;
 }
 
+/**
+ * Escape all regex metacharacters so user input is treated as a literal string.
+ * Prevents ReDoS attacks from crafted patterns like `(a+)+$`.
+ */
+function escapeRegex(str: string): string {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 export async function searchUsers({
   query,
   excludeEmail,
   limit = 10,
 }: SearchUsersInput) {
-  if (!query.trim()) return [];
+  const trimmed = query.trim();
+  if (!trimmed || trimmed.length > 50) return [];
 
-  const regex = new RegExp(`^${query.trim()}`, "i");
+  const regex = new RegExp(`^${escapeRegex(trimmed)}`, "i");
 
   const filter: any = {
     $or: [{ username: regex }, { email: regex }],

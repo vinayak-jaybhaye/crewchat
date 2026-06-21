@@ -3,7 +3,6 @@ import {
   ChatModel,
   UserChatMetaDataModel,
   UserModel,
-  MessageModel,
 } from "@crewchat/db";
 
 interface LastMessage {
@@ -84,79 +83,6 @@ export async function getChats(userId: string): Promise<ChatPreview[]> {
     users.map(u => [u._id.toString(), u])
   );
 
-  const unreadAgg = await MessageModel.aggregate([
-    // Only candidate messages
-    {
-      $match: {
-        chatId: { $in: chatIds },
-        senderId: { $ne: userObjectId },
-        deletedAt: null,
-      },
-    },
-
-    // Join per-user chat metadata
-    {
-      $lookup: {
-        from: "userchatmetadatas", // collection name
-        let: { chatId: "$chatId" },
-        pipeline: [
-          {
-            $match: {
-              $expr: {
-                $and: [
-                  { $eq: ["$chatId", "$$chatId"] },
-                  { $eq: ["$userId", userObjectId] },
-                ],
-              },
-            },
-          },
-          {
-            $project: {
-              _id: 0,
-              lastSeen: 1,
-              lastDeleted: 1,
-            },
-          },
-        ],
-        as: "meta",
-      },
-    },
-
-    // Flatten meta array
-    { $unwind: "$meta" },
-
-    // Compute cutoff = max(lastSeen, lastDeleted)
-    {
-      $addFields: {
-        cutoff: {
-          $max: ["$meta.lastSeen", "$meta.lastDeleted"],
-        },
-      },
-    },
-
-    // Keep only unread messages
-    {
-      $match: {
-        $expr: {
-          $gt: ["$createdAt", "$cutoff"],
-        },
-      },
-    },
-
-    // Count per chat
-    {
-      $group: {
-        _id: "$chatId",
-        count: { $sum: 1 },
-      },
-    },
-  ]);
-
-
-  const unreadCountMap = new Map(
-    unreadAgg.map(u => [u._id.toString(), u.count])
-  );
-
   // Build chat previews
   return metas
     .map(meta => {
@@ -198,7 +124,7 @@ export async function getChats(userId: string): Promise<ChatPreview[]> {
           : null,
         pinned: meta.pinned,
         muted: meta.muted,
-        unreadCount: unreadCountMap.get(chat._id.toString()) ?? 0,
+        unreadCount: meta.unreadCount ?? 0,
       };
     })
     .filter(Boolean) as ChatPreview[];
@@ -219,9 +145,16 @@ export async function getChatPreviewById(chatId: string, userId: string): Promis
 
   // if it is not group chat, update name and image 
   if (!chat.isGroup) {
-    const otherMemberId = chat.members.find(m => m.toString() !== userId);
-    if (otherMemberId) {
-      const otherUser = await UserModel.findById(otherMemberId).lean();
+    // Find the other member via UserChatMetaData (source of truth for membership)
+    const otherMemberMeta = await UserChatMetaDataModel.findOne({
+      chatId: new Types.ObjectId(chatId),
+      userId: { $ne: new Types.ObjectId(userId) },
+    })
+      .select("userId")
+      .lean();
+
+    if (otherMemberMeta) {
+      const otherUser = await UserModel.findById(otherMemberMeta.userId).lean();
       if (!otherUser) throw new Error("Other user not found");
       chat.name = otherUser.username;
       chat.imageUrl = otherUser.avatarUrl ?? null;

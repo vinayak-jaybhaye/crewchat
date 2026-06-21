@@ -37,17 +37,21 @@ export async function getChatDetails(
 
   // if not group chat add other member details
   if (!chat.isGroup) {
-    const otherMemberId = chat.members.find(
-      (memberId) => memberId.toString() !== userId,
-    );
+    // Find the other member via UserChatMetaData (source of truth for membership)
+    const otherMemberMeta = await UserChatMetaDataModel.findOne({
+      chatId: new Types.ObjectId(chatId),
+      userId: { $ne: new Types.ObjectId(userId) },
+    })
+      .select("userId")
+      .lean();
 
-    if (otherMemberId) {
+    if (otherMemberMeta) {
       // Fetch other user's info
-      const otherUser = await UserModel.findById(otherMemberId).lean();
+      const otherUser = await UserModel.findById(otherMemberMeta.userId).lean();
       if (otherUser) {
         chat.name = otherUser.username;
         chat.imageUrl = otherUser.avatarUrl;
-        chat.otherMemberDetails = {
+        (chat as any).otherMemberDetails = {
           id: otherUser._id.toString(),
           username: otherUser.username,
           avatarUrl: otherUser.avatarUrl,

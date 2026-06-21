@@ -1,4 +1,4 @@
-import { Types } from "mongoose";
+import mongoose, { Types } from "mongoose";
 import { MessageModel, ChatModel, UserChatMetaDataModel } from "@crewchat/db";
 
 export interface SendMessageInput {
@@ -31,49 +31,79 @@ export async function sendMessage({
     throw new Error("Message too long");
   }
 
-  // Permission check (membership)
-  const meta = await UserChatMetaDataModel.findOne({
-    chatId: new Types.ObjectId(chatId),
-    userId: new Types.ObjectId(senderId),
-  }).lean();
+  const session = await mongoose.startSession();
+  session.startTransaction();
 
-  if (!meta) {
-    throw new Error("User is not a member of this chat");
-  }
+  try {
+    // Permission check (membership)
+    const meta = await UserChatMetaDataModel.findOne({
+      chatId: new Types.ObjectId(chatId),
+      userId: new Types.ObjectId(senderId),
+    }).session(session).lean();
 
-  // Create message
-  const message = await MessageModel.create({
-    chatId: new Types.ObjectId(chatId),
-    senderId: new Types.ObjectId(senderId),
-    content: trimmed,
-  });
+    if (!meta) {
+      throw new Error("User is not a member of this chat");
+    }
 
-  // Update Chat.lastMessage snapshot
-  await ChatModel.updateOne(
-    { _id: new Types.ObjectId(chatId) },
-    {
-      $set: {
-        lastMessage: {
-          _id: message._id,
-          content: message.content,
-          senderId: message.senderId,
-          createdAt: message.createdAt,
-          editedAt: null,
-          deletedAt: null,
+    // Create message
+    const [message] = await MessageModel.create(
+      [
+        {
+          chatId: new Types.ObjectId(chatId),
+          senderId: new Types.ObjectId(senderId),
+          content: trimmed,
         },
-        updatedAt: new Date(),
-      },
-    },
-  );
+      ],
+      { session }
+    );
 
-  // ️Return message
-  return {
-    id: message._id.toString(),
-    chatId: message.chatId.toString(),
-    senderId: message.senderId.toString(),
-    content: message.content,
-    createdAt: message.createdAt,
-    editedAt: null,
-    deletedAt: null,
-  };
+    // Update Chat.lastMessage snapshot
+    await ChatModel.updateOne(
+      { _id: new Types.ObjectId(chatId) },
+      {
+        $set: {
+          lastMessage: {
+            _id: message._id,
+            content: message.content,
+            senderId: message.senderId,
+            createdAt: message.createdAt,
+            editedAt: null,
+            deletedAt: null,
+          },
+          updatedAt: new Date(),
+        },
+      },
+      { session }
+    );
+
+    // Increment unreadCount for all other members of the chat
+    await UserChatMetaDataModel.updateMany(
+      {
+        chatId: new Types.ObjectId(chatId),
+        userId: { $ne: new Types.ObjectId(senderId) },
+      },
+      {
+        $inc: { unreadCount: 1 },
+      },
+      { session }
+    );
+
+    await session.commitTransaction();
+
+    // ️Return message
+    return {
+      id: message._id.toString(),
+      chatId: message.chatId.toString(),
+      senderId: message.senderId.toString(),
+      content: message.content,
+      createdAt: message.createdAt,
+      editedAt: null,
+      deletedAt: null,
+    };
+  } catch (error) {
+    await session.abortTransaction();
+    throw error;
+  } finally {
+    session.endSession();
+  }
 }

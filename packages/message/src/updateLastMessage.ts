@@ -10,11 +10,6 @@ export async function updateLastMessageIfMatches(
     deletedAt?: Date | null;
   },
 ) {
-  const chat = await ChatModel.findById(chatId).lean();
-  if (!chat?.lastMessage) return;
-
-  if (!chat.lastMessage._id.equals(messageId)) return;
-
   const update: Record<string, any> = {};
 
   if ("content" in patch) {
@@ -29,5 +24,8 @@ export async function updateLastMessageIfMatches(
 
   if (Object.keys(update).length === 0) return;
 
-  await ChatModel.updateOne({ _id: chatId }, { $set: update });
+  await ChatModel.updateOne(
+    { _id: chatId, "lastMessage._id": messageId },
+    { $set: update }
+  );
 }

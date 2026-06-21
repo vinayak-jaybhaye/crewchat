@@ -7,11 +7,17 @@ export interface AddMembersInput {
   userIdsToAdd: string[];
 }
 
+export interface AddMembersResult {
+  addedCount: number;
+  skippedCount: number;
+  addedUserIds: string[];
+}
+
 export async function addMembers({
   chatId,
   actorId,
   userIdsToAdd,
-}: AddMembersInput) {
+}: AddMembersInput): Promise<AddMembersResult> {
   const chatObjectId = new Types.ObjectId(chatId);
   const actorObjectId = new Types.ObjectId(actorId);
 
@@ -61,5 +67,6 @@ export async function addMembers({
   return {
     addedCount: usersToInsert.length,
     skippedCount: existingMembers.length,
+    addedUserIds: usersToInsert.map((doc) => doc.userId.toString()),
   };
 }
