@@ -5,6 +5,7 @@ import { getChatsAction } from "@/lib/actions/chat.actions";
 import { ChatPreviewDTO } from "@/lib/types/chat.types";
 import { Search } from "lucide-react";
 import { ChatListItem, ChatListHeader } from "@/components/chat";
+import { useSocket } from "@/components/providers/SocketProvider";
 
 // store
 import { useChatStore } from "@/store/chat.store";
@@ -19,6 +20,7 @@ export default function ChatList() {
   const chatOrder = useChatStore((s: ChatStore) => s.chatOrder);
   const chatsById = useChatStore((s: ChatStore) => s.chatsById);
   const activeChatId = useChatStore((s: ChatStore) => s.activeChatId);
+  const { subscribeChats } = useSocket();
 
   const loadChats = () => {
     startTransition(async () => {
@@ -26,6 +28,7 @@ export default function ChatList() {
       if (data.length === 0) return;
 
       useChatStore.getState().setChats(data);
+      subscribeChats(data.map((chat) => chat.id));
     });
   };
 

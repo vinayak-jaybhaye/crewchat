@@ -7,6 +7,7 @@ import { useState, useEffect } from "react";
 import { getChatMembersByIdAction } from "@/lib/actions/chat.actions";
 import { useChatStore } from "@/store/chat.store";
 import { useUserStore } from "@/store/user.store";
+import { useSocket } from "@/components/providers/SocketProvider";
 import type { ChatStore } from "@/store/chat.store";
 import type { UserStore } from "@/store/user.store";
 
@@ -21,7 +22,15 @@ export default function ChatPageLayout({
 
   const chatMembers = useChatStore((s: ChatStore) => s.chatMembersByChatId[chatId]);
   const setChatMembers = useChatStore((s: ChatStore) => s.setChatMembers);
+  const setActiveChat = useChatStore((s: ChatStore) => s.setActiveChat);
   const upsertUsers = useUserStore((s: UserStore) => s.upsertUsers);
+  const { openChat, isConnected } = useSocket();
+
+  useEffect(() => {
+    setActiveChat(chatId);
+    if (isConnected) openChat(chatId);
+    return () => setActiveChat(null);
+  }, [chatId, isConnected, openChat, setActiveChat]);
 
   useEffect(() => {
     if (chatMembers && chatMembers.length > 0) return;
@@ -29,27 +38,31 @@ export default function ChatPageLayout({
     let cancelled = false;
 
     (async () => {
-      const membersDTO = await getChatMembersByIdAction(chatId);
-      if (cancelled) return;
+      try {
+        const membersDTO = await getChatMembersByIdAction(chatId);
+        if (cancelled) return;
 
-      // normalize users
-      const users = membersDTO.map((m) => ({
-        id: m.id,
-        username: m.username,
-        email: m.email,
-        avatarUrl: m.avatarUrl,
-        lastActive: m.lastActive,
-      }));
+        // normalize users
+        const users = membersDTO.map((m) => ({
+          id: m.id,
+          username: m.username,
+          email: m.email,
+          avatarUrl: m.avatarUrl,
+          lastActive: m.lastActive,
+        }));
 
-      // normalize chat memberships
-      const memberships = membersDTO.map((m) => ({
-        userId: m.id,
-        role: m.role,
-      }));
+        // normalize chat memberships
+        const memberships = membersDTO.map((m) => ({
+          userId: m.id,
+          role: m.role,
+        }));
 
-      // store separately
-      upsertUsers(users);
-      setChatMembers(chatId, memberships);
+        // store separately
+        upsertUsers(users);
+        setChatMembers(chatId, memberships);
+      } catch (error) {
+        console.error("Failed to load chat members:", error);
+      }
     })();
 
     return () => {

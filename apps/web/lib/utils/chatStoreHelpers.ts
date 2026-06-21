@@ -8,18 +8,20 @@ export function computeChatOrder(
     const a = chatsById[aId];
     const b = chatsById[bId];
 
+    if (!a && !b) return 0;
+    if (!a) return 1;
+    if (!b) return -1;
+
     // pinned first
     if (a.pinned && !b.pinned) return -1;
     if (!a.pinned && b.pinned) return 1;
 
-    // then by last message time
-    const aTime = a.lastMessage
-      ? new Date(a.lastMessage.createdAt).getTime()
-      : 0;
-    const bTime = b.lastMessage
-      ? new Date(b.lastMessage.createdAt).getTime()
-      : 0;
+    // then by last message time using fast lexicographical comparison
+    const aTime = a.lastMessage ? a.lastMessage.createdAt : "";
+    const bTime = b.lastMessage ? b.lastMessage.createdAt : "";
 
-    return bTime - aTime;
+    if (aTime < bTime) return 1;
+    if (aTime > bTime) return -1;
+    return 0;
   });
 }

@@ -8,17 +8,30 @@ import {
   changeMemberRole, removeMember, addMembers, leaveGroup
 } from "@crewchat/chat";
 import { ChatPreviewDTO, ChatDetailsDTO, ChatMemberDTO, MinimalChatPreviewDTO } from "@/lib/types/chat.types";
+import { publishChatJoin, publishChatJoinMany, publishChatLeave } from "@/lib/userEvents";
+import {
+  ObjectIdSchema, BooleanSchema, MemberRoleSchema,
+  CreateGroupInputSchema, AddMembersInputSchema,
+} from "@/lib/validation/schemas";
+import { rateLimitCreateChat } from "@/lib/rateLimit";
 
 export async function createDMAction(otherUserId: string) {
   const session = await auth();
   if (!session?.user) throw new Error("Unauthorized");
 
+  const validatedId = ObjectIdSchema.parse(otherUserId);
+
+  // Rate limit: 5 chat creations per minute per user
+  await rateLimitCreateChat(session.user.mongoId);
+
   await connectToDB(process.env.MONGODB_URI!);
 
   const chatId = await createDM({
     userId: session.user.mongoId,
-    otherUserId: otherUserId,
+    otherUserId: validatedId,
   });
+
+  await publishChatJoinMany([session.user.mongoId, validatedId], chatId);
 
   return chatId;
 }
@@ -27,31 +40,38 @@ export async function DMExistsAction(otherUserId: string) {
   const session = await auth();
   if (!session?.user) throw new Error("Unauthorized");
 
+  const validatedId = ObjectIdSchema.parse(otherUserId);
+
   await connectToDB(process.env.MONGODB_URI!);
 
-  const chatId = await DMExists(session.user.mongoId, otherUserId);
+  const chatId = await DMExists(session.user.mongoId, validatedId);
 
   return chatId;
 }
 
 
-export async function createGroupAction({
-  name, memberIds, imageUrl, description
-}: {
+export async function createGroupAction(input: {
   name: string, memberIds: string[], imageUrl: string | null, description: string
 }): Promise<string> {
   const session = await auth();
   if (!session?.user) throw new Error("Unauthorized");
 
+  const validated = CreateGroupInputSchema.parse(input);
+
+  // Rate limit: 5 chat creations per minute per user
+  await rateLimitCreateChat(session.user.mongoId);
+
   await connectToDB(process.env.MONGODB_URI!);
 
   const chatId = await createGroup({
     ownerId: session.user.mongoId,
-    name,
-    memberIds,
-    imageUrl: imageUrl ?? undefined,
-    description,
+    name: validated.name,
+    memberIds: validated.memberIds,
+    imageUrl: validated.imageUrl ?? undefined,
+    description: validated.description,
   });
+
+  await publishChatJoinMany([session.user.mongoId, ...validated.memberIds], chatId);
 
   return chatId;
 }
@@ -90,9 +110,11 @@ export async function getChatPreviewByIdAction(chatId: string): Promise<MinimalC
   const session = await auth();
   if (!session?.user?.mongoId) throw new Error("Unauthorized");
 
+  const validatedChatId = ObjectIdSchema.parse(chatId);
+
   await connectToDB(process.env.MONGODB_URI!);
 
-  const chat = await getChatPreviewById(chatId, session.user.mongoId);
+  const chat = await getChatPreviewById(validatedChatId, session.user.mongoId);
 
   return {
     id: chat.id,
@@ -108,9 +130,11 @@ export async function getChatDetailsByIdAction(chatId: string): Promise<ChatDeta
   const session = await auth();
   if (!session?.user?.mongoId) throw new Error("Unauthorized");
 
+  const validatedChatId = ObjectIdSchema.parse(chatId);
+
   await connectToDB(process.env.MONGODB_URI!);
 
-  const chat = await getChatDetails(chatId, session.user.mongoId);
+  const chat = await getChatDetails(validatedChatId, session.user.mongoId);
 
   return {
     id: chat.id,
@@ -138,9 +162,11 @@ export async function getChatMembersByIdAction(chatId: string): Promise<ChatMemb
   const session = await auth();
   if (!session?.user?.mongoId) throw new Error("Unauthorized");
 
+  const validatedChatId = ObjectIdSchema.parse(chatId);
+
   await connectToDB(process.env.MONGODB_URI!);
 
-  const chat = await getChatMembers({chatId, userId: session.user.mongoId});
+  const chat = await getChatMembers({chatId: validatedChatId, userId: session.user.mongoId});
 
 
   return chat.map(member => ({
@@ -156,9 +182,12 @@ export async function togglePinAction(chatId: string, pinned: boolean) {
   const session = await auth();
   if (!session?.user?.mongoId) throw new Error("Unauthorized");
 
+  const validatedChatId = ObjectIdSchema.parse(chatId);
+  const validatedPinned = BooleanSchema.parse(pinned);
+
   await connectToDB(process.env.MONGODB_URI!);
 
-  await togglePin(session.user.mongoId, chatId, pinned);
+  await togglePin(session.user.mongoId, validatedChatId, validatedPinned);
   return { success: true };
 }
 
@@ -166,9 +195,12 @@ export async function toggleMuteAction(chatId: string, muted: boolean) {
   const session = await auth();
   if (!session?.user?.mongoId) throw new Error("Unauthorized");
 
+  const validatedChatId = ObjectIdSchema.parse(chatId);
+  const validatedMuted = BooleanSchema.parse(muted);
+
   await connectToDB(process.env.MONGODB_URI!);
 
-  await toggleMute(session.user.mongoId, chatId, muted);
+  await toggleMute(session.user.mongoId, validatedChatId, validatedMuted);
   return { success: true };
 }
 
@@ -176,9 +208,11 @@ export async function markChatAsReadAction(chatId: string) {
   const session = await auth();
   if (!session?.user?.mongoId) throw new Error("Unauthorized");
 
+  const validatedChatId = ObjectIdSchema.parse(chatId);
+
   await connectToDB(process.env.MONGODB_URI!);
 
-  await markChatAsRead(session.user.mongoId, chatId);
+  await markChatAsRead(session.user.mongoId, validatedChatId);
   return { success: true };
 }
 
@@ -186,9 +220,13 @@ export async function changeMemberRoleAction(chatId: string, userId: string, rol
   const session = await auth();
   if (!session?.user?.mongoId) throw new Error("Unauthorized");
 
+  const validatedChatId = ObjectIdSchema.parse(chatId);
+  const validatedUserId = ObjectIdSchema.parse(userId);
+  const validatedRole = MemberRoleSchema.parse(role);
+
   await connectToDB(process.env.MONGODB_URI!);
 
-  await changeMemberRole(chatId, session.user.mongoId, userId, role);
+  await changeMemberRole(validatedChatId, session.user.mongoId, validatedUserId, validatedRole);
   return { success: true };
 }
 
@@ -196,13 +234,21 @@ export async function removeMemberAction(chatId: string, userId: string) {
   const session = await auth();
   if (!session?.user?.mongoId) throw new Error("Unauthorized");
 
+  const validatedChatId = ObjectIdSchema.parse(chatId);
+  const validatedUserId = ObjectIdSchema.parse(userId);
+
   await connectToDB(process.env.MONGODB_URI!);
 
-  await removeMember({
-    chatId,
+  const result = await removeMember({
+    chatId: validatedChatId,
     actorId: session.user.mongoId,
-    userIdToRemove: userId,
+    userIdToRemove: validatedUserId,
   });
+
+  if (result.removed) {
+    await publishChatLeave(validatedUserId, validatedChatId);
+  }
+
   return { success: true };
 }
 
@@ -210,13 +256,20 @@ export async function addMembersAction(chatId: string, userIds: string[]) {
   const session = await auth();
   if (!session?.user?.mongoId) throw new Error("Unauthorized");
 
+  const validated = AddMembersInputSchema.parse({ chatId, userIds });
+
   await connectToDB(process.env.MONGODB_URI!);
 
-  await addMembers({
-    chatId,
+  const result = await addMembers({
+    chatId: validated.chatId,
     actorId: session.user.mongoId,
-    userIdsToAdd: userIds,
+    userIdsToAdd: validated.userIds,
   });
+
+  if (result.addedUserIds.length > 0) {
+    await publishChatJoinMany(result.addedUserIds, validated.chatId);
+  }
+
   return { success: true };
 }
 
@@ -224,12 +277,18 @@ export async function leaveGroupAction(chatId: string): Promise<boolean> {
   const session = await auth();
   if (!session?.user?.mongoId) throw new Error("Unauthorized");
 
+  const validatedChatId = ObjectIdSchema.parse(chatId);
+
   await connectToDB(process.env.MONGODB_URI!);
 
-  await leaveGroup({
-    chatId,
+  const result = await leaveGroup({
+    chatId: validatedChatId,
     userId: session.user.mongoId,
   });
+
+  if (result.left) {
+    await publishChatLeave(session.user.mongoId, validatedChatId);
+  }
 
   return true;
 }

@@ -77,6 +77,8 @@ export default function ChatWindow({ chatId, currentUserId, setIsAboutChatOpen }
         el.scrollTop = newScrollHeight - previousScrollHeight;
       });
 
+    } catch (error) {
+      console.error("Failed to load messages:", error);
     } finally {
       setLoading(false);
     }

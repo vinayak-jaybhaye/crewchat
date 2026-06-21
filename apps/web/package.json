@@ -13,7 +13,9 @@
   "dependencies": {
     "@crewchat/chat": "workspace:*",
     "@crewchat/db": "workspace:*",
+    "@crewchat/logger": "workspace:*",
     "@crewchat/message": "workspace:*",
+    "@crewchat/types": "workspace:*",
     "@crewchat/user": "workspace:*",
     "bcryptjs": "^3.0.3",
     "immer": "^11.1.3",
@@ -26,6 +28,7 @@
     "react-dom": "19.2.3",
     "redis": "^5.10.0",
     "socket.io-client": "^4.8.3",
+    "zod": "^4.4.3",
     "zustand": "^5.0.10"
   },
   "devDependencies": {

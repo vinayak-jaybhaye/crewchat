@@ -1,11 +1,13 @@
 "use server";
 
-import { connectToDB } from "@crewchat/db";
+import { withDB } from "@crewchat/db";
 import { sendMessage, getMessages, editMessage, deleteMessage } from "@crewchat/message";
 import { MessageDTO } from "@/lib/types/message.types";
 import { auth } from "@/auth";
 
-import { redis } from "@/lib/redis";
+import { publishEvent } from "@/lib/redis";
+import { ObjectIdSchema, MessageContentSchema, GetMessagesInputSchema } from "@/lib/validation/schemas";
+import { rateLimitSendMessage } from "@/lib/rateLimit";
 
 async function requireUser() {
   const session = await auth();
@@ -13,14 +15,19 @@ async function requireUser() {
   return session.user;
 }
 
-export async function sendMessageAction(chatId: string, content: string) {
+export const sendMessageAction = withDB(async (chatId: string, content: string) => {
   const user = await requireUser();
-  await connectToDB(process.env.MONGODB_URI!);
+
+  const validatedChatId = ObjectIdSchema.parse(chatId);
+  const validatedContent = MessageContentSchema.parse(content);
+
+  // Rate limit: 10 messages per 10 seconds per user
+  await rateLimitSendMessage(user.mongoId);
 
   const message = await sendMessage({
-    chatId: chatId,
+    chatId: validatedChatId,
     senderId: user.mongoId,
-    content,
+    content: validatedContent,
   });
 
   const newMessage: MessageDTO = {
@@ -38,29 +45,26 @@ export async function sendMessageAction(chatId: string, content: string) {
   };
 
   // emit message to chat room
-  await redis.publish(
-    "chat:events",
-    JSON.stringify({
-      chatId: chatId,
-      type: "message:new",
-      message: newMessage,
-    })
-  );
+  await publishEvent("chat:events", {
+    chatId: validatedChatId,
+    type: "message:new",
+    message: newMessage,
+  });
 
   return newMessage;
-}
+});
 
-export async function getMessagesAction({ chatId, cursor, limit }: { chatId: string, cursor?: string, limit?: number }): Promise<MessageDTO[]> {
+export const getMessagesAction = withDB(async (input: { chatId: string, cursor?: string, limit?: number }): Promise<MessageDTO[]> => {
   const session = await auth();
   if (!session?.user) throw new Error("Unauthorized");
 
-  await connectToDB(process.env.MONGODB_URI!);
+  const validated = GetMessagesInputSchema.parse(input);
 
   const messages = await getMessages({
-    chatId: chatId,
+    chatId: validated.chatId,
     userId: session.user.mongoId,
-    limit: limit || 30,
-    cursor: cursor ? new Date(cursor) : undefined,
+    limit: validated.limit,
+    cursor: validated.cursor ? new Date(validated.cursor) : undefined,
   });
 
   // oldest first
@@ -75,50 +79,49 @@ export async function getMessagesAction({ chatId, cursor, limit }: { chatId: str
     editedAt: msg.editedAt ? msg.editedAt.toISOString() : null,
     deletedAt: msg.deletedAt ? msg.deletedAt.toISOString() : null,
   }));
-}
+});
 
-export async function editMessageAction(messageId: string, content: string, chatId: string) {
+export const editMessageAction = withDB(async (messageId: string, content: string, chatId: string) => {
   const user = await requireUser();
-  await connectToDB(process.env.MONGODB_URI!);
+
+  const validatedMessageId = ObjectIdSchema.parse(messageId);
+  const validatedContent = MessageContentSchema.parse(content);
+  const validatedChatId = ObjectIdSchema.parse(chatId);
 
   await editMessage({
-    messageId: messageId,
-    content: content,
+    messageId: validatedMessageId,
+    content: validatedContent,
     userId: user.mongoId,
   });
 
   // emit message to chat room
-  await redis.publish(
-    "chat:events",
-    JSON.stringify({
-      type: "message:edit",
-      chatId: chatId,
-      messageId: messageId,
-      content: content
-    })
-  );
+  await publishEvent("chat:events", {
+    type: "message:edit",
+    chatId: validatedChatId,
+    messageId: validatedMessageId,
+    content: validatedContent,
+  });
 
-  return messageId;
-}
+  return validatedMessageId;
+});
 
-export async function deleteMessageAction(messageId: string, chatId: string) {
+export const deleteMessageAction = withDB(async (messageId: string, chatId: string) => {
   const user = await requireUser();
-  await connectToDB(process.env.MONGODB_URI!);
+
+  const validatedMessageId = ObjectIdSchema.parse(messageId);
+  const validatedChatId = ObjectIdSchema.parse(chatId);
 
   const message = await deleteMessage({
-    messageId: messageId,
+    messageId: validatedMessageId,
     userId: user.mongoId,
   });
 
   // emit message to chat room
-  await redis.publish(
-    "chat:events",
-    JSON.stringify({
-      type: "message:delete",
-      chatId: chatId,
-      messageId: messageId,
-    })
-  );
+  await publishEvent("chat:events", {
+    type: "message:delete",
+    chatId: validatedChatId,
+    messageId: validatedMessageId,
+  });
 
-  return messageId;
-}
+  return validatedMessageId;
+});
