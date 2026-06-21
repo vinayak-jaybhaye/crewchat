@@ -2,6 +2,7 @@ services:
   mongodb:
     image: mongo:7
     container_name: crewchat-mongodb
+    command: ["--replSet", "rs0", "--bind_ip_all"]
     ports:
       - "27017:27017"
     volumes:
@@ -13,6 +14,16 @@ services:
       timeout: 5s
       retries: 5
       start_period: 20s
+
+  mongodb-setup:
+    image: mongo:7
+    container_name: crewchat-mongodb-setup
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    entrypoint: [ "bash", "-c", "mongosh --host mongodb:27017 --eval 'try { rs.status() } catch (err) { rs.initiate({_id: \"rs0\", members: [{_id: 0, host: \"localhost:27017\"}]}) }'" ]
+    restart: "no"
+
 
   redis:
     image: redis:7-alpine

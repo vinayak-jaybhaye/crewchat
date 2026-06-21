@@ -17,7 +17,6 @@ export default async function seedChats() {
       name: group.name,
       description: group.description,
       isGroup: true,
-      members: group.members.map(e => byEmail[e]._id),
       lastMessage: null,
     });
 
@@ -36,7 +35,6 @@ export default async function seedChats() {
   for (const [a, b] of chatData.dms) {
     const chat = await ChatModel.create({
       isGroup: false,
-      members: [byEmail[a]._id, byEmail[b]._id],
       lastMessage: null,
     });
 

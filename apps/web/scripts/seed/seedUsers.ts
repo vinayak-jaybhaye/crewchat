@@ -22,8 +22,8 @@ export default async function seedUsers() {
 
     const existingUser = await UserModel.findOne({ email });
     if (existingUser) {
-      console.log(`User ${email} already exists, aborting seeding`);
-      process.exit(1);
+      console.log(`User ${email} already exists, skipping creation`);
+      continue;
     }
 
     const base = email.split("@")[0];
@@ -41,5 +41,4 @@ export default async function seedUsers() {
   }
 
   console.log("Demo users ready");
-  process.exit(0);
 }
