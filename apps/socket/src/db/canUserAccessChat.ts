@@ -1,5 +1,6 @@
-import { UserChatMetaDataModel } from "@crewchat/db";
+import { getUserMemberships } from "./getUserMemberships";
 
 export async function canUserAccessChat(userId: string, chatId: string): Promise<boolean> {
-    return !!await UserChatMetaDataModel.exists({ chatId, userId });
+  const memberships = await getUserMemberships(userId);
+  return memberships.has(chatId);
 }

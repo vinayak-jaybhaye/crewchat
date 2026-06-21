@@ -15,7 +15,7 @@ export async function registerRedisHandlers(io: Server) {
           break;
 
         case "user:events":
-          handleUserEvent(io, event);
+          await handleUserEvent(io, event);
           break;
       }
     }

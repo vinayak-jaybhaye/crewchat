@@ -1,10 +1,18 @@
 import express from "express";
 import http from "http";
 import { Server } from "socket.io";
+import { createAdapter } from "@socket.io/redis-adapter";
 import cors from "cors";
 import dotenv from "dotenv";
+import mongoose from "mongoose";
 
-import { connectRedis, redis, redisSub } from "./server/redis";
+import {
+  connectRedis,
+  disconnectRedis,
+  pingRedis,
+  redisAdapterPub,
+  redisAdapterSub,
+} from "./server/redis";
 import { registerConnectionHandler } from "./handlers/connection.handler";
 import { registerRedisHandlers } from "./handlers/redis.handler";
 import { connectToDB, disconnectFromDB } from "@crewchat/db";
@@ -28,11 +36,27 @@ if (!SOCKET_JWT_SECRET) throw new Error("Missing SOCKET_JWT_SECRET env var");
 const app = express();
 app.use(cors({ origin: CLIENT_ORIGIN, credentials: true }));
 
-app.get("/health", (_req, res) => {
-  res.status(200).json({
-    status: "ok",
+async function pingMongo(): Promise<boolean> {
+  if (mongoose.connection.readyState !== 1 || !mongoose.connection.db) {
+    return false;
+  }
+  await mongoose.connection.db.admin().ping();
+  return true;
+}
+
+app.get("/health", async (_req, res) => {
+  const [mongodb, redisOk] = await Promise.all([
+    pingMongo().catch(() => false),
+    pingRedis().catch(() => false),
+  ]);
+
+  const healthy = mongodb && redisOk;
+
+  res.status(healthy ? 200 : 503).json({
+    status: healthy ? "ok" : "degraded",
     uptime: process.uptime(),
     timestamp: Date.now(),
+    checks: { mongodb, redis: redisOk },
   });
 });
 
@@ -49,12 +73,7 @@ async function shutdown(signal: string) {
     httpServer.close(() => resolve());
   });
 
-  try {
-    await redisSub?.quit();
-    await redis?.quit();
-  } catch (err) {
-    console.error("Redis shutdown error:", err);
-  }
+  await disconnectRedis();
 
   try {
     await disconnectFromDB();
@@ -79,6 +98,9 @@ async function startServer() {
       credentials: true,
     },
   });
+
+  io.adapter(createAdapter(redisAdapterPub, redisAdapterSub));
+  console.log("Socket.IO Redis adapter enabled");
 
   io.use(authMiddlewareJWT);
 

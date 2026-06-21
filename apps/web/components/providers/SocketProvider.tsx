@@ -1,7 +1,7 @@
 "use client";
 
-import { createContext, useContext, useEffect, useRef, useState } from "react";
-import { getSocket } from "@/lib/socket";
+import { createContext, useContext, useEffect, useRef, useState, useCallback } from "react";
+import { getSocket, updateSocketToken, destroySocket } from "@/lib/socket";
 import { useSession } from "next-auth/react";
 import { useChatStore } from "@/store/chat.store";
 import { useCallStore } from "@/store/call.store";
@@ -24,11 +24,13 @@ export interface CallEndPayload {
 type SocketContextType = {
   isConnected: boolean;
 
+  subscribeChats: (chatIds: string[]) => void;
+  openChat: (chatId: string) => void;
+
   startCall: (payload: CallStartPayload) => void;
   acceptCall: (payload: CallAcceptPayload) => void;
   endCall: (payload: CallEndPayload) => void;
 
-  // webrtc
   sendOffer: (payload: {
     callId: string;
     sdp: RTCSessionDescriptionInit;
@@ -50,6 +52,9 @@ const noop = () => {
 const SocketContext = createContext<SocketContextType>({
   isConnected: false,
 
+  subscribeChats: noop,
+  openChat: noop,
+
   startCall: noop,
   acceptCall: noop,
   endCall: noop,
@@ -60,6 +65,18 @@ const SocketContext = createContext<SocketContextType>({
 
 export const useSocket = () => useContext(SocketContext);
 
+/** Refresh 3 minutes before JWT expiry */
+const REFRESH_BUFFER_SECONDS = 180;
+
+async function fetchSocketToken(): Promise<{
+  token: string;
+  expiresIn: number;
+} | null> {
+  const res = await fetch("/api/socket-token", { credentials: "include" });
+  if (!res.ok) return null;
+  return res.json();
+}
+
 export default function SocketProvider({
   children,
 }: {
@@ -69,37 +86,73 @@ export default function SocketProvider({
   const [isConnected, setIsConnected] = useState(false);
 
   const socketRef = useRef<ReturnType<typeof getSocket> | null>(null);
+  const refreshTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pendingSubscribeRef = useRef<string[] | null>(null);
 
   useEffect(() => {
     if (status !== "authenticated") return;
 
     let active = true;
 
-    async function connectSocket() {
-      try {
-        // Fetch short-lived socket token
-        const res = await fetch("/api/socket-token", {
-          credentials: "include",
-        });
-        if (!res.ok) return;
+    function scheduleTokenRefresh(expiresIn: number) {
+      if (refreshTimerRef.current) clearTimeout(refreshTimerRef.current);
 
-        const { token } = await res.json();
+      const delayMs = Math.max(
+        (expiresIn - REFRESH_BUFFER_SECONDS) * 1000,
+        60_000
+      );
+
+      refreshTimerRef.current = setTimeout(async () => {
         if (!active) return;
 
-        // Create socket with token
-        socketRef.current = getSocket(token);
+        const creds = await fetchSocketToken();
+        if (!creds || !active) return;
+
+        updateSocketToken(creds.token);
+        scheduleTokenRefresh(creds.expiresIn);
+      }, delayMs);
+    }
+
+    async function connectSocket() {
+      try {
+        const creds = await fetchSocketToken();
+        if (!creds || !active) return;
+
+        socketRef.current = getSocket(creds.token);
         const socket = socketRef.current;
 
-        // Register listeners
-        socket.on("connect", () => setIsConnected(true));
+        socket.on("connect", () => {
+          setIsConnected(true);
+          if (pendingSubscribeRef.current) {
+            socket.emit("chat:subscribe", {
+              chatIds: pendingSubscribeRef.current,
+            });
+          }
+        });
         socket.on("disconnect", () => setIsConnected(false));
 
-        // New message update
+        socket.on("connect_error", async (err) => {
+          console.error("Socket connect error:", err.message);
+
+          const isAuthError =
+            err.message.includes("jwt") ||
+            err.message.includes("Unauthorized") ||
+            err.message.includes("token");
+
+          if (!isAuthError || !active) return;
+
+          const fresh = await fetchSocketToken();
+          if (!fresh || !active) return;
+
+          updateSocketToken(fresh.token);
+          scheduleTokenRefresh(fresh.expiresIn);
+          socket.connect();
+        });
+
         socket.on("message:new", (message: Message) => {
           useChatStore.getState().addMessage(message);
         });
 
-        // Message edit update
         socket.on("message:edit", ({ chatId, messageId, content }) => {
           const bucket = useChatStore.getState().messagesByChatId[chatId];
           const existing = bucket?.entities[messageId];
@@ -112,7 +165,6 @@ export default function SocketProvider({
           });
         });
 
-        // Message delete Update
         socket.on("message:delete", ({ chatId, messageId }) => {
           useChatStore.getState().deleteMessage(chatId, {
             messageId,
@@ -120,28 +172,22 @@ export default function SocketProvider({
           });
         });
 
-        // ----- CALL EVENTS -----
-        // Incoming call (callee)
         socket.on("call:incoming", (call) => {
           useCallStore.getState().incomingCall(call);
         });
 
-        // Outgoing call (caller confirmation)
         socket.on("call:outgoing", (call) => {
           useCallStore.getState().startCall(call);
         });
 
-        // Call connected (both users)
         socket.on("call:connected", (call) => {
           useCallStore.getState().connectCall(call);
         });
 
-        // Call ended
         socket.on("call:ended", ({ callId, endedBy }) => {
           useCallStore.getState().endCall(callId, endedBy);
         });
 
-        // Call resume (reconnect / refresh)
         socket.on("call:resume", (call) => {
           if (call.state === "CONNECTED") {
             useCallStore.getState().resumeCall(call);
@@ -150,8 +196,6 @@ export default function SocketProvider({
           }
         });
 
-        // ----- WEBRTC SIGNALING -----
-        // WebRTC signaling
         socket.on("webrtc:offer", ({ callId, sdp }) => {
           useWebRTCStore.getState().pushSignal({
             type: "offer",
@@ -176,7 +220,7 @@ export default function SocketProvider({
           });
         });
 
-        // Connect
+        scheduleTokenRefresh(creds.expiresIn);
         socket.connect();
       } catch (err) {
         console.error("Socket connection failed:", err);
@@ -187,10 +231,25 @@ export default function SocketProvider({
 
     return () => {
       active = false;
-      socketRef.current?.disconnect();
+      if (refreshTimerRef.current) clearTimeout(refreshTimerRef.current);
+      destroySocket();
       socketRef.current = null;
     };
   }, [status]);
+
+  const subscribeChats = useCallback((chatIds: string[]) => {
+    pendingSubscribeRef.current = chatIds;
+    const socket = socketRef.current;
+    if (socket?.connected) {
+      socket.emit("chat:subscribe", { chatIds });
+    }
+  }, []);
+
+  const openChat = useCallback((chatId: string) => {
+    const socket = socketRef.current;
+    if (!socket?.connected) return;
+    socket.emit("chat:open", { chatId });
+  }, []);
 
   const startCall = (payload: CallStartPayload) => {
     const socket = socketRef.current;
@@ -210,7 +269,6 @@ export default function SocketProvider({
     socket.emit("call:end", payload);
   };
 
-  // WEBRTC SIGNALING
   const sendOffer = ({
     callId,
     sdp,
@@ -251,6 +309,8 @@ export default function SocketProvider({
     <SocketContext.Provider
       value={{
         isConnected,
+        subscribeChats,
+        openChat,
         startCall,
         acceptCall,
         endCall,

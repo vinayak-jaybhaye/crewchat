@@ -1,6 +1,7 @@
 import { Server, Socket } from "socket.io";
 import type { RedisClient } from "../server/redis";
 import { randomUUID } from "crypto";
+import { logger } from "@crewchat/logger";
 
 
 export interface Call {
@@ -85,9 +86,7 @@ export async function registerCallHandler(
     socket.emit("call:outgoing", call);
     io.to(`user:${calleeId}`).emit("call:incoming", call);
 
-    console.log(
-      `Call started ${callId} from ${userId} to ${calleeId}`
-    );
+    logger.info({ callId, callerId: userId, calleeId, type }, "Call started");
   });
 
 
@@ -121,9 +120,7 @@ export async function registerCallHandler(
     // Notify both users
     io.to(`call:${callId}`).emit("call:connected", call);
 
-    console.log(
-      `Call ${callId} connected between ${call.callerId} and ${call.calleeId}`
-    );
+    logger.info({ callId, callerId: call.callerId, calleeId: call.calleeId }, "Call connected");
   });
 
 
@@ -157,9 +154,7 @@ export async function registerCallHandler(
     io.in(`call:${callId}`).socketsLeave(`call:${callId}`);
 
 
-    console.log(
-      `Call ${callId} ended by ${userId}`
-    );
+    logger.info({ callId, endedBy: userId }, "Call ended");
   });
 
 
@@ -188,9 +183,7 @@ export async function registerCallHandler(
   // Emit the current call state to the room
   io.to(`call:${callId}`).emit("call:resume", call);
 
-  console.log(
-    `User ${userId} resumed call ${callId} (state=${call.state})`
-  );
+  logger.info({ userId, callId, state: call.state }, "User resumed call");
 }
 
 
