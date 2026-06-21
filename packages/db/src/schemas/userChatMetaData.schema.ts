@@ -11,6 +11,7 @@ export interface IUserChatMetaData {
   pinned: boolean;
   lastDeleted: Date | null;
   role: ChatRole;
+  unreadCount: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -25,6 +26,7 @@ const UserChatMetaDataSchema = new Schema(
 
     muted: { type: Boolean, default: false },
     pinned: { type: Boolean, default: false },
+    unreadCount: { type: Number, default: 0 },
     role: {
       type: String,
       enum: ["member", "admin", "owner"],

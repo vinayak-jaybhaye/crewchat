@@ -12,7 +12,6 @@ export interface ILastMessage {
 export interface IChat {
   _id: mongoose.Types.ObjectId;
   name?: string;
-  members: mongoose.Types.ObjectId[];
   isGroup: boolean;
   imageUrl?: string;
   description?: string;
@@ -33,12 +32,6 @@ const ChatSchema = new Schema<IChat>(
     imageUrl: { type: String },
     description: { type: String },
 
-    members: {
-      type: [Schema.Types.ObjectId],
-      ref: "User",
-      required: true,
-    },
-
     lastMessage: {
       type: new Schema(
         {
@@ -58,7 +51,6 @@ const ChatSchema = new Schema<IChat>(
   { timestamps: true },
 );
 
-ChatSchema.index({ members: 1 });
 ChatSchema.index({ updatedAt: -1 });
 
 const Chat = mongoose.models.Chat || mongoose.model<IChat>("Chat", ChatSchema);
