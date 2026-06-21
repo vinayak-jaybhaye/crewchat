@@ -30,13 +30,22 @@ export default function AboutChat({ chatId, setIsAboutChatOpen, currentUserId }:
 
 
   const handleToggleMute = async (checked: boolean) => {
-    useChatStore.getState().setMuted(chatId, !chat.muted);
+    const currentMuted = chat ? chat.muted : (chatDetails ? chatDetails.muted : false);
+    if (chat) {
+      useChatStore.getState().setMuted(chatId, !currentMuted);
+    }
     setIsMuting(true);
     try {
       await toggleMuteAction(chatId, checked);
-      useChatStore.getState().setMuted(chatId, checked);
+      if (chat) {
+        useChatStore.getState().setMuted(chatId, checked);
+      }
+      setChatDetails(prev => prev ? { ...prev, muted: checked } : null);
     } catch (error) {
       // Revert on failure
+      if (chat) {
+        useChatStore.getState().setMuted(chatId, currentMuted);
+      }
       console.error("Failed to toggle mute", error);
     } finally {
       setIsMuting(false);
@@ -121,7 +130,7 @@ export default function AboutChat({ chatId, setIsAboutChatOpen, currentUserId }:
             </div>
           </div>
           <Switch
-            checked={chat.muted}
+            checked={chat ? chat.muted : chatDetails.muted}
             onCheckedChange={handleToggleMute}
             disabled={isMuting}
           />

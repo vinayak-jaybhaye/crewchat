@@ -1,31 +1,26 @@
 import NextAuth from "next-auth";
-import Credentials from "next-auth/providers/credentials";
 import Google from "next-auth/providers/google";
+import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
+import { authConfig } from "./auth.config";
 import { generateUniqueUsername } from "@/lib/utils/username";
 import { connectToDB, UserModel } from "@crewchat/db";
 
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
-const AUTH_SECRET = process.env.AUTH_SECRET;
 
-if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET || !AUTH_SECRET) {
-  throw new Error("Missing environment variables for authentication");
+if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
+  throw new Error("Missing Google authentication environment variables");
 }
 
 export const { auth, signIn, signOut, handlers } = NextAuth({
-  session: {
-    strategy: "jwt",
-  },
-  secret: AUTH_SECRET,
-  trustHost: true,
+  ...authConfig,
 
   providers: [
     Google({
       clientId: GOOGLE_CLIENT_ID,
       clientSecret: GOOGLE_CLIENT_SECRET,
     }),
-
     Credentials({
       credentials: {
         email: { label: "Email", type: "email" },
@@ -70,6 +65,8 @@ export const { auth, signIn, signOut, handlers } = NextAuth({
   ],
 
   callbacks: {
+    ...authConfig.callbacks,
+
     async signIn({ user, account }) {
       if (account?.provider !== "google") return true;
       if (!user.email) return false;
@@ -103,26 +100,6 @@ export const { auth, signIn, signOut, handlers } = NextAuth({
       user.avatarUrl = dbUser.avatarUrl;
 
       return true;
-    },
-
-    async jwt({ token, user }) {
-      if (user) {
-        token.mongoId = user.mongoId;
-        token.username = user.username;
-        token.avatarUrl = user.avatarUrl;
-      }
-
-      return token;
-    },
-
-    async session({ session, token }) {
-      if (session.user) {
-        session.user.mongoId = token.mongoId as string;
-        session.user.username = token.username as string;
-        session.user.avatarUrl = token.avatarUrl as string | null;
-      }
-
-      return session;
     },
   },
 });
