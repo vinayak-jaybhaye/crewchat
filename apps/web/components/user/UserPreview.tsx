@@ -25,7 +25,7 @@ export default function UserPreview({ user, onDM }: { user: User; onDM: () => vo
   }
 
   return (
-    <div className="w-full max-w-md mx-auto rounded-2xl border border-neutral-800 bg-neutral-900 p-4">
+    <div className="w-full max-w-md mx-auto rounded-2xl border border-border-subtle bg-surface-raised p-5 shadow-sm">
       {/* Top section */}
       <div className="flex items-center gap-4">
         {/* Avatar */}
@@ -33,10 +33,10 @@ export default function UserPreview({ user, onDM }: { user: User; onDM: () => vo
 
         {/* User info */}
         <div className="flex-1 min-w-0">
-          <p className="text-base font-semibold truncate">
+          <p className="text-base font-semibold text-text-primary truncate">
             {user.username}
           </p>
-          <p className="text-sm text-neutral-400 truncate">
+          <p className="text-sm text-text-muted truncate">
             {user.email}
           </p>
         </div>
@@ -46,14 +46,14 @@ export default function UserPreview({ user, onDM }: { user: User; onDM: () => vo
       <div className="mt-4 grid grid-cols-3 gap-2">
         <button
           onClick={onDM}
-          className="flex items-center justify-center gap-2 rounded-xl bg-neutral-800 hover:bg-neutral-700 px-3 py-2 text-sm transition"
+          className="flex items-center justify-center gap-2 rounded-xl bg-bg-muted hover:bg-bg-subtle px-3 py-2.5 text-sm text-text-primary font-medium transition-all hover:scale-[0.98] active:scale-95 cursor-pointer"
         >
           <MessageCircle size={16} />
           DM
         </button>
 
         <button
-          className="flex items-center justify-center gap-2 rounded-xl bg-neutral-800 hover:bg-neutral-700 px-3 py-2 text-sm transition"
+          className="flex items-center justify-center gap-2 rounded-xl bg-bg-muted hover:bg-bg-subtle px-3 py-2.5 text-sm text-text-primary font-medium transition-all hover:scale-[0.98] active:scale-95 cursor-pointer"
           onClick={handleStartVoiceCall}
         >
           <Phone size={16} />
@@ -61,7 +61,7 @@ export default function UserPreview({ user, onDM }: { user: User; onDM: () => vo
         </button>
 
         <button
-          className="flex items-center justify-center gap-2 rounded-xl bg-neutral-800 hover:bg-neutral-700 px-3 py-2 text-sm transition"
+          className="flex items-center justify-center gap-2 rounded-xl bg-bg-muted hover:bg-bg-subtle px-3 py-2.5 text-sm text-text-primary font-medium transition-all hover:scale-[0.98] active:scale-95 cursor-pointer"
           onClick={handleStartVideoCall}
         >
           <Video size={16} />

@@ -26,7 +26,7 @@ export default function ProfilePic({
 
   return (
     <div
-      className={`shrink-0 rounded-full bg-neutral-800 flex items-center justify-center overflow-hidden border border-neutral-800 transition-colors ${onClick ? 'cursor-pointer hover:border-neutral-700' : ''} ${className}`}
+      className={`shrink-0 rounded-full bg-bg-muted flex items-center justify-center overflow-hidden border border-border-subtle transition-all duration-200 ${onClick ? 'cursor-pointer hover:border-accent-primary/40 hover:ring-2 hover:ring-accent-primary/10' : ''} ${className}`}
       style={{ width: size, height: size }}
       onClick={onClick}
     >
@@ -40,7 +40,7 @@ export default function ProfilePic({
         />
       ) : (
         <span
-          className="text-neutral-400 font-semibold select-none"
+          className="text-text-muted font-semibold select-none"
           style={{ fontSize: Math.max(12, size * 0.4) }}
         >
           {initials}
