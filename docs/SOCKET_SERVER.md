@@ -84,7 +84,7 @@ See [Authentication](./AUTH.md) for the full flow.
 | `chat:{chatId}` | Chat message fan-out |
 | `call:{callId}` | Call signaling + WebRTC relay |
 
-On connect, the server joins the user to `user:{userId}` and all `chat:{chatId}` rooms from `getAllChatIds(userId)`.
+On connect, the server joins the user to `user:{userId}` and registers dynamic chat namespace handlers (`chat:subscribe`, `chat:open`) for client-driven room entry.
 
 ## Connection lifecycle
 
@@ -96,9 +96,9 @@ On connect, the server joins the user to `user:{userId}` and all `chat:{chatId}`
 | `disconnect` | Logs disconnect |
 
 On connect:
-1. Load chat IDs via `getAllChatIds(userId)` → join each `chat:{chatId}`
-2. Join `user:{userId}`
-3. Register call + WebRTC handlers
+1. Join `user:{userId}`
+2. Register rate limiter middleware to protect subsequent handlers
+3. Register chat, call, and WebRTC handlers (chat handlers enable dynamic joining of `chat:{chatId}` rooms via `chat:subscribe` and `chat:open`)
 4. Run call reconnection logic (resume active calls)
 
 ## Redis
@@ -201,7 +201,7 @@ The socket app is **read-only** for MongoDB.
 | `getAllChatIds(userId)` | `db/getAllChatIds.ts` | `UserChatMetaData.find({ userId }).select("chatId")` |
 | `canUserAccessChat(userId, chatId)` | `db/canUserAccessChat.ts` | `UserChatMetaData.exists({ chatId, userId })` |
 
-`canUserAccessChat` is used by `chat.handler.ts` which defines `chat:open` but is **not registered** — rooms are joined eagerly on connect instead.
+`canUserAccessChat` and `filterAccessibleChats` are used by `chat.handler.ts` to authorize client-driven subscriptions (`chat:subscribe` and `chat:open`) when a user joins or opens a chat.
 
 ## Call flow diagram
 
@@ -248,9 +248,10 @@ sequenceDiagram
 | `src/handlers/userEventHandler.ts` | User status → Socket.IO |
 | `src/handlers/call.handler.ts` | Call state machine |
 | `src/handlers/webrtc.handler.ts` | WebRTC SDP/ICE relay |
-| `src/handlers/chat.handler.ts` | `chat:open` (unwired) |
-| `src/db/getAllChatIds.ts` | Chat membership query |
+| `src/handlers/chat.handler.ts` | Chat subscriptions, lazy join (`chat:open`), typing indicators |
+| `src/db/getAllChatIds.ts` | Chat membership query (unused) |
 | `src/db/canUserAccessChat.ts` | Access check |
+| `src/db/filterAccessibleChats.ts` | Batch access check |
 
 ## Health check
 

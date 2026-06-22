@@ -73,6 +73,16 @@ Handled by `apps/socket/src/handlers/chatEventHandler.ts`, emitted to room `chat
 - `message:edit` → `useChatStore.updateMessage`
 - `message:delete` → `useChatStore.deleteMessage`
 
+### Chat events (client → server)
+
+Handled by `apps/socket/src/handlers/chat.handler.ts`.
+
+| Event | Payload | Behavior |
+|-------|---------|----------|
+| `chat:subscribe` | `{ chatIds: string[] }` | Eagerly joins specified chat rooms (`chat:{chatId}`) after verifying access |
+| `chat:open` | `{ chatId: string }` | Joins the specific chat room (`chat:{chatId}`) after verifying access |
+| `chat:typing` | `{ chatId: string, isTyping: boolean }` | Relays typing status to other participants in the chat room as a `chat:typing` event with `{ chatId, userId, isTyping }` |
+
 ### User status events (Redis → client)
 
 Handled by `apps/socket/src/handlers/userEventHandler.ts`.
@@ -138,7 +148,9 @@ sequenceDiagram
     Web->>Client: JWT (15 min, { mongoId })
     Client->>Socket: connect(auth: { token })
     Socket->>Socket: verify JWT, set userId
-    Socket->>Socket: join user:{userId}, chat:{chatId}...
+    Socket->>Socket: join user:{userId}
+    Client->>Socket: emit chat:subscribe({ chatIds })
+    Socket->>Socket: verify access, join chat:{chatId} rooms
     Note over Client,Socket: Ready for events
 ```
 
@@ -146,11 +158,11 @@ Token refresh: clients should re-fetch `/api/socket-token` before reconnecting a
 
 ## Room membership
 
-Users are joined to chat rooms **eagerly on connect** via `getAllChatIds(userId)`. There is no lazy `chat:open` join (handler exists but is unwired).
+Users subscribe to chat rooms dynamically. When the web client connects, it fetches the list of user chats and sends a `chat:subscribe` event with all relevant `chatId`s. Opening a specific chat sends a `chat:open` event. The socket server handles these by checking database access permissions and joining the socket to the corresponding `chat:{chatId}` rooms.
 
 Implications:
-- Users receive events for all their chats, even when not viewing them (unread counts update)
-- Adding a new chat requires reconnect or a future `chat:join` event to receive messages
+- Realtime event delivery is bound to active sessions and dynamic subscriptions.
+- Security checks are done on the socket server before joining room namespaces.
 
 ## Scaling notes
 

@@ -102,6 +102,51 @@ Example production topology:
                           MongoDB
 ```
 
+## Scaling Socket.IO with Nginx
+
+When deploying multiple socket server instances behind Nginx for load balancing and scaling, you must configure Nginx with sticky sessions (session affinity).
+
+### Why Sticky Sessions?
+Since Socket.IO client starts with HTTP long-polling and subsequently upgrades to WebSockets, consecutive polling requests from the same client ID must reach the same server node. If they land on different instances, the handshake fails (resulting in HTTP `400 Bad Request` or infinite loops of reconnections).
+
+### Sample Nginx Configuration
+
+Below is an Nginx configuration snippet that load balances two socket nodes using IP hashing:
+
+```nginx
+upstream socket_servers {
+    # Sticky sessions based on client IP
+    ip_hash;
+
+    server socket-server-1:3001;
+    server socket-server-2:3001;
+}
+
+server {
+    listen 80;
+    server_name socket.example.com;
+
+    location / {
+        proxy_pass http://socket_servers;
+
+        # Standard headers
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Host $http_host;
+
+        # WebSocket support
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+
+        # Timeouts to prevent websocket disconnects
+        proxy_read_timeout 86400;
+        proxy_send_timeout 86400;
+    }
+}
+```
+
+Ensure all socket instances share the same Redis instance (`REDIS_URL`) so that events publish/subscribe across all nodes correctly.
+
 ## CI
 
 GitHub Actions workflow `.github/workflows/ci.yml` runs install, typecheck, lint, and build on push/PR. Mirror those steps in your deploy pipeline before promoting artifacts.

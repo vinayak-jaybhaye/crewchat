@@ -49,7 +49,7 @@ app/
 | `/newchat/*` | Relies on client session and action-level auth |
 | `/` | Public login page |
 
-`proxy.ts` defines redirect logic for unauthenticated users but is **not wired** as Next.js middleware. Consider adding `middleware.ts` for global route guards.
+`proxy.ts` serves as the Next.js edge-compatible entry point for request routing and authentication checks (replacing the deprecated `middleware.ts` convention in Next.js 16).
 
 ## Server actions
 
