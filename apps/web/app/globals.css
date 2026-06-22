@@ -87,8 +87,8 @@ body {
 }
 
 @theme inline {
-  --font-sans: 'Geist', 'Geist Fallback';
-  --font-mono: 'Geist Mono', 'Geist Mono Fallback';
+  --font-sans: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-geist-mono), monospace;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -132,23 +132,23 @@ body {
   /* LIGHT THEME */
   :root {
     /* Base & Surfaces */
-    --bg-app: #ffffff;
-    --bg-subtle: #f9fafb;
-    --bg-muted: #f3f4f6;
+    --bg-app: #f8fafc;
+    --bg-subtle: #f1f5f9;
+    --bg-muted: #e2e8f0;
     --surface-default: #ffffff;
     --surface-raised: #ffffff;
-    --surface-selected: #eff6ff;
+    --surface-selected: #f1f5f9;
 
     /* Text Colors */
     --text-primary: #0f172a;
     --text-secondary: #475569;
-    --text-muted: #94a3b8;
+    --text-muted: #64748b;
     --text-inverse: #ffffff;
 
-    /* Primary Accent - Rich Blue */
-    --accent-primary: #2563eb;
-    --accent-soft: #dbeafe;
-    --accent-strong: #1e40af;
+    /* Primary Accent - Rich Indigo */
+    --accent-primary: #4f46e5;
+    --accent-soft: #eef2ff;
+    --accent-strong: #3730a3;
 
     /* Secondary Accent - Emerald Green */
     --accent-secondary: #059669;
@@ -178,30 +178,30 @@ body {
 
     /* Shadows */
     --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
-    --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.1), 0 2px 4px -2px rgba(15, 23, 42, 0.1);
-    --shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.1), 0 4px 6px -4px rgba(15, 23, 42, 0.1);
+    --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.05), 0 2px 4px -2px rgba(15, 23, 42, 0.05);
+    --shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.05), 0 4px 6px -4px rgba(15, 23, 42, 0.05);
   }
 
   /* DARK THEME */
   .dark {
     /* Base & Surfaces */
-    --bg-app: #0f172a;
-    --bg-subtle: #1a2744;
-    --bg-muted: #243856;
-    --surface-default: #0f172a;
-    --surface-raised: #1a2744;
-    --surface-selected: #1e3a5f;
+    --bg-app: #09090b;
+    --bg-subtle: #09090b;
+    --bg-muted: #18181b;
+    --surface-default: #09090b;
+    --surface-raised: #18181b;
+    --surface-selected: #18181b;
 
     /* Text Colors */
-    --text-primary: #f1f5f9;
-    --text-secondary: #cbd5e1;
-    --text-muted: #94a3b8;
-    --text-inverse: #0f172a;
+    --text-primary: #fafafa;
+    --text-secondary: #d4d4d8;
+    --text-muted: #71717a;
+    --text-inverse: #09090b;
 
-    /* Primary Accent - Bright Blue */
-    --accent-primary: #3b82f6;
-    --accent-soft: #1e3a8a;
-    --accent-strong: #60a5fa;
+    /* Primary Accent - Bright Indigo */
+    --accent-primary: #6366f1;
+    --accent-soft: #1e1b4b;
+    --accent-strong: #818cf8;
 
     /* Secondary Accent - Bright Emerald */
     --accent-secondary: #10b981;
@@ -214,8 +214,8 @@ body {
     --accent-tertiary-strong: #d8b4fe;
 
     /* Borders */
-    --border-subtle: #334155;
-    --border-strong: #475569;
+    --border-subtle: #27272a;
+    --border-strong: #3f3f46;
 
     /* Status Colors */
     --success: #10b981;
@@ -224,15 +224,15 @@ body {
     --info: #06b6d4;
 
     /* Others */
-    --overlay: rgba(0, 0, 0, 0.8);
-    --disabled: #334155;
+    --overlay: rgba(0, 0, 0, 0.6);
+    --disabled: #27272a;
     --bg-destructive: #7f1d1d;
     --text-destructive-foreground: #fee2e2;
 
     /* Shadows */
-    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
-    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -2px rgba(0, 0, 0, 0.5);
-    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -4px rgba(0, 0, 0, 0.5);
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -4px rgba(0, 0, 0, 0.3);
   }
 
   * {
