@@ -60,9 +60,9 @@ export default function AboutChat({ chatId, setIsAboutChatOpen, currentUserId }:
 
   if (!chatDetails) {
     return (
-      <div className="h-full flex flex-col items-center justify-center bg-neutral-900 text-neutral-500 gap-3">
-        <div className="w-6 h-6 border-2 border-neutral-700 border-t-neutral-400 rounded-full animate-spin"></div>
-        <span className="text-sm">Loading chat info...</span>
+      <div className="h-full flex flex-col items-center justify-center bg-bg-app text-text-muted gap-3">
+        <div className="w-6 h-6 border-2 border-border-strong border-t-accent-primary rounded-full animate-spin"></div>
+        <span className="text-sm font-medium">Loading chat info...</span>
       </div>
     );
   }
@@ -81,52 +81,59 @@ export default function AboutChat({ chatId, setIsAboutChatOpen, currentUserId }:
     : chatDetails.otherMemberDetails?.username || chatDetails.name;
 
   return (
-    <div className="h-dvh flex flex-col overflow-y-auto">
+    <div className="h-dvh flex flex-col overflow-y-auto bg-bg-app">
       {/* Header Section */}
-      <section className="relative flex flex-col items-center justify-center p-6 bg-surface-raised shadow-lg">
+      <section className="relative flex flex-col items-center justify-center p-8 bg-surface-raised border-b border-border-subtle">
         <button
-          className="absolute top-4 right-4 p-2 cursor-pointer rounded-full transition-colors hover:scale-110"
+          className="absolute top-4 right-4 p-2 cursor-pointer rounded-xl text-text-muted hover:text-text-primary hover:bg-bg-subtle transition-all"
           onClick={() => setIsAboutChatOpen(false)}
         >
-          <X size={20} className="text-text-primary" />
+          <X size={20} />
         </button>
 
-        <div className="mb-4">
+        <div className="mb-4 ring-4 ring-border-subtle rounded-full">
           <ProfilePic src={image} name={name} size={96} />
         </div>
 
-        <h2 className="text-xl font-semibold text-text-primary mb-1">{name}</h2>
-        <p className="text-sm text-text-secondary">{subtitle}</p>
+        <h2 className="text-xl font-bold text-text-primary mb-0.5 tracking-tight">{name}</h2>
+        <p className="text-sm text-text-muted">{subtitle}</p>
 
         {/* Actions Row */}
         {!isGroup && (
-          <div className="flex items-center gap-8 mt-6">
-            <button className="flex flex-col items-center justify-center gap-2 cursor-pointer hover:bg-surface-selected hover:scale-110 transition-all rounded-full p-2">
-              <Phone size={18} className="text-text-primary" />
+          <div className="flex items-center gap-3 mt-6">
+            <button className="flex flex-col items-center justify-center gap-1.5 cursor-pointer p-3 rounded-xl bg-bg-muted hover:bg-bg-subtle text-text-primary hover:text-accent-primary transition-all hover:scale-105 active:scale-95">
+              <Phone size={18} />
+              <span className="text-[10px] font-semibold uppercase tracking-wider">Audio</span>
             </button>
-            <button className="flex flex-col items-center justify-center gap-2 cursor-pointer hover:bg-surface-selected hover:scale-110 transition-all rounded-full p-2">
-              <Video size={20} className="text-text-primary" />
+            <button className="flex flex-col items-center justify-center gap-1.5 cursor-pointer p-3 rounded-xl bg-bg-muted hover:bg-bg-subtle text-text-primary hover:text-accent-primary transition-all hover:scale-105 active:scale-95">
+              <Video size={20} />
+              <span className="text-[10px] font-semibold uppercase tracking-wider">Video</span>
             </button>
           </div>
         )}
       </section>
 
       {/* Content Sections */}
-      <div className="flex-1 p-4 space-y-4 bg-surface-default">
+      <div className="flex-1 p-4 space-y-3">
         {/* Description / About */}
-        {isGroup && <div className="">
-          <div className="p-4 text-text-muted">
-            <h3 className="text-xs font-medium uppercase tracking-wider mb-2">Group Description</h3>
-            <p className="text-sm leading-relaxed">{chatDetails.description || "No description provided."}</p>
+        {isGroup && (
+          <div className="p-4 bg-surface-raised border border-border-subtle rounded-xl">
+            <h3 className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">Group Description</h3>
+            <p className="text-sm text-text-secondary leading-relaxed">{chatDetails.description || "No description provided."}</p>
           </div>
-        </div>}
+        )}
 
         {/* Settings Actions */}
-        <div className="w-full p-4 flex items-center justify-between text-text-primary">
-          <div className="flex items-center gap-3">
-            <Bell size={20} />
+        <div className="p-4 bg-surface-raised border border-border-subtle rounded-xl flex items-center justify-between">
+          <div className="flex items-center gap-3 text-text-primary">
+            <div className="p-2 rounded-lg bg-bg-muted">
+              <Bell size={18} />
+            </div>
             <div className="flex flex-col">
-              <span className="text-sm font-medium">Mute Notifications</span>
+              <span className="text-sm font-semibold">Mute Notifications</span>
+              <span className="text-xs text-text-muted">
+                {(chat ? chat.muted : chatDetails.muted) ? "Muted" : "Receiving notifications"}
+              </span>
             </div>
           </div>
           <Switch
@@ -138,33 +145,32 @@ export default function AboutChat({ chatId, setIsAboutChatOpen, currentUserId }:
 
         {/* Members Section */}
         {isGroup && (
-          <MemberList chatId={chatDetails.id} currentUserRole={chatDetails.role} currentUserId={currentUserId} />
+          <div className="p-4 bg-surface-raised border border-border-subtle rounded-xl">
+            <MemberList chatId={chatDetails.id} currentUserRole={chatDetails.role} currentUserId={currentUserId} />
+          </div>
         )}
 
         {/* Danger Zone */}
-        <div className="w-full flex items-center justify-center">
+        <div className="pt-2 pb-6">
           {isGroup ? (
             <button
               onClick={() => handleLeaveGroup()}
-              className="flex py-4 px-6 items-center gap-3 text-destructive  hover:scale-105 cursor-pointer transition-all rounded-xl"
+              className="w-full flex items-center justify-center gap-2 py-3.5 px-6 text-sm font-semibold text-red-500 bg-red-500/8 hover:bg-red-500/15 border border-red-500/15 hover:border-red-500/25 rounded-xl cursor-pointer transition-all active:scale-[0.98]"
             >
-              <LogOut size={20} />
+              <LogOut size={18} />
               Leave Group
             </button>
           ) : (
             <button
               onClick={() => handleBlockUser()}
-              className="flex py-4 px-6 items-center gap-3 text-destructive hover:scale-105 cursor-pointer transition-all rounded-xl"
+              className="w-full flex items-center justify-center gap-2 py-3.5 px-6 text-sm font-semibold text-red-500 bg-red-500/8 hover:bg-red-500/15 border border-red-500/15 hover:border-red-500/25 rounded-xl cursor-pointer transition-all active:scale-[0.98]"
             >
-              <Ban size={20} />
+              <Ban size={18} />
               Block {name}
             </button>
           )}
         </div>
-
-        <div className="h-4"></div>
       </div>
     </div>
   )
 }
-

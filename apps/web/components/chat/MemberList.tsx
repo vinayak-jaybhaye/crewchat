@@ -44,7 +44,7 @@ export default function MemberList({ chatId, currentUserId, currentUserRole }: {
 
 
   if (members.length === 0) {
-    return <div className="text-sm text-muted">No members</div>;
+    return <div className="text-sm text-text-muted py-4 text-center">No members found</div>;
   }
 
   const handlePromote = async (memberId: string) => {
@@ -83,15 +83,18 @@ export default function MemberList({ chatId, currentUserId, currentUserRole }: {
   }
 
   return (
-    <div>
+    <div className="space-y-3">
       <AddMembers
         excludeIds={members.flatMap(m => (m?.id ? [m.id] : []))}
         handleAddMembers={handleAddMembers}
       />
-      <div className="flex flex-col gap-2 pr-2">
-        <div>
-          Members ({members.length})
-        </div>
+      <div className="flex flex-col gap-1">
+        <h4 className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-2 flex items-center gap-2">
+          Members
+          <span className="px-1.5 py-0.5 rounded-md bg-bg-muted text-[10px] font-bold text-text-secondary">
+            {members.length}
+          </span>
+        </h4>
         {members
           .filter((member): member is Member => Boolean(member))
           .map((member) => (
@@ -108,7 +111,6 @@ export default function MemberList({ chatId, currentUserId, currentUserRole }: {
               onDM={() => router.push(`/newchat/${member.id}`)}
             />
           ))}
-
       </div>
     </div >
   );

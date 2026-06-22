@@ -99,7 +99,7 @@ export default function MemberListItem({
         !member.isMe && selectedMemberId === member.id && (
           <div
             ref={menuRef}
-            className="absolute right-2 top-8 z-50 w-48 bg-surface-raised border border-border-subtle shadow-xl rounded-xl p-1.5 overflow-hidden animate-in fade-in zoom-in-95 duration-100"
+            className="absolute right-2 top-8 z-50 w-48 bg-surface-raised border border-border-subtle shadow-xl rounded-xl p-1 overflow-hidden"
           >
             <div
               className="px-3 py-2 hover:bg-surface-selected rounded-lg cursor-pointer text-sm text-text-primary transition-colors"
