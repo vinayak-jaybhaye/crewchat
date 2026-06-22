@@ -26,6 +26,7 @@ type SocketContextType = {
 
   subscribeChats: (chatIds: string[]) => void;
   openChat: (chatId: string) => void;
+  sendTyping: (payload: { chatId: string; isTyping: boolean }) => void;
 
   startCall: (payload: CallStartPayload) => void;
   acceptCall: (payload: CallAcceptPayload) => void;
@@ -54,6 +55,7 @@ const SocketContext = createContext<SocketContextType>({
 
   subscribeChats: noop,
   openChat: noop,
+  sendTyping: noop,
 
   startCall: noop,
   acceptCall: noop,
@@ -170,6 +172,10 @@ export default function SocketProvider({
             messageId,
             deletedAt: new Date().toISOString(),
           });
+        });
+
+        socket.on("chat:typing", ({ chatId, userId, isTyping }: { chatId: string; userId: string; isTyping: boolean }) => {
+          useChatStore.getState().setTyping(chatId, userId, isTyping);
         });
 
         socket.on("call:incoming", (call) => {
@@ -305,12 +311,19 @@ export default function SocketProvider({
     socket.emit("webrtc:ice", { callId, candidate });
   };
 
+  const sendTyping = useCallback((payload: { chatId: string; isTyping: boolean }) => {
+    const socket = socketRef.current;
+    if (!socket || !isConnected) return;
+    socket.emit("chat:typing", payload);
+  }, [isConnected]);
+
   return (
     <SocketContext.Provider
       value={{
         isConnected,
         subscribeChats,
         openChat,
+        sendTyping,
         startCall,
         acceptCall,
         endCall,

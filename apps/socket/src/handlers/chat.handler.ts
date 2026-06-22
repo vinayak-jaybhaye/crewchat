@@ -23,4 +23,10 @@ export function registerChatHandlersForSocket(socket: Socket) {
 
     socket.join(`chat:${chatId}`);
   });
+
+  socket.on("chat:typing", ({ chatId, isTyping }: { chatId: string; isTyping: boolean }) => {
+    const userId = socket.data.userId;
+    if (!chatId || !userId) return;
+    socket.to(`chat:${chatId}`).emit("chat:typing", { chatId, userId, isTyping });
+  });
 }

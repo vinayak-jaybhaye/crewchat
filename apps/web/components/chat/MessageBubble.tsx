@@ -1,6 +1,5 @@
 "use client";
-
-import { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { MessageDTO } from "@/lib/types/message.types";
 import { formatTime } from "@/lib/utils/time";
 import { useUserStore } from "@/store/user.store";
@@ -95,16 +94,16 @@ export default function MessageBubble({
           </button>
 
           {showMenu && (
-            <div className="absolute right-0 top-full mt-1 p-1 w-32 bg-surface-selected rounded-xl z-20">
+            <div className="absolute right-0 top-full mt-1 p-1 w-36 bg-surface-raised border border-border-subtle rounded-xl shadow-lg z-20">
               <button
                 onClick={() => { setShowMenu(false); setIsEditing(true); }}
-                className="w-full text-left px-3 py-2 text-sm  hover:bg-accent-primary flex items-center gap-2 cursor-pointer"
+                className="w-full text-left px-3 py-2 text-sm text-text-primary hover:bg-surface-selected rounded-lg flex items-center gap-2 cursor-pointer transition-colors"
               >
                 <Edit2 size={14} /> Edit
               </button>
               <button
                 onClick={() => { setShowMenu(false); deleteMessage(message.messageId, message.chatId); }}
-                className="w-full text-left px-3 py-2 text-sm text-red-400 hover:bg-red-500/10 hover:text-red-300 flex items-center gap-2"
+                className="w-full text-left px-3 py-2 text-sm text-error hover:bg-error/10 rounded-lg flex items-center gap-2 cursor-pointer transition-colors"
               >
                 <Trash2 size={14} /> Delete
               </button>
@@ -116,14 +115,14 @@ export default function MessageBubble({
       <div className={`flex flex-col max-w-[70%] ${isMe ? 'items-end' : 'items-start'}`}>
 
         <div
-          className={`px-4 py-2 text-sm shadow-sm relative transition-all
-              ${isMe
-              ? 'bg-blue-600 text-white rounded-2xl rounded-tr-md'
-              : 'bg-neutral-800 text-neutral-200 rounded-2xl rounded-tl-md'
-            } ${isEditing ? 'w-full min-w-[200px]' : ''}`}
+          className={`px-4 py-2.5 text-sm shadow-sm relative transition-all duration-200
+            ${isMe
+              ? 'bg-accent-primary text-text-inverse ' + (showAvatar ? 'rounded-2xl rounded-tr-sm' : 'rounded-2xl rounded-r-sm')
+              : 'bg-bg-muted text-text-primary ' + (showAvatar ? 'rounded-2xl rounded-tl-sm' : 'rounded-2xl rounded-l-sm')
+            } ${isEditing ? 'w-full min-w-[240px] bg-surface-default border border-border-subtle !text-text-primary' : ''}`}
         >
           {message.deletedAt ? (
-            <span className="italic text-neutral-400 opacity-70 flex items-center gap-1">
+            <span className="italic text-text-muted opacity-70 flex items-center gap-1.5">
               <Ban size={14} /> Message deleted
             </span>
           ) : isEditing ? (
@@ -133,29 +132,38 @@ export default function MessageBubble({
                 value={editContent}
                 onChange={(e) => setEditContent(e.target.value)}
                 onKeyDown={handleKeyDown}
-                className="bg-accent-primary text-text-primary rounded p-1 outline-none resize-none w-full"
+                className="bg-bg-subtle text-text-primary border border-border-subtle rounded-lg p-2 outline-none resize-none w-full text-sm focus:ring-2 focus:ring-accent-primary/20"
                 rows={1}
               />
-              <div className="flex justify-end gap-2">
-                <button onClick={handleCancelEdit} className="p-1 hover:bg-blue-700 rounded text-blue-200 hover:text-white">
+              <div className="flex justify-end gap-1.5">
+                <button
+                  onClick={handleCancelEdit}
+                  className="p-1.5 hover:bg-bg-muted rounded-lg text-text-secondary hover:text-text-primary transition-all cursor-pointer"
+                  title="Cancel"
+                >
                   <X size={14} />
                 </button>
-                <button onClick={handleSaveEdit} className="p-1 hover:bg-blue-700 rounded text-blue-200 hover:text-white">
+                <button
+                  onClick={handleSaveEdit}
+                  className="p-1.5 bg-accent-primary rounded-lg text-text-inverse hover:bg-accent-strong transition-all cursor-pointer shadow-sm"
+                  title="Save"
+                >
                   <Check size={14} />
                 </button>
               </div>
             </div>
           ) : (
             <div className="flex flex-col">
-              <p className="whitespace-pre-wrap break-words break-all">
-                {message.content}
-              </p>
+              <div className="whitespace-pre-wrap break-words break-all leading-relaxed select-text">
+                {renderMarkdown(message.content)}
+              </div>
             </div>
           )}
 
-
           {!isEditing && (
-            <div className={`text-[10px] mt-1 flex items-center gap-1 select-none opacity-80 ${isMe ? 'justify-end text-blue-200' : 'justify-end text-neutral-500'}`}>
+            <div className={`text-[9px] font-medium mt-1 flex items-center gap-1 select-none opacity-60 justify-end ${
+              isMe ? 'text-text-inverse/85' : 'text-text-muted'
+            }`}>
               {message.editedAt && !message.deletedAt && <span>(edited)</span>}
               <span suppressHydrationWarning>
                 {formatTime(message.createdAt)}
@@ -165,7 +173,7 @@ export default function MessageBubble({
         </div>
 
         {!isMe && showAvatar && user && (
-          <span className="text-[11px] text-neutral-400 ml-1 mb-1 block">
+          <span className="text-[11px] font-medium text-text-muted ml-2 mt-1 mb-0.5 block select-none">
             {user.username}
           </span>
         )}
@@ -173,4 +181,51 @@ export default function MessageBubble({
       </div>
     </div>
   );
+}
+
+/**
+ * Lightweight, safe client-side Markdown rendering helper.
+ * Matches standard inline tokens (**bold**, *italic*, `code`, URLs).
+ */
+function renderMarkdown(content: string): React.ReactNode {
+  if (!content) return "";
+
+  const lines = content.split("\n");
+
+  return lines.map((line, lineIdx) => {
+    const regex = /(\*\*.*?\*\*|\*.*?\*|`.*?`|https?:\/\/\S+)/g;
+    const tokens = line.split(regex);
+
+    const elements = tokens.map((part, partIdx) => {
+      if (part.startsWith("**") && part.endsWith("**")) {
+        return <strong key={partIdx} className="font-bold">{part.slice(2, -2)}</strong>;
+      }
+      if (part.startsWith("*") && part.endsWith("*")) {
+        return <em key={partIdx} className="italic">{part.slice(1, -1)}</em>;
+      }
+      if (part.startsWith("`") && part.endsWith("`")) {
+        return <code key={partIdx} className="px-1.5 py-0.5 rounded bg-black/10 dark:bg-white/10 font-mono text-xs text-accent-primary">{part.slice(1, -1)}</code>;
+      }
+      if (part.startsWith("http://") || part.startsWith("https://")) {
+        return (
+          <a
+            key={partIdx}
+            href={part}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline hover:text-accent-strong transition-colors break-all text-inherit opacity-90 font-medium"
+          >
+            {part}
+          </a>
+        );
+      }
+      return part;
+    });
+
+    return (
+      <span key={lineIdx} className="block min-h-[1.25rem]">
+        {elements}
+      </span>
+    );
+  });
 }

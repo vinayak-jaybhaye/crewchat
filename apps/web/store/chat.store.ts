@@ -30,9 +30,11 @@ export interface ChatStore {
   messagesByChatId: Record<string, ChatMessagesBucket>;
   activeChatId: string | null;
   chatMembersByChatId: Record<string, ChatMember[]>;
+  typingByChatId: Record<string, Record<string, boolean>>;
 
   /* actions */
   setChats(chats: ChatPreviewDTO[]): void;
+  setTyping(chatId: string, userId: string, isTyping: boolean): void;
   upsertChat(chat: ChatPreviewDTO): void;
   setActiveChat(chatId: string | null): void;
   markChatAsRead(chatId: string): void;
@@ -60,6 +62,7 @@ export const useChatStore = create<ChatStore>()(
     messagesByChatId: {},
     chatMembersByChatId: {},
     activeChatId: null,
+    typingByChatId: {},
 
     /* ---------- chat list ---------- */
     setChats(chats: ChatPreviewDTO[]) {
@@ -302,6 +305,19 @@ export const useChatStore = create<ChatStore>()(
       });
     },
 
+    setTyping(chatId: string, userId: string, isTyping: boolean) {
+      set((state: ChatStore) => {
+        if (!state.typingByChatId[chatId]) {
+          state.typingByChatId[chatId] = {};
+        }
+        if (isTyping) {
+          state.typingByChatId[chatId][userId] = true;
+        } else {
+          delete state.typingByChatId[chatId][userId];
+        }
+      });
+    },
+
     /* ---------- reset ---------- */
     reset() {
       set({
@@ -309,6 +325,7 @@ export const useChatStore = create<ChatStore>()(
         chatOrder: [],
         messagesByChatId: {},
         activeChatId: null,
+        typingByChatId: {},
       });
     },
   }))
