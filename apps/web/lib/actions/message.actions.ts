@@ -5,6 +5,7 @@ import { sendMessage, getMessages, editMessage, deleteMessage } from "@crewchat/
 import { MessageDTO } from "@/lib/types/message.types";
 import { auth } from "@/auth";
 
+import { withAction } from "@/lib/errors";
 import { publishEvent } from "@/lib/redis";
 import { ObjectIdSchema, MessageContentSchema, GetMessagesInputSchema } from "@/lib/validation/schemas";
 import { rateLimitSendMessage } from "@/lib/rateLimit";
@@ -15,44 +16,46 @@ async function requireUser() {
   return session.user;
 }
 
-export const sendMessageAction = withDB(async (chatId: string, content: string) => {
-  const user = await requireUser();
+export const sendMessageAction = withAction(
+  withDB(async (chatId: string, content: string) => {
+    const user = await requireUser();
 
-  const validatedChatId = ObjectIdSchema.parse(chatId);
-  const validatedContent = MessageContentSchema.parse(content);
+    const validatedChatId = ObjectIdSchema.parse(chatId);
+    const validatedContent = MessageContentSchema.parse(content);
 
-  // Rate limit: 10 messages per 10 seconds per user
-  await rateLimitSendMessage(user.mongoId);
+    // Rate limit: 10 messages per 10 seconds per user
+    await rateLimitSendMessage(user.mongoId);
 
-  const message = await sendMessage({
-    chatId: validatedChatId,
-    senderId: user.mongoId,
-    content: validatedContent,
-  });
+    const message = await sendMessage({
+      chatId: validatedChatId,
+      senderId: user.mongoId,
+      content: validatedContent,
+    });
 
-  const newMessage: MessageDTO = {
-    messageId: message.id,
-    chatId: message.chatId,
-    senderId: message.senderId,
-    content: message.content,
-    createdAt: message.createdAt.toISOString(),
-    editedAt: message.editedAt
-      ? message.editedAt.toISOString()
-      : null,
-    deletedAt: message.deletedAt
-      ? message.deletedAt.toISOString()
-      : null,
-  };
+    const newMessage: MessageDTO = {
+      messageId: message.id,
+      chatId: message.chatId,
+      senderId: message.senderId,
+      content: message.content,
+      createdAt: message.createdAt.toISOString(),
+      editedAt: message.editedAt
+        ? message.editedAt.toISOString()
+        : null,
+      deletedAt: message.deletedAt
+        ? message.deletedAt.toISOString()
+        : null,
+    };
 
-  // emit message to chat room
-  await publishEvent("chat:events", {
-    chatId: validatedChatId,
-    type: "message:new",
-    message: newMessage,
-  });
+    // emit message to chat room
+    await publishEvent("chat:events", {
+      chatId: validatedChatId,
+      type: "message:new",
+      message: newMessage,
+    });
 
-  return newMessage;
-});
+    return newMessage;
+  })
+);
 
 export const getMessagesAction = withDB(async (input: { chatId: string, cursor?: string, limit?: number }): Promise<MessageDTO[]> => {
   const session = await auth();

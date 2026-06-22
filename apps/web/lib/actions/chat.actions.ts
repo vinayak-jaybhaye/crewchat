@@ -15,9 +15,11 @@ import {
 } from "@/lib/validation/schemas";
 import { rateLimitCreateChat } from "@/lib/rateLimit";
 
-export async function createDMAction(otherUserId: string) {
+import { withAction, AppError } from "@/lib/errors";
+
+export const createDMAction = withAction(async (otherUserId: string) => {
   const session = await auth();
-  if (!session?.user) throw new Error("Unauthorized");
+  if (!session?.user) throw new AppError("UNAUTHORIZED", "Unauthorized");
 
   const validatedId = ObjectIdSchema.parse(otherUserId);
 
@@ -34,7 +36,7 @@ export async function createDMAction(otherUserId: string) {
   await publishChatJoinMany([session.user.mongoId, validatedId], chatId);
 
   return chatId;
-}
+});
 
 export async function DMExistsAction(otherUserId: string) {
   const session = await auth();
@@ -50,11 +52,11 @@ export async function DMExistsAction(otherUserId: string) {
 }
 
 
-export async function createGroupAction(input: {
+export const createGroupAction = withAction(async (input: {
   name: string, memberIds: string[], imageUrl: string | null, description: string
-}): Promise<string> {
+}): Promise<string> => {
   const session = await auth();
-  if (!session?.user) throw new Error("Unauthorized");
+  if (!session?.user) throw new AppError("UNAUTHORIZED", "Unauthorized");
 
   const validated = CreateGroupInputSchema.parse(input);
 
@@ -74,7 +76,7 @@ export async function createGroupAction(input: {
   await publishChatJoinMany([session.user.mongoId, ...validated.memberIds], chatId);
 
   return chatId;
-}
+});
 
 export async function getChatsAction(): Promise<ChatPreviewDTO[]> {
   const session = await auth();

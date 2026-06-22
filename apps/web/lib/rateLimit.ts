@@ -1,4 +1,5 @@
 import { ensureRedisConnected, redis } from "./redis";
+import { AppError } from "./errors";
 
 /**
  * Simple sliding-window rate limiter backed by Redis.
@@ -51,7 +52,7 @@ export async function enforceRateLimit(
 ): Promise<void> {
   const result = await checkRateLimit(namespace, identifier, maxRequests, windowSeconds);
   if (!result.allowed) {
-    throw new Error(`Rate limited. Try again in ${result.resetIn} seconds.`);
+    throw new AppError("RATE_LIMITED", `Rate limited. Try again in ${result.resetIn} seconds.`);
   }
 }
 
