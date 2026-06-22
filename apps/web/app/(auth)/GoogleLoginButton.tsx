@@ -8,9 +8,9 @@ export default function GoogleLoginButton() {
     <button
       type="button"
       onClick={() => signIn("google", { callbackUrl: "/chats" })}
-      className="w-full flex items-center justify-center gap-3 rounded-lg bg-bg-muted px-4 py-2.5
+      className="w-full flex items-center justify-center gap-3 rounded-xl bg-surface-default border border-border-subtle px-4 py-3
                  text-sm font-semibold text-text-primary
-                 hover:shadow-lg hover:-translate-y-0.5
+                 hover:bg-bg-subtle hover:border-border-strong hover:shadow-md hover:-translate-y-0.5
                  active:translate-y-0 active:scale-[0.98]
                  transition-all duration-200 cursor-pointer"
     >
