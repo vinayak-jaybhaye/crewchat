@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useState, useTransition, useRef } from "react";
 import { getChatsAction } from "@/lib/actions/chat.actions";
 import { ChatPreviewDTO } from "@/lib/types/chat.types";
 import { Search } from "lucide-react";
@@ -16,6 +16,7 @@ export default function ChatList() {
   const [searchQuery, setSearchQuery] = useState("");
   const [chatOptionsOpen, setChatOptionsOpen] = useState<string | null>(null);
   const [filter, setFilter] = useState<"all" | "unread" | "groups" | "pinned" | "muted">("all");
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   const chatOrder = useChatStore((s: ChatStore) => s.chatOrder);
   const chatsById = useChatStore((s: ChatStore) => s.chatsById);
@@ -35,6 +36,18 @@ export default function ChatList() {
   useEffect(() => {
     if (chatOrder.length === 0) loadChats();
     // eslint-disable-next-line react-hooks/exhaustive-deps -- load once on mount when store is empty
+  }, []);
+
+  // Keyboard shortcut listener for focusing the search bar (Cmd+K or Ctrl+K)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
   const filteredChats = chatOrder
@@ -63,34 +76,41 @@ export default function ChatList() {
     });
 
   return (
-    <div className="h-dvh flex flex-col bg-bg-app text-text-primary">
+    <div className="h-dvh flex flex-col bg-surface-default text-text-primary border-r border-border-subtle select-none">
       {/* Header */}
       <ChatListHeader />
 
       {/* Search & Filter Section */}
-      <div className="p-4 space-y-3 border-b border-border-subtle bg-surface-raised shrink-0">
-        {/* Search */}
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" size={16} />
+      <div className="p-4 space-y-3 border-b border-border-subtle bg-bg-app shrink-0">
+        {/* Search Input Container */}
+        <div className="relative group">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted group-focus-within:text-accent-primary transition-colors" size={16} />
           <input
+            ref={searchInputRef}
             type="text"
             placeholder="Search chats..."
-            className="w-full h-10 pl-9 pr-4 bg-bg-muted border-2 border-border-subtle rounded-lg text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent-primary focus:ring-2 focus:ring-accent-primary/30 transition-all"
+            className="w-full h-10 pl-9 pr-12 bg-surface-default border border-border-subtle rounded-xl text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent-primary focus:ring-4 focus:ring-accent-primary/10 transition-all shadow-sm"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
+          {/* Cmd/Ctrl + K visual key indicator */}
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none hidden sm:flex items-center gap-0.5 px-1.5 py-0.5 rounded border border-border-strong bg-bg-muted text-[10px] font-semibold text-text-muted">
+            <span>⌘</span>
+            <span>K</span>
+          </div>
         </div>
 
         {/* Filters */}
-        <div className="flex gap-2 overflow-x-auto">
+        <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-none">
           {(['all', 'unread', 'groups', 'pinned', 'muted'] as const).map((f) => (
             <button
               key={f}
               onClick={() => setFilter(f)}
-              className={`px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${filter === f
-                ? 'bg-accent-primary text-text-inverse shadow-lg'
-                : 'bg-bg-muted text-text-secondary'
-                }`}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all cursor-pointer select-none active:scale-95 ${
+                filter === f
+                  ? 'bg-accent-primary text-text-inverse shadow-sm shadow-accent-primary/20'
+                  : 'bg-surface-default text-text-secondary border border-border-subtle hover:bg-bg-subtle hover:text-text-primary'
+              }`}
             >
               {f.charAt(0).toUpperCase() + f.slice(1)}
             </button>
