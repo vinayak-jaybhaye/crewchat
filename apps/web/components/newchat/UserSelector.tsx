@@ -71,76 +71,90 @@ export default function UserSelector({ excludeIds, limit, setSelectedIds, select
   }
 
   return (
-    <div className="space-y-3 px-4 pb-4 bg-surface-secondary rounded-lg mt-4">
-      {/* Search Input  */}
-      <div className="w-full px-2 py-4 rounded-lg">
+    <div className="flex-1 flex flex-col min-h-0 bg-surface-default">
+      {/* Search Input */}
+      <div className="p-4 border-b border-border-subtle shrink-0">
         <input
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Search users..."
-          className="w-full h-10 px-4 border-2 border-border-subtle rounded-lg text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent-primary focus:ring-2 focus:ring-accent-primary/30 transition-all"
+          placeholder="Search by username or email..."
+          className="w-full h-11 px-4 bg-bg-app border border-border-subtle rounded-xl text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent-primary focus:ring-4 focus:ring-accent-primary/10 transition-all shadow-sm"
         />
       </div>
-      {/* Search Results  */}
-      <div>
-        <div className="relative">
-          {/* Selected members chips */}
-          {!limit && selectedUsers.length > 0 && <div className="flex gap-2 overflow-x-auto py-2 mb-3 px-1">
-            {selectedUsers.map((member) => (
-              <div
-                key={member.id}
-                className="flex items-center gap-2 bg-surface-selected border border-border-subtle rounded-full pl-1 pr-2 py-1 shrink-0"
-              >
-                <ProfilePic src={member.avatarUrl} name={member.username} size={24} onClick={() => onAvatarClick(member)} />
 
-                <span className="text-sm text-text-primary">{member.username}</span>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onToggleMember(member);
-                  }}
-                  className="ml-1 p-0.5 hover:bg-bg-muted rounded-full transition-colors"
-                >
-                  <X className="w-3 h-3 text-text-muted hover:text-accent-primary" />
-                </button>
-              </div>
-            ))}
-          </div>}
-          <div>
-            {loading ? (
-              <div className="py-8 text-center text-text-muted">Loading...</div>
-            ) : (
-              <div className="flex flex-col gap-2 max-h-96 overflow-y-auto pr-2">
-                {searchResults.map((user) => (
-                  <div
-                    key={user.id}
-                    className={`flex items-center justify-between p-3 rounded-lg cursor-pointer transition-all ${selectedUsers.find((u) => u.id === user.id)
-                      ? "bg-gradient-to-r from-accent-primary/15 to-accent-secondary/15 border border-accent-primary/30"
-                      : "hover:bg-surface-selected border border-transparent"
-                      }`}
-                    onClick={() => {
-                      if (!limit) onToggleMember(user);
-                      else onAvatarClick(user);
-                    }}
-                  >
-                    <div className="flex items-center gap-3">
-                      <ProfilePic src={user.avatarUrl} name={user.username} size={36} />
-                      <div className="flex flex-col">
-                        <span className="text-text-primary">{user.username}</span>
-                        <span className="text-text-muted text-sm">{user.email}</span>
-                      </div>
-                    </div>
-                    {selectedUsers.find((u) => u.id === user.id) && (
-                      <Check className="w-5 h-5 text-accent-primary" />
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+      {/* Selected members chips */}
+      {!limit && selectedUsers.length > 0 && (
+        <div className="px-4 py-2.5 flex gap-2 overflow-x-auto border-b border-border-subtle bg-bg-app shrink-0 scrollbar-none">
+          {selectedUsers.map((member) => (
+            <div
+              key={member.id}
+              className="flex items-center gap-1.5 bg-surface-raised border border-border-subtle rounded-full pl-1 pr-2.5 py-1 shrink-0 shadow-sm animate-in zoom-in-95 duration-150"
+            >
+              <ProfilePic src={member.avatarUrl} name={member.username} size={22} onClick={() => onAvatarClick(member)} />
+              <span className="text-xs font-semibold text-text-primary">{member.username}</span>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onToggleMember(member);
+                }}
+                className="ml-0.5 p-0.5 hover:bg-bg-muted rounded-full transition-colors cursor-pointer"
+              >
+                <X className="w-3.5 h-3.5 text-text-muted hover:text-text-primary" />
+              </button>
+            </div>
+          ))}
         </div>
+      )}
+
+      {/* Search Results List */}
+      <div className="flex-1 overflow-y-auto p-4">
+        {loading ? (
+          <div className="py-12 flex flex-col items-center justify-center gap-3 text-text-muted">
+            <div className="w-6 h-6 border-2 border-accent-primary border-t-transparent rounded-full animate-spin" />
+            <span className="text-sm font-medium">Searching users...</span>
+          </div>
+        ) : searchResults.length === 0 ? (
+          <div className="py-16 text-center text-text-muted">
+            <p className="font-medium text-sm">No users found</p>
+            <p className="text-xs mt-1">Try searching for another name or email</p>
+          </div>
+        ) : (
+          <div className="space-y-1">
+            {searchResults.map((user) => {
+              const isSelected = !!selectedUsers.find((u) => u.id === user.id);
+              return (
+                <div
+                  key={user.id}
+                  className={`flex items-center justify-between p-3 rounded-xl cursor-pointer transition-all border ${
+                    isSelected
+                      ? "bg-accent-soft border-accent-primary/20 hover:bg-accent-soft/80"
+                      : "hover:bg-surface-selected border-transparent hover:border-border-subtle"
+                  }`}
+                  onClick={() => {
+                    if (!limit) onToggleMember(user);
+                    else onAvatarClick(user);
+                  }}
+                >
+                  <div className="flex items-center gap-3">
+                    <ProfilePic src={user.avatarUrl} name={user.username} size={40} />
+                    <div className="flex flex-col min-w-0">
+                      <span className="text-sm font-semibold text-text-primary truncate">{user.username}</span>
+                      <span className="text-xs text-text-muted truncate">{user.email}</span>
+                    </div>
+                  </div>
+                  
+                  {isSelected && (
+                    <div className="w-5 h-5 rounded-full bg-accent-primary flex items-center justify-center shadow-sm animate-in scale-in-95 duration-100">
+                      <Check className="w-3.5 h-3.5 text-text-inverse stroke-[3]" />
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
     </div>
-  )
+  );
 }

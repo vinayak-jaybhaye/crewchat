@@ -23,22 +23,27 @@ export default function NewGroupPage() {
 
     setCreatingGroup(true);
     try {
-      const chatId = await createGroupAction({
+      const res = await createGroupAction({
         name: groupName,
         memberIds: selectedIds,
         imageUrl: groupImage,
         description: groupDescription,
       });
-      router.push(`/chats/${chatId}`);
+      if (!res.success) {
+        alert(res.error.message);
+      } else {
+        router.push(`/chats/${res.data}`);
+      }
     } catch (error) {
       console.error("Failed to create group:", error);
+      alert("Failed to create group. Please try again.");
     } finally {
       setCreatingGroup(false);
     }
   };
 
   return (
-    <div className="h-full w-full flex flex-col relative text-[#e9edef]">
+    <div className="h-full w-full flex flex-col relative text-text-primary bg-surface-default">
       <NewChatHeader
         title={step === "group-members" ? "Add group participants" : "New group"}
         subtitle={step === "group-members" ? `${selectedIds.length} selected` : undefined}
@@ -77,12 +82,13 @@ export default function NewGroupPage() {
 
       {/* Floating Action Button for Next Step */}
       {step === "group-members" && selectedIds.length > 0 && (
-        <div className="absolute bottom-6 right-6 z-10">
+        <div className="absolute bottom-6 right-6 z-10 animate-in zoom-in-95 duration-150">
           <button
             onClick={() => setStep("group-info")}
-            className="w-14 h-14 bg-[#00a884] rounded-full flex items-center justify-center shadow-lg hover:bg-[#008f6f] transition-all"
+            className="w-14 h-14 bg-accent-primary hover:bg-accent-strong text-text-inverse rounded-full flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-all cursor-pointer"
+            title="Next step"
           >
-            <ArrowLeft className="w-6 h-6 text-white rotate-180" />
+            <ArrowLeft className="w-6 h-6 rotate-180" />
           </button>
         </div>
       )}

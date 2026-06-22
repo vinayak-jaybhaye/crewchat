@@ -52,9 +52,23 @@ export default function NewChatClient({ userId }: { userId: string }) {
 
     setSending(true);
     try {
-      const chatId = await createDMAction(recipient.id);
-      await sendMessageAction(chatId, inputText.trim());
+      const dmRes = await createDMAction(recipient.id);
+      if (!dmRes.success) {
+        alert(dmRes.error.message);
+        return;
+      }
+      const chatId = dmRes.data;
+
+      const sendRes = await sendMessageAction(chatId, inputText.trim());
+      if (!sendRes.success) {
+        alert(sendRes.error.message);
+        return;
+      }
+
       router.replace(`/chats/${chatId}`);
+    } catch (error) {
+      console.error(error);
+      alert("Failed to start chat session.");
     } finally {
       setSending(false);
     }
